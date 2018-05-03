@@ -15,6 +15,7 @@ public class ErrorHandler {
     public ErrorHandler(String locate) {
         this.locate = locate;
         list = new LinkedList<>();
+        s = System.err;
     }
 
     public void error(Node errorNode, String message) {
@@ -23,9 +24,9 @@ public class ErrorHandler {
 
     public void setPrintStream(PrintStream s) { this.s = s; }
 
-    public void printLog() {
+    static public void printLog() {
         for (ErrorHandler e : totalList) {
-            for (Pair<Node, String> err : list) {
+            for (Pair<Node, String> err : e.list) {
                 e.s.println(err.getKey().location() + err.getValue());
             }
         }

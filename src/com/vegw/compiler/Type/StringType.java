@@ -1,6 +1,13 @@
 package com.vegw.compiler.Type;
 
-public class StringType extends Type{
+import com.vegw.compiler.AST.Expr.Literal.NullLiteralNode;
+
+public class StringType extends Type {
+
+    @Override
+    public boolean isConvertable(Type other) {
+        return (other == Type.STRING);
+    }
 
     @Override
     public boolean isSameType(Type a) {

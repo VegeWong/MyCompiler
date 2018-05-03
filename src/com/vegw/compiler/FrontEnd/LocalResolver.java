@@ -7,6 +7,7 @@ import com.vegw.compiler.AST.Expr.Literal.StringLiteralNode;
 import com.vegw.compiler.AST.Expr.VariableNode;
 import com.vegw.compiler.AST.Stmt.BlockNode;
 import com.vegw.compiler.AST.Stmt.Def.ClassDefNode;
+import com.vegw.compiler.AST.Stmt.Def.DefinitionNode;
 import com.vegw.compiler.AST.Stmt.Def.FunctionDefNode;
 import com.vegw.compiler.AST.Stmt.Def.VariableDefNode;
 import com.vegw.compiler.AST.Stmt.ReturnNode;
@@ -24,8 +25,8 @@ import java.util.Stack;
 
 public class LocalResolver extends Visitor {
     private final Stack<Scope> stack;
-    private final ConstantTable constantTable;
     private final ErrorHandler errorHandler;
+    private ConstantTable constantTable;
     private Scope currentScope;
     private TopLevelScope topScope;
     private boolean isBody;
@@ -33,7 +34,7 @@ public class LocalResolver extends Visitor {
 
     public LocalResolver(ErrorHandler h) {
         this.errorHandler = h;
-        this.stack = new Stack<Scope>();
+        this.stack = new Stack<>();
         this.constantTable = new ConstantTable();
     }
 
@@ -78,47 +79,36 @@ public class LocalResolver extends Visitor {
         currentScope = stack.peek();
 
         addGlobalBuiltinFunction();
-        for (FunctionDefNode node : ast.funcs) {
+        for (DefinitionNode node : ast.defs){
+            if (node instanceof VariableDefNode) continue;
             String name = node.entity().name();
-            if (toplevel.entities.get(name) != null) {
+            if (toplevel.entities.get(name) == null) {
                 toplevel.entities.put(name, node.entity());
             }
             else {
                 throw new SemanticException("Duplicated Declaration: " + name);
             }
         }
-        for (ClassDefNode node : ast.classes) {
-            String name = node.entity().name();
-            if (toplevel.entities.get(name) != null) {
-                toplevel.entities.put(name, node.entity());
-            }
-            else
-                throw new SemanticException("Duplicated Declaration: " + name);
-        }
-        for (VariableDefNode node : ast.vars) {
-            String name = node.entity().name();
-            if (toplevel.entities.get(name) != null) {
-                toplevel.entities.put(name, node.entity());
-            }
-            else
-                throw new SemanticException("Duplicated Declaration: " + name);
-        }
-
-        for (ClassDefNode node : ast.classes) {
+        for (DefinitionNode node : ast.defs){
             visit(node);
-        }
-        for (FunctionDefNode node : ast.funcs) {
-            visit(node);
+            if (node instanceof VariableDefNode) {
+                String name = node.entity().name();
+                if (toplevel.entities.get(name) == null)
+                    toplevel.entities.put(name, node.entity());
+                else {
+                    throw new SemanticException("Duplicated Declaration: " + name);
+                }
+            }
         }
     }
 
-    public void pushScope() {
+    private void pushScope() {
         LocalScope scope = new LocalScope(currentScope);
         stack.add(scope);
         currentScope = stack.peek();
     }
 
-    public LocalScope popScope() {
+    private LocalScope popScope() {
         LocalScope returnScope = (LocalScope) stack.pop();
         currentScope = stack.peek();
         return returnScope;
@@ -167,17 +157,17 @@ public class LocalResolver extends Visitor {
         pushScope();
         ClassType thisType = new ClassType(entity.name());
         thisType.setEntity(entity);
-        ((LocalScope)currentScope).entities().put("this", new VariableEntity(node.location(),"this", thisType));
-        ((LocalScope)currentScope).entities().put(entity.constructor().entity().name(),
-                entity.constructor().entity());
-        visit(entity.constructor());
-        for (FunctionDefNode func : entity.funcs()) {
-            ((LocalScope)currentScope).entities().put(func.entity().name(), func.entity());
-            visit(func);
-        }
+        currentScope.entities().put("this", new VariableEntity(node.location(),"this", thisType));
         for (VariableDefNode var : entity.vars()) {
             visit(var);
         }
+        for (FunctionDefNode func : entity.funcs()) {
+            currentScope.entities().put(func.entity().name(), func.entity());
+            visit(func);
+        }
+        currentScope.entities().put(entity.constructor().entity().name(),
+                entity.constructor().entity());
+        visit(entity.constructor());
         entity.setScope(popScope());
         return null;
     }
@@ -185,7 +175,7 @@ public class LocalResolver extends Visitor {
     @Override
     public Void visit(FunctionDefNode node) {
         pushScope();
-        if (!resolveType(node.entity().returnType()));
+        if (!resolveType(node.entity().returnType()))
             errorHandler.error(node, "Cannot resolve type" + node.entity().returnType().toString());
 
         for (ParameterEntity entity : node.entity().params()) {
@@ -205,16 +195,26 @@ public class LocalResolver extends Visitor {
 
     @Override
     public Void visit(VariableDefNode node) {
-        if (!resolveType(node.entity().type()))
+        if (!resolveType(node.entity().type())) {
             errorHandler.error(node, "Cannot resolve type" + node.entity().type().toString());
-        currentScope.entities().put(node.entity().name(),node.entity());
+            return null;
+        }
+        super.visit(node);
+        String name = node.entity().name();
+        if (currentScope.entities().get(name) == null)
+            currentScope.entities().put(name, node.entity());
+        else {
+            errorHandler.error(node, "Dumplicated declaration of name" + name);
+            return null;
+        }
+
         pushScope();
         addBuiltinFunction(node.location(), node.entity());
         node.entity().setScope(popScope());
         return null;
     }
 
-    public void addBuiltinFunction(Location loc, VariableEntity entity) {
+    private void addBuiltinFunction(Location loc, VariableEntity entity) {
         if (entity.type() instanceof ArrayType) {
             addArrayBuiltinFunction(loc);
         }
@@ -223,7 +223,7 @@ public class LocalResolver extends Visitor {
         }
     }
 
-    public void addArrayBuiltinFunction(Location loc) {
+    private void addArrayBuiltinFunction(Location loc) {
         // Add "array.size()" function
         List<StmtNode> stmts = new LinkedList<>() {{
            add(new ReturnNode(loc, new IntegerLiteralNode(loc, 0)));
@@ -233,7 +233,7 @@ public class LocalResolver extends Visitor {
         currentScope.entities().put("size", arraySize);
     }
 
-    public void addStringBuiltinFunction(Location loc) {
+    private void addStringBuiltinFunction(Location loc) {
         // Add "string.length()" function
         List<StmtNode> lengthStmts = new LinkedList<>() {{
             add(new ReturnNode(loc, new IntegerLiteralNode(loc, 0)));
@@ -274,7 +274,7 @@ public class LocalResolver extends Visitor {
         currentScope.entities().put("ord", ord);
     }
     
-    public void addGlobalBuiltinFunction() {
+    private void addGlobalBuiltinFunction() {
         Location loc = new Location(0,0);
         // Add "print()" function
         List<StmtNode> printStmts = new LinkedList<>();

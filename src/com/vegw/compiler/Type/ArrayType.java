@@ -16,6 +16,12 @@ public class ArrayType extends Type {
     public Type baseType() {
         return baseType;
     }
+
+    @Override
+    public boolean isConvertable(Type t) {
+        return (t == Type.NULL || this.isSameType(t));
+    }
+
     @Override
     public boolean isSameType(Type a) {
         if (a instanceof ArrayType)

@@ -33,6 +33,11 @@ public class FunctionType extends Type {
     }
 
     @Override
+    public boolean isConvertable(Type t) {
+        return isSameType(t);
+    }
+
+    @Override
     public boolean isSameType(Type a) {
         if (a instanceof FunctionType)
             return this.name == ((FunctionType) a).name;

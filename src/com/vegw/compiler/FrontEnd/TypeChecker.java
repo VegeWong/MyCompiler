@@ -3,7 +3,7 @@ package com.vegw.compiler.FrontEnd;
 import com.vegw.compiler.AST.ASTNode;
 import com.vegw.compiler.AST.Expr.*;
 import com.vegw.compiler.AST.Stmt.*;
-import com.vegw.compiler.AST.Stmt.Def.ClassDefNode;
+import com.vegw.compiler.AST.Stmt.Def.DefinitionNode;
 import com.vegw.compiler.AST.Stmt.Def.FunctionDefNode;
 import com.vegw.compiler.AST.Stmt.Def.VariableDefNode;
 import com.vegw.compiler.Entity.FunctionEntity;
@@ -27,32 +27,15 @@ public class TypeChecker extends Visitor {
     }
 
     public void check(ASTNode ast) {
-        visitClasses(ast.classes);
-        visitVars(ast.vars);
-        visitFuncs(ast.funcs);
+        visit(ast.defs);
     }
 
-    public Void visitClasses(List<ClassDefNode> classes) {
-        for (ClassDefNode node : classes) {
-            visit(node);
+    public Void visit(List<DefinitionNode> defs) {
+        for (DefinitionNode def : defs) {
+            visit(def);
         }
         return null;
     }
-
-    public Void visitFuncs(List<FunctionDefNode> funcs) {
-        for (FunctionDefNode func : funcs) {
-            visit(func);
-        }
-        return null;
-    }
-
-    public Void visitVars(List<VariableDefNode> vars) {
-        for (VariableDefNode var : vars) {
-            visit(var);
-        }
-        return null;
-    }
-
 
     @Override
     public Void visit(UnaryOpNode node) {
@@ -110,11 +93,7 @@ public class TypeChecker extends Visitor {
             case SUB: case MUL: case DIV: case MOD:
             case LS: case RS:
             case BIT_OR: case BIT_AND: case XOR:{
-                if (!left.isSameType(right)) {
-                    errorHandler.error(node, "Left and right expression type differs");
-                    break;
-                }
-                if (left.isSameType(Type.INT)) {
+                if (left == Type.INT && right == Type.INT) {
                     node.setType(left);
                 }
                 else
@@ -123,38 +102,30 @@ public class TypeChecker extends Visitor {
                 break;
             }
             case LOG_OR: case LOG_AND: {
-                if (!left.isSameType(right)) {
-                    errorHandler.error(node, "Left and right expression type differs");
-                    break;
-                }
-                if (left.isSameType(Type.BOOL)) {
+                if (left == Type.BOOL && right == Type.BOOL) {
                     node.setType(left);
-                } else
+                }
+                else
                     errorHandler.error(node, "Binary operator " + node.operator().name() +
                             " cannot be applied to type:" + left.toString());
                 break;
             }
             case EQ: case NE: {
                 node.setType(Type.BOOL);
-                if (left == Type.NULL || right == Type.NULL) break;
-                if (!left.isSameType(right)) {
-                    errorHandler.error(node, "Left and right expression type differs");
+                if (!left.isConvertable(right)) {
+                    errorHandler.error(node, "Left and right expression type cannot be compared");
                     break;
                 }
             }
             case ASSIGN: {
+                node.setType(left);
                 if (!node.left().isAssignable() || left == Type.NULL || left == Type.VOID) {
                     errorHandler.error(node, "Left expression cannot be applied as a lvalue");
                     break;
                 }
-                if (!left.isSameType(right)) {
-                    if (right == Type.NULL) {
-                        if (left == Type.INT || left == Type.STRING || left == Type.BOOL) {
-                            errorHandler.error(node, "Left expression cannot be assigned as null");
-                        }
-                    }
+                if (!left.isConvertable(right)) {
+                    errorHandler.error(node, "Left expression cannot be assigned for type dismatching");
                 }
-
                 node.setType(left);
                 ((VariableNode) node.left()).entity().setValue(node.right());
             }
@@ -287,20 +258,15 @@ public class TypeChecker extends Visitor {
         ExprNode expr = node.expr();
         if (curFunc.returnType() == null || curFunc.returnType() == Type.VOID) {
             if (expr != null) {
-                errorHandler.error(node, "Function without return value has return stmt");
+                errorHandler.error(node, "Function with void result has return stmt");
             }
         }
-        else {
-            if (expr == null) {
-                errorHandler.error(node, "Function lacks return value");
-            }
-            else {
-                visit(expr);
-                if (expr.type() != Type.NULL && expr.type().isSameType(curFunc.returnType())){
-                    errorHandler.error(node, "Actual return type differs from require");
-                }
+        else if (expr != null) {
+            if (!curFunc.returnType().isConvertable(expr.type())) {
+                errorHandler.error(node, "Function result imcompatible with return value");
             }
         }
+        else errorHandler.error(node, "Missing return value");
         return null;
     }
 
@@ -321,12 +287,15 @@ public class TypeChecker extends Visitor {
     public Void visit(FunctionDefNode node) {
         FunctionEntity entity = node.entity();
         curFunc = entity;
-        visit(entity.body());
-        if (entity.returnType() == Type.NULL)
+        if (entity.returnType() == Type.NULL) {
             errorHandler.error(node, "Illegal function return type: null");
+            return null;
+        }
         if (entity.returnType() == null && entity.isConstructor()) {
             errorHandler.error(node, "Nonconstructor function with null return type");
+            return null;
         }
+        visit(entity.body());
         for (ParameterEntity param : entity.params()) {
             if (param.type() == Type.NULL || param.type() == Type.VOID)
                 errorHandler.error(node, "Illegal type " + param.type().toString() +

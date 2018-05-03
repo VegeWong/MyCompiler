@@ -5,6 +5,6 @@
 
 set -e
 cd "$(dirname "$0")"
-export CCHK="java -classpath ./lib/antlr-4.7.1-complete.jar:./bin MxCompiler.build"
+export CCHK="java -classpath ./lib/antlr-4.7.1-complete.jar:./bin com.vegw.compiler.Compiler.Mxstar"
 #cat > program.txt   # save everything in stdin to program.txt
 $CCHK

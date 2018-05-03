@@ -32,21 +32,16 @@ public class ASTBuilder extends MxstarBaseListener {
     protected ParseTreeProperty<Object> map = new ParseTreeProperty<>();
     protected ASTNode ast;
 
+    public ASTNode ast() { return ast; }
+
     @Override public void exitCompilationUnit(MxstarParser.CompilationUnitContext ctx) {
-        List<VariableDefNode> vars = new LinkedList<>();
-        List<FunctionDefNode> funcs = new LinkedList<>();
-        List<ClassDefNode> classes = new LinkedList<>();
+        List<DefinitionNode> defs = new LinkedList<>();
 
         for (MxstarParser.DefinitionContext item : ctx.definition()) {
             DefinitionNode definitionNode = (DefinitionNode) map.get(item);
-            if (definitionNode instanceof FunctionDefNode) funcs.add((FunctionDefNode) definitionNode);
-            else classes.add((ClassDefNode) definitionNode);
+            defs.add(definitionNode);
         }
-        for (MxstarParser.VariableDeclarationContext item : ctx.variableDeclaration()) {
-            VariableDefNode var = (VariableDefNode) map.get(item);
-            vars.add(var);
-        }
-        map.put(ctx, new ASTNode(new Location(ctx), funcs, classes, vars));
+        ast = new ASTNode(new Location(ctx), defs);
     }
     @Override public void exitVariableDeclaration(MxstarParser.VariableDeclarationContext ctx) {
         VariableEntity entity = new VariableEntity(new Location(ctx), ctx.name.getText(), ((TypeNode) map.get(ctx.typeSpecifier())).type());
@@ -81,11 +76,14 @@ public class ASTBuilder extends MxstarBaseListener {
     }
     @Override public void exitDefinition(MxstarParser.DefinitionContext ctx) {
         if (ctx.classDefinition() != null) map.put(ctx, map.get(ctx.classDefinition()));
+        else if (ctx.variableDeclaration() != null) map.put(ctx, map.get(ctx.variableDeclaration()));
         else map.put(ctx, map.get(ctx.functionDefinition()));
     }
     @Override public void exitFunctionDefinition(MxstarParser.FunctionDefinitionContext ctx) {
         Type returnType = ((TypeNode) map.get(ctx.returnType)).type();
-        List<ParameterEntity> params = (List<ParameterEntity>) map.get(ctx.parameter());
+        List<ParameterEntity> params;
+        if (ctx.parameter() == null)  params = new LinkedList<>();
+        else params = (List<ParameterEntity>) map.get(ctx.parameter());
         BlockNode body = (BlockNode) map.get(ctx.block());
         FunctionEntity entity = new FunctionEntity(new Location(ctx), ctx.functionName.getText(),
                 returnType, params, body);

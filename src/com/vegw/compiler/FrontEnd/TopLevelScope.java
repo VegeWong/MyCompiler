@@ -11,9 +11,6 @@ import java.util.Map;
 public class TopLevelScope extends Scope {
     protected Map<String, Entity> entities;
 
-
-    public Map<String, Entity> entites() { return entities; }
-
     @Override
     public Entity get(String name) throws SemanticException {
         Entity var = entities.get(name);
@@ -23,9 +20,14 @@ public class TopLevelScope extends Scope {
             return var;
     }
 
-
+    @Override
     public Entity getCurrentScope(String name) {
         return entities.get(name);
+    }
+
+    @Override
+    public Map<String, Entity> entities() {
+        return entities;
     }
 }
 

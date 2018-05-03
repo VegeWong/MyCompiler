@@ -156,13 +156,13 @@ public class Visitor implements ASTVisitor<Void, Void> {
 
     @Override
     public Void visit(ClassDefNode node) {
-        visit(node.entity().constructor());
-        for (FunctionDefNode func : node.entity().funcs()) {
-            visit(func);
-        }
         for (VariableDefNode var : node.entity().vars()) {
             visit(var);
         }
+        for (FunctionDefNode func : node.entity().funcs()) {
+            visit(func);
+        }
+        visit(node.entity().constructor());
         return null;
     }
 
@@ -174,6 +174,8 @@ public class Visitor implements ASTVisitor<Void, Void> {
 
     @Override
     public Void visit(VariableDefNode node) {
+        if (node.entity().value() != null)
+            visit(node.entity().value());
         return null;
     }
 }

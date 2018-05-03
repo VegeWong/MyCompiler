@@ -22,6 +22,8 @@ public class VariableEntity extends Entity {
 
     public void setScope(Scope scope) { this.scope = scope; }
 
+    public String name() { return super.name; }
+
     public Type type() { return type; }
 
     public Scope scope() { return this.scope; }

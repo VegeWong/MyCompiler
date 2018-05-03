@@ -55,7 +55,7 @@ public class BinaryOpNode extends ExprNode {
     }
 
     public BinaryOp operator() {
-        return this.operator.name();
+        return this.operator;
     }
 
     public Type type() {

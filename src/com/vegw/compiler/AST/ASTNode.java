@@ -1,6 +1,7 @@
 package com.vegw.compiler.AST;
 
 import com.vegw.compiler.AST.Stmt.Def.ClassDefNode;
+import com.vegw.compiler.AST.Stmt.Def.DefinitionNode;
 import com.vegw.compiler.AST.Stmt.Def.FunctionDefNode;
 import com.vegw.compiler.AST.Stmt.Def.VariableDefNode;
 import com.vegw.compiler.FrontEnd.ConstantTable;
@@ -11,19 +12,13 @@ import java.util.List;
 
 public class ASTNode extends Node {
     public Location location;
-    public List<FunctionDefNode> funcs;
-    public List<ClassDefNode> classes;
-    public List<VariableDefNode> vars;
+    public List<DefinitionNode> defs;
     public Scope scope;
     public ConstantTable constantTable;
 
-    public ASTNode(Location location, List<FunctionDefNode> funcs,
-            List<ClassDefNode> classes,
-            List<VariableDefNode> vars) {
+    public ASTNode(Location location, List<DefinitionNode> defs) {
         this.location = location;
-        this.funcs = funcs;
-        this.classes = classes;
-        this.vars = vars;
+        this.defs = defs;
     }
 
     public void setScope(Scope scope) {

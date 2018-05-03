@@ -30,6 +30,11 @@ public class ClassType extends Type {
     }
 
     @Override
+    public boolean isConvertable(Type t) {
+        return (t == Type.NULL || this.isSameType(t));
+    }
+
+    @Override
     public boolean isSameType(Type a) {
         if (a instanceof ClassType)
             return this.entity.name() == ((ClassType) a).entity.name();
