@@ -225,7 +225,7 @@ public class LocalResolver extends Visitor {
 
     private void addArrayBuiltinFunction(Location loc) {
         // Add "array.size()" function
-        List<StmtNode> stmts = new LinkedList<>() {{
+        List<StmtNode> stmts = new LinkedList<StmtNode>() {{
            add(new ReturnNode(loc, new IntegerLiteralNode(loc, 0)));
         }};
         BlockNode body = new BlockNode(loc, stmts);
@@ -235,7 +235,7 @@ public class LocalResolver extends Visitor {
 
     private void addStringBuiltinFunction(Location loc) {
         // Add "string.length()" function
-        List<StmtNode> lengthStmts = new LinkedList<>() {{
+        List<StmtNode> lengthStmts = new LinkedList<StmtNode>() {{
             add(new ReturnNode(loc, new IntegerLiteralNode(loc, 0)));
         }};
         BlockNode lengthBody = new BlockNode(loc, lengthStmts);
@@ -243,11 +243,11 @@ public class LocalResolver extends Visitor {
         currentScope.entities().put("length", arraySize);
 
         // Add "string.substring()" function
-        List<StmtNode> substringStmts = new LinkedList<>() {{
+        List<StmtNode> substringStmts = new LinkedList<StmtNode>() {{
             add(new ReturnNode(loc, new StringLiteralNode(loc, " ")));
         }};
         BlockNode substringBody = new BlockNode(loc, substringStmts);
-        List<ParameterEntity> substringParams = new LinkedList<>() {{
+        List<ParameterEntity> substringParams = new LinkedList<ParameterEntity>() {{
             add(new ParameterEntity(loc, "left",Type.INT));
             add(new ParameterEntity(loc, "right",Type.INT));
         }};
@@ -255,7 +255,7 @@ public class LocalResolver extends Visitor {
         currentScope.entities().put("substring", substring);
 
         // Add "string.parseInt()" function
-        List<StmtNode> parseIntStmts = new LinkedList<>() {{
+        List<StmtNode> parseIntStmts = new LinkedList<StmtNode>() {{
             add(new ReturnNode(loc, new IntegerLiteralNode(loc, 0)));
         }};
         BlockNode parseIntBody = new BlockNode(loc, parseIntStmts);
@@ -263,11 +263,11 @@ public class LocalResolver extends Visitor {
         currentScope.entities().put("parseInt", parseInt);
 
         // Add "string.ord()" function
-        List<StmtNode> ordStmts = new LinkedList<>() {{
+        List<StmtNode> ordStmts = new LinkedList<StmtNode>() {{
             add(new ReturnNode(loc, new IntegerLiteralNode(loc, 0)));
         }};
         BlockNode ordBody = new BlockNode(loc, ordStmts);
-        List<ParameterEntity> ordParams = new LinkedList<>() {{
+        List<ParameterEntity> ordParams = new LinkedList<ParameterEntity>() {{
             add(new ParameterEntity(loc, "pos",Type.INT));
         }};
         FunctionEntity ord = new FunctionEntity(loc, "ord", Type.INT, ordParams, ordBody);
@@ -277,49 +277,49 @@ public class LocalResolver extends Visitor {
     private void addGlobalBuiltinFunction() {
         Location loc = new Location(0,0);
         // Add "print()" function
-        List<StmtNode> printStmts = new LinkedList<>();
+        List<StmtNode> printStmts = new LinkedList<StmtNode>();
         BlockNode printBody = new BlockNode(loc, printStmts);
-        List<ParameterEntity> printParams = new LinkedList<>() {{
+        List<ParameterEntity> printParams = new LinkedList<ParameterEntity>() {{
             add(new ParameterEntity(loc, "str", Type.STRING));
         }};
         FunctionEntity print = new FunctionEntity(loc, "print", Type.VOID, printParams, printBody);
         currentScope.entities().put("print", print);
 
         // Add "println()" function
-        List<StmtNode> printlnStmts = new LinkedList<>();
+        List<StmtNode> printlnStmts = new LinkedList<StmtNode>();
         BlockNode printlnBody = new BlockNode(loc, printlnStmts);
-        List<ParameterEntity> printlnParams = new LinkedList<>() {{
+        List<ParameterEntity> printlnParams = new LinkedList<ParameterEntity>() {{
             add(new ParameterEntity(loc, "str", Type.STRING));
         }};
         FunctionEntity println = new FunctionEntity(loc, "println", Type.VOID, printlnParams, printlnBody);
         currentScope.entities().put("println", println);
 
         // Add "getString()" function
-        List<StmtNode> getStringStmts = new LinkedList<>(){{
+        List<StmtNode> getStringStmts = new LinkedList<StmtNode>(){{
             add(new ReturnNode(loc, new StringLiteralNode(loc, " ")));
         }};
         BlockNode getStringBody = new BlockNode(loc, getStringStmts);
-        List<ParameterEntity> getStringParams = new LinkedList<>() {{
+        List<ParameterEntity> getStringParams = new LinkedList<ParameterEntity>() {{
         }};
         FunctionEntity getString = new FunctionEntity(loc, "getString", Type.STRING, getStringParams, getStringBody);
         currentScope.entities().put("getString", getString);
 
         // Add "getInt()" function
-        List<StmtNode> getIntStmts = new LinkedList<>(){{
+        List<StmtNode> getIntStmts = new LinkedList<StmtNode>(){{
             add(new ReturnNode(loc, new IntegerLiteralNode(loc, 0)));
         }};
         BlockNode getIntBody = new BlockNode(loc, getIntStmts);
-        List<ParameterEntity> getIntParams = new LinkedList<>() {{
+        List<ParameterEntity> getIntParams = new LinkedList<ParameterEntity>() {{
         }};
         FunctionEntity getInt = new FunctionEntity(loc, "getInt", Type.INT, getIntParams, getIntBody);
         currentScope.entities().put("getInt", getInt);
 
         // Add "toString()" function
-        List<StmtNode> toStringStmts = new LinkedList<>(){{
+        List<StmtNode> toStringStmts = new LinkedList<StmtNode>(){{
             add(new ReturnNode(loc, new StringLiteralNode(loc, " ")));
         }};
         BlockNode toStringBody = new BlockNode(loc, toStringStmts);
-        List<ParameterEntity> toStringParams = new LinkedList<>() {{
+        List<ParameterEntity> toStringParams = new LinkedList<ParameterEntity>() {{
         }};
         FunctionEntity toString = new FunctionEntity(loc, "toString", Type.STRING, toStringParams, toStringBody);
         currentScope.entities().put("toString", toString);
