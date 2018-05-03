@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Mapping {
-    final static public Map<String, BinaryOpNode.BinaryOp> BinaryOp = new HashMap<>() {{
+    final static public Map<String, BinaryOpNode.BinaryOp> BinaryOp = new HashMap<String, BinaryOpNode.BinaryOp>() {{
         put("+", BinaryOpNode.BinaryOp.ADD);
         put("-", BinaryOpNode.BinaryOp.SUB);
         put("*", BinaryOpNode.BinaryOp.MUL);
@@ -33,7 +33,7 @@ public class Mapping {
         put("&", BinaryOpNode.BinaryOp.BIT_AND);
         put("^", BinaryOpNode.BinaryOp.XOR);
     }};
-    final static public Map<String, UnaryOpNode.UnaryOp> UnaryOp = new HashMap<>() {{
+    final static public Map<String, UnaryOpNode.UnaryOp> UnaryOp = new HashMap<String, UnaryOpNode.UnaryOp>() {{
         put("++", UnaryOpNode.UnaryOp.PREP);
         put("--", UnaryOpNode.UnaryOp.PREM);
         put("+", UnaryOpNode.UnaryOp.POS);
@@ -41,7 +41,7 @@ public class Mapping {
         put("!", UnaryOpNode.UnaryOp.LOGN);
         put("~", UnaryOpNode.UnaryOp.BITN);
     }};
-    final static public Map<String, Type> PrimitiveType = new HashMap<>(){{
+    final static public Map<String, Type> PrimitiveType = new HashMap<String, Type>(){{
         put("int", Type.INT);
         put("bool", Type.BOOL);
         put("string", Type.STRING);
