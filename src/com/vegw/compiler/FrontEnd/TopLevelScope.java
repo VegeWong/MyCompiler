@@ -5,11 +5,17 @@ import com.vegw.compiler.Entity.Entity;
 import com.vegw.compiler.Exception.SemanticException;
 import com.vegw.compiler.FrontEnd.Scope;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class TopLevelScope extends Scope {
     protected Map<String, Entity> entities;
+
+    public TopLevelScope() {
+        entities = new LinkedHashMap<String, Entity>();
+    }
 
     @Override
     public Entity get(String name) throws SemanticException {

@@ -110,7 +110,7 @@ public class ASTBuilder extends MxstarBaseListener {
         StmtNode stmt = null;
         if (ctx.block() != null) stmt = (StmtNode) map.get(ctx.block());
         else if (ctx.variableDeclaration() != null) stmt = (StmtNode) map.get(ctx.variableDeclaration());
-        else if (ctx.expression() != null) stmt = (StmtNode) map.get(ctx.expression());
+        else if (ctx.expression() != null) stmt = new ExprStmtNode((ExprNode) map.get(ctx.expression()));
         else if (ctx.selectionStatement() != null) stmt = (StmtNode) map.get(ctx.selectionStatement());
         else if (ctx.iterationStatement() != null) stmt = (StmtNode) map.get(ctx.iterationStatement());
         else if (ctx.jumpStatement() != null) stmt = (StmtNode) map.get(ctx.jumpStatement());

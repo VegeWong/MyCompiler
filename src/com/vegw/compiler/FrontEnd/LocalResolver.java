@@ -1,6 +1,7 @@
 package com.vegw.compiler.FrontEnd;
 
 import com.vegw.compiler.AST.ASTNode;
+import com.vegw.compiler.AST.Expr.ArefNode;
 import com.vegw.compiler.AST.Expr.CreatorNode;
 import com.vegw.compiler.AST.Expr.Literal.IntegerLiteralNode;
 import com.vegw.compiler.AST.Expr.Literal.StringLiteralNode;
@@ -114,13 +115,14 @@ public class LocalResolver extends Visitor {
         return returnScope;
     }
 
+
     @Override
     public Void visit(VariableNode node) {
         try {
             Entity ent = currentScope.get(node.name());
+            node.setEntity((VariableEntity) ent);
                 if (!resolveType(node.entity().type()))
                     errorHandler.error(node, "Cannot resolve type" + node.entity().type().toString());
-                node.setEntity((VariableEntity) ent);
         }
         catch (SemanticException ex) {
             errorHandler.error(node, ex.getMessage());

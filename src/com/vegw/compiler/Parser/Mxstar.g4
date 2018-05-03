@@ -85,7 +85,7 @@ constructor
     ;
 
 expressionList
-    :   expression (',' expression)* ';'
+    :   expression (',' expression)*
     ;
 
 expression
@@ -97,7 +97,7 @@ expression
     |   <assoc=right> op=('++'|'--') expression      # UnaryExpr        // Precedence 2
     |   <assoc=right> op=('+' | '-') expression      # UnaryExpr
     |   <assoc=right> op=('!' | '~') expression      # UnaryExpr
-    |   <assoc=right> New creator                    # New
+    |   <assoc=right> 'new' creator                  # New
 
     |   expression op=('*' | '/' | '%') expression   # BinaryExpr       // Precedence 3
     |   expression op=('+' | '-') expression         # BinaryExpr       // Precedence 4
@@ -126,8 +126,8 @@ creator
                     ('[' expression ']')+            # ErrorCreator
     |   type=('int' | 'bool' | 'string' | Identifier)
                     ('[' expression ']')+
-                    ('[' ']')+                       # ArrayCreator
-    |   type=('int' | 'bool' | 'string' | Identifier)# nonArrayCreator
+                    ('[' ']')?                       # ArrayCreator
+    |   type=Identifier                              # nonArrayCreator
     ;
 
 // Reserved words

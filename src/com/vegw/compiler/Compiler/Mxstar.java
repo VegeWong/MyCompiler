@@ -1,7 +1,9 @@
 package com.vegw.compiler.Compiler;
 
 import com.vegw.compiler.AST.ASTNode;
+import com.vegw.compiler.Exception.SemanticException;
 import com.vegw.compiler.FrontEnd.ASTBuilder;
+import com.vegw.compiler.FrontEnd.LocalResolver;
 import com.vegw.compiler.FrontEnd.TypeChecker;
 import com.vegw.compiler.Parser.MxstarLexer;
 import com.vegw.compiler.Parser.MxstarParser;
@@ -12,6 +14,8 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import java.io.IOException;
+
+import static java.lang.System.exit;
 
 public class Mxstar {
     static final public String ProgramName = "Mxstar";
@@ -62,6 +66,12 @@ public class Mxstar {
         walker.walk(listener, tree);   // 0th pass, CST -> AST
 
         ASTNode ast  = listener.ast();
+        LocalResolver resolver = new LocalResolver(new ErrorHandler("LocalResolver"));
+        try {
+            resolver.resolve(ast);
+        } catch (SemanticException se) {
+            exit(1);
+        }
         TypeChecker typeChecker = new TypeChecker(new ErrorHandler("TypeCheck"));
         typeChecker.check(ast);
         ErrorHandler.printLog();

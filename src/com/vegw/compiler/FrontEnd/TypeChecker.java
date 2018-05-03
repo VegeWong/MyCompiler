@@ -126,8 +126,7 @@ public class TypeChecker extends Visitor {
                 if (!left.isConvertable(right)) {
                     errorHandler.error(node, "Left expression cannot be assigned for type dismatching");
                 }
-                node.setType(left);
-                ((VariableNode) node.left()).entity().setValue(node.right());
+                break;
             }
             default:
                 errorHandler.error(node, "Unknown Binary Operator");
@@ -153,11 +152,12 @@ public class TypeChecker extends Visitor {
         return null;
     }
 
+
     @Override
     public Void visit(ArefNode node) {
         visit(node.base());
         visit(node.index());
-        Type baseType = node.baseExpr().type();
+        Type baseType = ((ArrayType)node.baseExpr().type()).baseType();
         if (baseType == Type.VOID || baseType == Type.NULL) {
             errorHandler.error(node, "Illegal array base type: " + baseType.toString());
         }
@@ -243,7 +243,8 @@ public class TypeChecker extends Visitor {
     @Override
     public Void visit(IfNode node) {
         visit(node.thenBody());
-        visit(node.elseBody());
+        if (node.elseBody() != null)
+            visit(node.elseBody());
         if (!(node.cond().type() == Type.BOOL))
             errorHandler.error(node, "Condition expression for if returns a non bool value");
         return null;

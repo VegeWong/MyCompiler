@@ -14,7 +14,7 @@ public class LocalScope extends Scope {
 
     public LocalScope(Scope parent) {
         this.parent = parent;
-        this.entities = new LinkedHashMap<>();
+        this.entities = new LinkedHashMap<String, Entity>();
     }
 
     public Map<String, Entity> entities() {
