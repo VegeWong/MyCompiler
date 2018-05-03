@@ -45,7 +45,7 @@ parameter
     ;
 
 block
-    :   '{' statement* '}'
+    :   '{' statement+ '}'
     ;
 
 statement

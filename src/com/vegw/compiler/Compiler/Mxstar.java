@@ -46,6 +46,7 @@ public class Mxstar {
     public static void compile(String srcPath, String dstPath, Options opts) throws IOException {
         ASTNode ast = parseFile(srcPath, opts);
     }
+    public int a(){}
 
     public static ASTNode parseFile(String srcPath, Options opts) throws IOException {
 //        CharStream input = CharStreams.fromFileName("E:\\College-4\\Compiler\\mxstarw\\test\\1.mx");

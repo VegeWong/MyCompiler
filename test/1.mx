@@ -1,7 +1,9 @@
-
-int b = 3;
+class Array{
+    int size(){
+    }
+}
 
 int main(){
-    int a = 0;
-    return 0;
+    Array a = null;
+    a.size();
 }
