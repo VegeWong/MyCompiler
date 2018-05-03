@@ -3,6 +3,7 @@ package com.vegw.compiler.FrontEnd;
 import com.vegw.compiler.AST.ASTNode;
 import com.vegw.compiler.AST.Expr.ArefNode;
 import com.vegw.compiler.AST.Expr.CreatorNode;
+import com.vegw.compiler.AST.Expr.FuncallNode;
 import com.vegw.compiler.AST.Expr.Literal.IntegerLiteralNode;
 import com.vegw.compiler.AST.Expr.Literal.StringLiteralNode;
 import com.vegw.compiler.AST.Expr.VariableNode;
@@ -81,7 +82,8 @@ public class LocalResolver extends Visitor {
 
         addGlobalBuiltinFunction();
         for (DefinitionNode node : ast.defs){
-            if (node instanceof VariableDefNode) continue;
+            if (node instanceof VariableDefNode)
+                continue;
             String name = node.entity().name();
             if (toplevel.entities.get(name) == null) {
                 toplevel.entities.put(name, node.entity());
@@ -92,14 +94,6 @@ public class LocalResolver extends Visitor {
         }
         for (DefinitionNode node : ast.defs){
             visit(node);
-            if (node instanceof VariableDefNode) {
-                String name = node.entity().name();
-                if (toplevel.entities.get(name) == null)
-                    toplevel.entities.put(name, node.entity());
-                else {
-                    throw new SemanticException("Duplicated Declaration: " + name);
-                }
-            }
         }
     }
 
@@ -120,9 +114,9 @@ public class LocalResolver extends Visitor {
     public Void visit(VariableNode node) {
         try {
             Entity ent = currentScope.get(node.name());
-            node.setEntity((VariableEntity) ent);
-                if (!resolveType(node.entity().type()))
-                    errorHandler.error(node, "Cannot resolve type" + node.entity().type().toString());
+            node.setEntity(ent);
+                if (!resolveType(node.type()))
+                    errorHandler.error(node, "Cannot resolve type" + node.type().toString());
         }
         catch (SemanticException ex) {
             errorHandler.error(node, ex.getMessage());
@@ -167,9 +161,11 @@ public class LocalResolver extends Visitor {
             currentScope.entities().put(func.entity().name(), func.entity());
             visit(func);
         }
-        currentScope.entities().put(entity.constructor().entity().name(),
-                entity.constructor().entity());
-        visit(entity.constructor());
+        if (entity.constructor() != null) {
+            currentScope.entities().put(entity.constructor().entity().name(),
+                    entity.constructor().entity());
+            visit(entity.constructor());
+        }
         entity.setScope(popScope());
         return null;
     }
@@ -209,73 +205,10 @@ public class LocalResolver extends Visitor {
             errorHandler.error(node, "Dumplicated declaration of name" + name);
             return null;
         }
-
-        pushScope();
-        addBuiltinFunction(node.location(), node.entity());
-        node.entity().setScope(popScope());
         return null;
     }
 
-    private void addBuiltinFunction(Location loc, VariableEntity entity) {
-        if (entity.type() instanceof ArrayType) {
-            addArrayBuiltinFunction(loc);
-        }
-        else if (entity.type() instanceof StringType) {
-            addStringBuiltinFunction(loc);
-        }
-    }
 
-    private void addArrayBuiltinFunction(Location loc) {
-        // Add "array.size()" function
-        List<StmtNode> stmts = new LinkedList<StmtNode>() {{
-           add(new ReturnNode(loc, new IntegerLiteralNode(loc, 0)));
-        }};
-        BlockNode body = new BlockNode(loc, stmts);
-        FunctionEntity arraySize = new FunctionEntity(loc, "size", Type.INT, null, body);
-        currentScope.entities().put("size", arraySize);
-    }
-
-    private void addStringBuiltinFunction(Location loc) {
-        // Add "string.length()" function
-        List<StmtNode> lengthStmts = new LinkedList<StmtNode>() {{
-            add(new ReturnNode(loc, new IntegerLiteralNode(loc, 0)));
-        }};
-        BlockNode lengthBody = new BlockNode(loc, lengthStmts);
-        FunctionEntity arraySize = new FunctionEntity(loc, "length", Type.INT, new LinkedList<>(), lengthBody);
-        currentScope.entities().put("length", arraySize);
-
-        // Add "string.substring()" function
-        List<StmtNode> substringStmts = new LinkedList<StmtNode>() {{
-            add(new ReturnNode(loc, new StringLiteralNode(loc, " ")));
-        }};
-        BlockNode substringBody = new BlockNode(loc, substringStmts);
-        List<ParameterEntity> substringParams = new LinkedList<ParameterEntity>() {{
-            add(new ParameterEntity(loc, "left",Type.INT));
-            add(new ParameterEntity(loc, "right",Type.INT));
-        }};
-        FunctionEntity substring = new FunctionEntity(loc, "substring", Type.INT, substringParams, substringBody);
-        currentScope.entities().put("substring", substring);
-
-        // Add "string.parseInt()" function
-        List<StmtNode> parseIntStmts = new LinkedList<StmtNode>() {{
-            add(new ReturnNode(loc, new IntegerLiteralNode(loc, 0)));
-        }};
-        BlockNode parseIntBody = new BlockNode(loc, parseIntStmts);
-        FunctionEntity parseInt = new FunctionEntity(loc, "parseInt", Type.INT, new LinkedList<>(), parseIntBody);
-        currentScope.entities().put("parseInt", parseInt);
-
-        // Add "string.ord()" function
-        List<StmtNode> ordStmts = new LinkedList<StmtNode>() {{
-            add(new ReturnNode(loc, new IntegerLiteralNode(loc, 0)));
-        }};
-        BlockNode ordBody = new BlockNode(loc, ordStmts);
-        List<ParameterEntity> ordParams = new LinkedList<ParameterEntity>() {{
-            add(new ParameterEntity(loc, "pos",Type.INT));
-        }};
-        FunctionEntity ord = new FunctionEntity(loc, "ord", Type.INT, ordParams, ordBody);
-        currentScope.entities().put("ord", ord);
-    }
-    
     private void addGlobalBuiltinFunction() {
         Location loc = new Location(0,0);
         // Add "print()" function

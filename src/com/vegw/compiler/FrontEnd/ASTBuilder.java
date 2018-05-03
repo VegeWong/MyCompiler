@@ -265,7 +265,7 @@ public class ASTBuilder extends MxstarBaseListener {
         map.put(ctx, new StringLiteralNode(new Location(ctx), ctx.StringLiteral().getText()));
     }
     @Override public void exitBool(MxstarParser.BoolContext ctx) {
-        map.put(ctx, new BoolLiteralNode(new Location(ctx), ctx.BoolConstant().getText().equals("true")));
+        map.put(ctx, new BoolLiteralNode(new Location(ctx), ctx.type.getText().equals("true")));
     }
     @Override public void exitNull(MxstarParser.NullContext ctx)  {
         map.put(ctx, new NullLiteralNode(new Location(ctx)));

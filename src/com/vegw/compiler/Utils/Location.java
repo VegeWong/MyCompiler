@@ -25,6 +25,6 @@ public class Location {
     }
 
     public String toString() {
-        return "line " + line + ":" + column + " ";
+        return "(line " + line + " column:" + column + ")";
     }
 }

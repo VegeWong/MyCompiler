@@ -6,12 +6,8 @@ import com.vegw.compiler.AST.Stmt.*;
 import com.vegw.compiler.AST.Stmt.Def.DefinitionNode;
 import com.vegw.compiler.AST.Stmt.Def.FunctionDefNode;
 import com.vegw.compiler.AST.Stmt.Def.VariableDefNode;
-import com.vegw.compiler.Entity.FunctionEntity;
-import com.vegw.compiler.Entity.ParameterEntity;
-import com.vegw.compiler.Entity.VariableEntity;
-import com.vegw.compiler.Type.ArrayType;
-import com.vegw.compiler.Type.ClassType;
-import com.vegw.compiler.Type.Type;
+import com.vegw.compiler.Entity.*;
+import com.vegw.compiler.Type.*;
 import com.vegw.compiler.Utils.ErrorHandler;
 
 import java.util.Iterator;
@@ -116,6 +112,7 @@ public class TypeChecker extends Visitor {
                     errorHandler.error(node, "Left and right expression type cannot be compared");
                     break;
                 }
+                break;
             }
             case ASSIGN: {
                 node.setType(left);
@@ -136,6 +133,7 @@ public class TypeChecker extends Visitor {
 
     @Override
     public Void visit(FuncallNode node) {
+        super.visit(node);
         List<ParameterEntity> params = node.functionType().entity().params();
         List<ExprNode> args = node.params();
         if (params.size() != args.size())
@@ -182,16 +180,24 @@ public class TypeChecker extends Visitor {
     public Void visit(MemberNode node) {
         super.visit(node.field());
         Type type = node.field().type();
-        if (!(type instanceof ClassType)) {
+        if (!isMemberAccessible(type)) {
             errorHandler.error(node, "Member access applied to a nonclass object");
             return null;
         }
-        VariableEntity ent = (VariableEntity)((ClassType) type).entity().scope().getCurrentScope(node.member());
+        Scope scope;
+        if (type instanceof ClassType) { scope = ((ClassType) type).entity().scope(); }
+        else if (type instanceof ArrayType) { scope = ((ArrayType) type).entity().scope(); }
+        else { scope = ((StringType) type).entity().scope(); }
+
+        Entity ent = scope.getCurrentScope(node.member());
         if (ent == null) {
             errorHandler.error(node, "Required member missing");
             return null;
         }
-        node.setType(ent.type());
+        
+        if (ent instanceof FunctionEntity) node.setType(new FunctionType(ent.name(), (FunctionEntity) ent));
+        else node.setType(((VariableEntity) ent).type());
+
         return null;
     }
 
@@ -245,6 +251,7 @@ public class TypeChecker extends Visitor {
         visit(node.thenBody());
         if (node.elseBody() != null)
             visit(node.elseBody());
+        visit(node.cond());
         if (!(node.cond().type() == Type.BOOL))
             errorHandler.error(node, "Condition expression for if returns a non bool value");
         return null;
@@ -263,6 +270,7 @@ public class TypeChecker extends Visitor {
             }
         }
         else if (expr != null) {
+            visit(expr);
             if (!curFunc.returnType().isConvertable(expr.type())) {
                 errorHandler.error(node, "Function result imcompatible with return value");
             }
@@ -320,5 +328,9 @@ public class TypeChecker extends Visitor {
             }
         }
         return null;
+    }
+
+    private boolean isMemberAccessible(Type type) {
+        return (type == Type.STRING || type instanceof ClassType || type instanceof ArrayType);
     }
 }

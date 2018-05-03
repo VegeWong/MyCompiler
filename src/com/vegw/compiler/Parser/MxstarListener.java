@@ -345,6 +345,30 @@ public interface MxstarListener extends ParseTreeListener {
 	 */
 	void exitNonArrayCreator(MxstarParser.NonArrayCreatorContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code Null}
+	 * labeled alternative in {@link MxstarParser#literal}.
+	 * @param ctx the parse tree
+	 */
+	void enterNull(MxstarParser.NullContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code Null}
+	 * labeled alternative in {@link MxstarParser#literal}.
+	 * @param ctx the parse tree
+	 */
+	void exitNull(MxstarParser.NullContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code Bool}
+	 * labeled alternative in {@link MxstarParser#literal}.
+	 * @param ctx the parse tree
+	 */
+	void enterBool(MxstarParser.BoolContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code Bool}
+	 * labeled alternative in {@link MxstarParser#literal}.
+	 * @param ctx the parse tree
+	 */
+	void exitBool(MxstarParser.BoolContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code Integer}
 	 * labeled alternative in {@link MxstarParser#literal}.
 	 * @param ctx the parse tree
@@ -368,28 +392,4 @@ public interface MxstarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitString(MxstarParser.StringContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code Bool}
-	 * labeled alternative in {@link MxstarParser#literal}.
-	 * @param ctx the parse tree
-	 */
-	void enterBool(MxstarParser.BoolContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code Bool}
-	 * labeled alternative in {@link MxstarParser#literal}.
-	 * @param ctx the parse tree
-	 */
-	void exitBool(MxstarParser.BoolContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code Null}
-	 * labeled alternative in {@link MxstarParser#literal}.
-	 * @param ctx the parse tree
-	 */
-	void enterNull(MxstarParser.NullContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code Null}
-	 * labeled alternative in {@link MxstarParser#literal}.
-	 * @param ctx the parse tree
-	 */
-	void exitNull(MxstarParser.NullContext ctx);
 }

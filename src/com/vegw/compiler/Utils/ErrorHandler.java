@@ -16,6 +16,7 @@ public class ErrorHandler {
         this.locate = locate;
         list = new LinkedList<>();
         s = System.err;
+        totalList.add(this);
     }
 
     public void error(Node errorNode, String message) {
@@ -30,6 +31,14 @@ public class ErrorHandler {
                 e.s.println(err.getKey().location() + err.getValue());
             }
         }
+    }
+
+    static public int errorCount() {
+        int count = 0;
+        for (ErrorHandler e : totalList) {
+            count += e.list.size();
+        }
+        return count;
     }
 
 }

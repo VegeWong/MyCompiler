@@ -75,6 +75,7 @@ public class Mxstar {
         TypeChecker typeChecker = new TypeChecker(new ErrorHandler("TypeCheck"));
         typeChecker.check(ast);
         ErrorHandler.printLog();
+        if (ErrorHandler.errorCount() != 0) exit(1);
         return ast;
     }
 

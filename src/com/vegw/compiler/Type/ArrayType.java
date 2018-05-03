@@ -1,8 +1,11 @@
 package com.vegw.compiler.Type;
 
+import com.vegw.compiler.Entity.ArrayEntity;
+
 public class ArrayType extends Type {
     protected Type baseType;
     protected int demension;
+    protected final static ArrayEntity entity = new ArrayEntity();
 
     public ArrayType(Type baseType, int demension) {
         this.baseType = baseType;
@@ -16,6 +19,8 @@ public class ArrayType extends Type {
     public Type baseType() {
         return baseType;
     }
+
+    public ArrayEntity entity() { return entity; }
 
     @Override
     public boolean isConvertable(Type t) {

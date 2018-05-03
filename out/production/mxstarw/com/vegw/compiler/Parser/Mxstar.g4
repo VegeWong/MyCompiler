@@ -114,8 +114,8 @@ expression
     |   <assoc=right> expression op='=' expression   # BinaryExpr       // Precedence 14
 
     |   'this'                                       # SelfPointer
-    |   Identifier                                   # Var
     |   literal                                      # LiteralExpr
+    |   Identifier                                   # Var
     |   '(' expression ')'                           # SubExpression
     ;
 
@@ -130,6 +130,15 @@ creator
     |   type=Identifier                              # nonArrayCreator
     ;
 
+
+literal
+    :   'null'                    # Null
+    |   type = ('true' | 'false') # Bool
+    |   IntegerConstant           # Integer
+    |   StringLiteral             # String
+    ;
+
+
 // Reserved words
 Auto : 'auto';
 Bool : 'bool';
@@ -142,7 +151,6 @@ If : 'if';
 Int : 'int';
 Long : 'long';
 New : 'new';
-fragment Null : 'null';
 fragment True : 'true';
 fragment False : 'false';
 Return : 'return';
@@ -200,13 +208,6 @@ Identifier
         |   Digit
         )*
     ;
-    
-literal
-    :   IntegerConstant  # Integer
-    |   StringLiteral    # String
-    |   BoolConstant     # Bool
-    |   NullLiteral      # Null
-    ;
 
 
 fragment
@@ -223,15 +224,6 @@ Nondigit
 fragment
 Digit
     :   [0-9]
-    ;
-
-NullLiteral
-    :   'null'
-    ;
-
-BoolConstant
-    :   'true'
-    |   'false'
     ;
 
 IntegerConstant

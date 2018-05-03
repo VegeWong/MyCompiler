@@ -162,7 +162,8 @@ public class Visitor implements ASTVisitor<Void, Void> {
         for (FunctionDefNode func : node.entity().funcs()) {
             visit(func);
         }
-        visit(node.entity().constructor());
+        if (node.entity().constructor() != null)
+            visit(node.entity().constructor());
         return null;
     }
 
