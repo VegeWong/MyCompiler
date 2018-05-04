@@ -132,10 +132,12 @@ public class LocalResolver extends Visitor {
     @Override
     public Void visit(WhileNode node) {
         visit(node.cond());
-        pushScope();
-        visit(node.body());
-        if (node.body() instanceof BlockNode) ((BlockNode) node.body()).setScope(popScope());
-        else popScope();
+        if (node.body() != null) {
+            pushScope();
+            visit(node.body());
+            if (node.body() instanceof BlockNode) ((BlockNode) node.body()).setScope(popScope());
+            else popScope();
+        }
         return null;
     }
 
