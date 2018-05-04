@@ -21,7 +21,6 @@ import static java.lang.System.exit;
 
 public class Mxstar {
     public static void main(String[] args) {
-
         try {
             InputStream in = System.in;
             ANTLRInputStream input = new ANTLRInputStream(in);
@@ -41,6 +40,8 @@ public class Mxstar {
             try {
                 resolver.resolve(ast);
             } catch (SemanticException se) {
+                ErrorHandler.printOuterError(se.getMessage());
+                ErrorHandler.printLog();
                 exit(1);
             }
             TypeChecker typeChecker = new TypeChecker(new ErrorHandler("TypeCheck"));
@@ -48,6 +49,8 @@ public class Mxstar {
             ErrorHandler.printLog();
             if (ErrorHandler.errorCount() != 0) exit(1);
         } catch (IOException io) {
+            ErrorHandler.printOuterError("Compile Start Error: IOException");
+            ErrorHandler.printOuterError("Detail: " + io.getMessage());
             exit(1);
         }
     }

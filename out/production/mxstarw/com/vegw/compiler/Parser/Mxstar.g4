@@ -50,9 +50,8 @@ block
 
 statement
     :   block
-    |   ';'
     |   variableDeclaration
-    |   expression ';'
+    |   expression? ';'
     |   selectionStatement
     |   iterationStatement
     |   jumpStatement

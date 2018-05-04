@@ -102,7 +102,9 @@ public class ASTBuilder extends MxstarBaseListener {
     @Override public void exitBlock(MxstarParser.BlockContext ctx) {
         List<StmtNode> stmts = new LinkedList<>();
         for (MxstarParser.StatementContext item : ctx.statement()) {
-            stmts.add((StmtNode) map.get(item));
+            StmtNode node = (StmtNode) map.get(item);
+            if (node != null)
+                stmts.add(node);
         }
         map.put(ctx, new BlockNode(new Location(ctx), stmts));
     }
@@ -114,7 +116,9 @@ public class ASTBuilder extends MxstarBaseListener {
         else if (ctx.selectionStatement() != null) stmt = (StmtNode) map.get(ctx.selectionStatement());
         else if (ctx.iterationStatement() != null) stmt = (StmtNode) map.get(ctx.iterationStatement());
         else if (ctx.jumpStatement() != null) stmt = (StmtNode) map.get(ctx.jumpStatement());
-        map.put(ctx, stmt);
+
+        if (stmt != null)
+            map.put(ctx, stmt);
     }
     @Override public void exitSelectionStatement(MxstarParser.SelectionStatementContext ctx) {
         ExprNode cond = (ExprNode) map.get(ctx.cond);

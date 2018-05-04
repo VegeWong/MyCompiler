@@ -27,6 +27,7 @@ public class TypeChecker extends Visitor {
         visit(ast.defs);
     }
 
+
     public Void visit(List<DefinitionNode> defs) {
         for (DefinitionNode def : defs) {
             visit(def);
@@ -94,11 +95,25 @@ public class TypeChecker extends Visitor {
                             " cannot be applied to type:" + left.toString());
                 break;
             }
-            case SUB: case MUL: case DIV: case MOD:
+            case SUB: case MUL: case MOD:
             case LS: case RS:
             case BIT_OR: case BIT_AND: case XOR:{
                 if (left == Type.INT && right == Type.INT) {
                     node.setType(left);
+                }
+                else
+                    errorHandler.error(node, "Binary operator " + node.operator().name() +
+                            " cannot be applied to type:" + left.toString());
+                break;
+            }
+            case DIV: {
+                if (left == Type.INT && right == Type.INT) {
+                    node.setType(left);
+                    if (node.right() instanceof IntegerLiteralNode) {
+                        if (((IntegerLiteralNode) node.right()).value() == 0)
+                            errorHandler.error(node, "Binary operator " + node.operator().name() +
+                                    " cannot be applied when right expression is zero");
+                    }
                 }
                 else
                     errorHandler.error(node, "Binary operator " + node.operator().name() +
@@ -221,6 +236,16 @@ public class TypeChecker extends Visitor {
                     || node.type() == Type.INT) {
                 errorHandler.error(node, "Create primitive type with new operation");
             }
+        }
+        return null;
+    }
+
+    @Override
+    public Void visit(BlockNode node) {
+        for (StmtNode stmt : node.stmts()) {
+            visit(stmt);
+            if (stmt instanceof BreakNode || stmt instanceof ContinueNode)
+                break;
         }
         return null;
     }

@@ -22,12 +22,16 @@ public class ErrorHandler {
         list.add(errorNode.location().toString() + message);
     }
 
+    public static final void printOuterError(String message) {
+        System.err.println(message);
+    }
+
     public void setPrintStream(PrintStream s) { this.s = s; }
 
     static public void printLog() {
         for (ErrorHandler e : totalList) {
             for (String err : e.list) {
-                e.s.println(err);
+                e.s.println(e.locate + err);
             }
         }
     }

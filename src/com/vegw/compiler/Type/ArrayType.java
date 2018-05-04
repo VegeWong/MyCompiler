@@ -29,8 +29,9 @@ public class ArrayType extends Type {
 
     @Override
     public boolean isSameType(Type a) {
+        if (this == a) return true;
         if (a instanceof ArrayType)
-            return (((ArrayType) a).baseType == baseType
+            return (((ArrayType) a).baseType.isSameType(baseType)
                     && ((ArrayType) a).demension == demension);
         else return false;
     }

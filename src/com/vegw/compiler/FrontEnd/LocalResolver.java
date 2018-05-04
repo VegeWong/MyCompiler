@@ -38,7 +38,6 @@ public class LocalResolver extends Visitor {
         this.errorHandler = h;
         this.stack = new Stack<>();
         this.constantTable = new ConstantTable();
-        new StringType();
 
     }
 
@@ -96,6 +95,16 @@ public class LocalResolver extends Visitor {
         }
         for (DefinitionNode node : ast.defs){
             visit(node);
+        }
+
+        ast.setScope(toplevel);
+        try {
+            Entity entity = ast.scope.get("main");
+            if (!(entity instanceof FunctionEntity))
+                throw new SemanticException("Variable and class cannot be named as 'main'");
+        } catch (SemanticException se) {
+            errorHandler.error(ast, "Main function missing");
+            throw(se);
         }
     }
 
