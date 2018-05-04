@@ -8,12 +8,14 @@ import com.vegw.compiler.FrontEnd.TypeChecker;
 import com.vegw.compiler.Parser.MxstarLexer;
 import com.vegw.compiler.Parser.MxstarParser;
 import com.vegw.compiler.Utils.ErrorHandler;
+import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import static java.lang.System.exit;
 
@@ -52,9 +54,8 @@ public class Mxstar {
     }
 
     public static ASTNode parseFile(String srcPath, Options opts) throws IOException {
-//        CharStream input = CharStreams.fromFileName("E:\\College-4\\Compiler\\mxstarw\\test\\1.mx");
 
-        CharStream input = CharStreams.fromFileName(srcPath);
+        CharStream input = CharStreams.fromStream(System.in);
         MxstarLexer lexer = new MxstarLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         MxstarParser parser = new MxstarParser(tokens);
