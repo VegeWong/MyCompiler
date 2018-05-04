@@ -51,10 +51,10 @@ public class TypeChecker extends Visitor {
         super.visit(node);
         node.setType(node.expr().type());
         Type expect = Type.INT;
-        boolean checkAssignable = false;
+        boolean checkEditable = false;
         switch (node.operator()) {
             case PREM: case PREP:
-            case POSP: case POSM: checkAssignable = true;
+            case POSP: case POSM: checkEditable = true;
             case POS: case NEG:
             case BITN: break;
             case LOGN: expect = Type.BOOL; break;
@@ -63,11 +63,17 @@ public class TypeChecker extends Visitor {
         }
         if (!expect.isSameType(node.type())) {
             errorHandler.error(node,  "Unary operation " + node.operator().name() +
-                    "cannot be applied to type" + node.expr().type().toString());
+                    " cannot be applied to type" + node.expr().type().toString());
+            return null;
         }
-        if (checkAssignable) {
+        if (checkEditable) {
             if (node.expr() instanceof IntegerLiteralNode)
                 errorHandler.error(node,  "Constant cannot taken as lvalue");
+            else if (node.expr() instanceof VariableNode) {
+                if (!((VariableNode) node.expr()).isAbleToSelfAddAndMinus())
+                    errorHandler.error(node,  "Unary operation " + node.operator().name() +
+                        " cannot be applied to variable has undetermined value:" + node.expr().type().toString());
+            }
         }
         return null;
     }
@@ -296,7 +302,8 @@ public class TypeChecker extends Visitor {
 
     @Override
     public Void visit(IfNode node) {
-        visit(node.thenBody());
+        if (node.thenBody() != null)
+            visit(node.thenBody());
         if (node.elseBody() != null)
             visit(node.elseBody());
         visit(node.cond());

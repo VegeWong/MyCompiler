@@ -19,19 +19,33 @@ public class VariableNode extends ExprNode {
     protected String name;
     protected Entity entity;
     protected Type type;
+    protected boolean isAbleToSelfAddAndMinus;
 
     public VariableNode(Location location, String name) {
         this.location = location;
         this.name = name;
         this.entity = null;
         super.isAssignable = true;
+        isAbleToSelfAddAndMinus = false;
     }
 
     public void setEntity(Entity entity) {
         this.entity = entity;
-        if (entity instanceof FunctionEntity) type = new FunctionType(entity.name(), (FunctionEntity) entity);
+        if (entity instanceof FunctionEntity) {
+            type = new FunctionType(entity.name(), (FunctionEntity) entity);
+            super.isAssignable = false;
+        }
         else if (entity instanceof ClassEntity) type = new ClassType(entity.name(), (ClassEntity) entity);
-        else type = ((VariableEntity) entity).type();
+        else {
+            type = ((VariableEntity) entity).type();
+            if (type == Type.INT && ((VariableEntity) entity).value() != null)
+                isAbleToSelfAddAndMinus = true;
+        }
+
+    }
+
+    public boolean isAbleToSelfAddAndMinus() {
+        return isAbleToSelfAddAndMinus;
     }
 
     public Entity entity() {

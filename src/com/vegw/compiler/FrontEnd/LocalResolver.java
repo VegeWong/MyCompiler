@@ -113,12 +113,12 @@ public class LocalResolver extends Visitor {
     @Override
     public Void visit(IfNode node) {
         visit(node.cond());
-
-        pushScope();
-        visit(node.thenBody());
-        if (node.thenBody() instanceof BlockNode) ((BlockNode) node.thenBody()).setScope(popScope());
-        else popScope();
-
+        if (node.thenBody() != null) {
+            pushScope();
+            visit(node.thenBody());
+            if (node.thenBody() instanceof BlockNode) ((BlockNode) node.thenBody()).setScope(popScope());
+            else popScope();
+        }
         if (node.elseBody() != null) {
             pushScope();
             visit(node.elseBody());
@@ -190,12 +190,14 @@ public class LocalResolver extends Visitor {
         }
         for (FunctionDefNode func : entity.funcs()) {
             currentScope.entities().put(func.entity().name(), func.entity());
-            visit(func);
         }
         if (entity.constructor() != null) {
             currentScope.entities().put(entity.constructor().entity().name(),
                     entity.constructor().entity());
             visit(entity.constructor());
+        }
+        for (FunctionDefNode func : entity.funcs()) {
+            visit(func);
         }
         entity.setScope(popScope());
         return null;
