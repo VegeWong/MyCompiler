@@ -126,7 +126,9 @@ creator
     |   type=('int' | 'bool' | 'string' | Identifier)
                     ('[' expression ']')+
                     ('[' ']')*                       # ArrayCreator
-    |   type=Identifier                              # nonArrayCreator
+    |   primitiveType '(' ')'                        # ErrorFuncCreator
+    |   type=Identifier '(' ')'                      # ClassFuncCreator
+    |   type=Identifier                              # NonArrayCreator
     ;
 
 

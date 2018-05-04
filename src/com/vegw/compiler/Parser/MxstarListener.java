@@ -333,13 +333,37 @@ public interface MxstarListener extends ParseTreeListener {
 	 */
 	void exitArrayCreator(MxstarParser.ArrayCreatorContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code nonArrayCreator}
+	 * Enter a parse tree produced by the {@code ErrorFuncCreator}
+	 * labeled alternative in {@link MxstarParser#creator}.
+	 * @param ctx the parse tree
+	 */
+	void enterErrorFuncCreator(MxstarParser.ErrorFuncCreatorContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ErrorFuncCreator}
+	 * labeled alternative in {@link MxstarParser#creator}.
+	 * @param ctx the parse tree
+	 */
+	void exitErrorFuncCreator(MxstarParser.ErrorFuncCreatorContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ClassFuncCreator}
+	 * labeled alternative in {@link MxstarParser#creator}.
+	 * @param ctx the parse tree
+	 */
+	void enterClassFuncCreator(MxstarParser.ClassFuncCreatorContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ClassFuncCreator}
+	 * labeled alternative in {@link MxstarParser#creator}.
+	 * @param ctx the parse tree
+	 */
+	void exitClassFuncCreator(MxstarParser.ClassFuncCreatorContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code NonArrayCreator}
 	 * labeled alternative in {@link MxstarParser#creator}.
 	 * @param ctx the parse tree
 	 */
 	void enterNonArrayCreator(MxstarParser.NonArrayCreatorContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code nonArrayCreator}
+	 * Exit a parse tree produced by the {@code NonArrayCreator}
 	 * labeled alternative in {@link MxstarParser#creator}.
 	 * @param ctx the parse tree
 	 */

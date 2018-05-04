@@ -7,13 +7,11 @@ import com.vegw.compiler.AST.Expr.FuncallNode;
 import com.vegw.compiler.AST.Expr.Literal.IntegerLiteralNode;
 import com.vegw.compiler.AST.Expr.Literal.StringLiteralNode;
 import com.vegw.compiler.AST.Expr.VariableNode;
-import com.vegw.compiler.AST.Stmt.BlockNode;
+import com.vegw.compiler.AST.Stmt.*;
 import com.vegw.compiler.AST.Stmt.Def.ClassDefNode;
 import com.vegw.compiler.AST.Stmt.Def.DefinitionNode;
 import com.vegw.compiler.AST.Stmt.Def.FunctionDefNode;
 import com.vegw.compiler.AST.Stmt.Def.VariableDefNode;
-import com.vegw.compiler.AST.Stmt.ReturnNode;
-import com.vegw.compiler.AST.Stmt.StmtNode;
 import com.vegw.compiler.Entity.*;
 import com.vegw.compiler.Exception.SemanticException;
 import com.vegw.compiler.Type.*;
@@ -112,6 +110,34 @@ public class LocalResolver extends Visitor {
         return returnScope;
     }
 
+    @Override
+    public Void visit(IfNode node) {
+        visit(node.cond());
+
+        pushScope();
+        visit(node.thenBody());
+        if (node.thenBody() instanceof BlockNode) ((BlockNode) node.thenBody()).setScope(popScope());
+        else popScope();
+
+        if (node.elseBody() != null) {
+            pushScope();
+            visit(node.elseBody());
+            if (node.elseBody() instanceof BlockNode) ((BlockNode) node.elseBody()).setScope(popScope());
+            else popScope();
+        }
+
+        return null;
+    }
+
+    @Override
+    public Void visit(WhileNode node) {
+        visit(node.cond());
+        pushScope();
+        visit(node.body());
+        if (node.body() instanceof BlockNode) ((BlockNode) node.body()).setScope(popScope());
+        else popScope();
+        return null;
+    }
 
     @Override
     public Void visit(VariableNode node) {

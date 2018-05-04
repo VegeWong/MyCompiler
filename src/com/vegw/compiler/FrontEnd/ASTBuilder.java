@@ -256,6 +256,13 @@ public class ASTBuilder extends MxstarBaseListener {
                 new ArrayType(baseType,(ctx.getChildCount() - 1 - exprs.size()) / 2),
                 exprNodes));
     }
+    @Override public void exitErrorFuncCreator(MxstarParser.ErrorFuncCreatorContext ctx) {
+        throw new Error("ASTBuilder: new operation calling construcor function cannot be applied to primitive type");
+    }
+    @Override public void exitClassFuncCreator(MxstarParser.ClassFuncCreatorContext ctx) {
+        Type type = new ClassType(ctx.type.getText());
+        map.put(ctx, new CreatorNode(new Location(ctx), type, new LinkedList<ExprNode>()));
+    }
     @Override public void exitNonArrayCreator(MxstarParser.NonArrayCreatorContext ctx) {
         Type type = Mapping.PrimitiveType.get(ctx.type.getText());
         if (type == null)
