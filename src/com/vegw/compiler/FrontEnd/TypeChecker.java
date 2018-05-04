@@ -163,19 +163,16 @@ public class TypeChecker extends Visitor {
     public Void visit(ArefNode node) {
         visit(node.base());
         visit(node.index());
-        Type baseType = ((ArrayType)node.baseExpr().type()).baseType();
-        if (baseType == Type.VOID || baseType == Type.NULL) {
-            errorHandler.error(node, "Illegal array base type: " + baseType.toString());
-        }
         Type base = node.base().type();
         Type index = node.index().type();
         if (!(base instanceof ArrayType)) {
             errorHandler.error(node, "Indexing a nonarray object");
-            node.setType(baseType);
+            node.setType(base);
             return null;
         }
         else if (!(index == Type.INT))
             errorHandler.error(node, "Noninteger index");
+        Type baseType = ((ArrayType)node.baseExpr().type()).baseType();
         int newDemension = ((ArrayType) base).demension() - 1;
         if (newDemension > 0)
             node.setType(new ArrayType(baseType, newDemension));
@@ -308,7 +305,7 @@ public class TypeChecker extends Visitor {
             errorHandler.error(node, "Illegal function return type: null");
             return null;
         }
-        if (entity.returnType() == null && entity.isConstructor()) {
+        if (entity.returnType() == null && !entity.isConstructor()) {
             errorHandler.error(node, "Nonconstructor function with null return type");
             return null;
         }
@@ -326,9 +323,19 @@ public class TypeChecker extends Visitor {
     public Void visit(VariableDefNode node) {
         VariableEntity entity = node.entity();
         ExprNode value = entity.value();
+        Type type = entity.type();
+        if (type == Type.VOID || type == Type.NULL) {
+            errorHandler.error(node, "Illegal variable declaration with type '" + type.toString() + "'");
+        }
+        if (type instanceof ArrayType) {
+            Type baseType = ((ArrayType)type).baseType();
+            if (baseType == Type.VOID || baseType == Type.NULL) {
+                errorHandler.error(node, "Illegal array base type: " + baseType.toString());
+            }
+        }
         if (value != null) {
             visit(value);
-            if (!(entity.type().isConvertable(value.type()))){
+            if (!(type.isConvertable(value.type()))){
                 errorHandler.error(node, "Initialization conflicts with variable type");
             }
             if (value.type() == Type.VOID) {

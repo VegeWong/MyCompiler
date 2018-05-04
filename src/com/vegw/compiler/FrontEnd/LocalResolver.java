@@ -38,6 +38,8 @@ public class LocalResolver extends Visitor {
         this.errorHandler = h;
         this.stack = new Stack<>();
         this.constantTable = new ConstantTable();
+        new StringType();
+
     }
 
     private boolean resolveType(Type type) {
@@ -210,6 +212,7 @@ public class LocalResolver extends Visitor {
 
 
     private void addGlobalBuiltinFunction() {
+        Type.STRING.entity().addStringTypeBuiltinFunction();
         Location loc = new Location(0,0);
         // Add "print()" function
         List<StmtNode> printStmts = new LinkedList<StmtNode>();
@@ -255,6 +258,7 @@ public class LocalResolver extends Visitor {
         }};
         BlockNode toStringBody = new BlockNode(loc, toStringStmts);
         List<ParameterEntity> toStringParams = new LinkedList<ParameterEntity>() {{
+            add(new ParameterEntity(loc, "i", Type.INT));
         }};
         FunctionEntity toString = new FunctionEntity(loc, "toString", Type.STRING, toStringParams, toStringBody);
         currentScope.entities().put("toString", toString);

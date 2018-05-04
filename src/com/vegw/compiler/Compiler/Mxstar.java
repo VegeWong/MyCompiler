@@ -21,11 +21,12 @@ import static java.lang.System.exit;
 
 public class Mxstar {
     public static void main(String[] args) {
-        //CharStream input = CharStreams.fromStream(System.in);
+
         try {
             InputStream in = System.in;
-            ANTLRInputStream inp = new ANTLRInputStream(in);
-            MxstarLexer lexer = new MxstarLexer(inp);
+            ANTLRInputStream input = new ANTLRInputStream(in);
+//            CharStream input = CharStreams.fromFileName("E:\\College-4\\Compiler\\mxstarw\\test\\1.mx");
+            MxstarLexer lexer = new MxstarLexer(input);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             MxstarParser parser = new MxstarParser(tokens);
             MxstarParser.CompilationUnitContext tree = parser.compilationUnit(); // parse a compilationUnit

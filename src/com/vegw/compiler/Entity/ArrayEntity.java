@@ -17,16 +17,16 @@ public class ArrayEntity extends Entity {
 
     public ArrayEntity() {
         super(new Location(0, 0), "array");
-        Location loc = new Location(0, 0);
         builtinFunction = new LinkedList<FunctionEntity>();
         scope = new LocalScope(null);
 
+        Location loc = new Location(0, 0);
         // Add "array.size()" function
         List<StmtNode> stmts = new LinkedList<StmtNode>() {{
             add(new ReturnNode(loc, new IntegerLiteralNode(loc, 0)));
         }};
         BlockNode body = new BlockNode(loc, stmts);
-        FunctionEntity size = new FunctionEntity(loc, "size", Type.INT, null, body);
+        FunctionEntity size = new FunctionEntity(loc, "size", Type.INT, new LinkedList<ParameterEntity>(), body);
         builtinFunction.add(size);
         scope.entities().put("size", size);
     }

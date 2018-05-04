@@ -1,44 +1,27 @@
-int Wallace = 1<<10;
-class sometimes {
-    int naive;
-    string haha;
-}
-class ArrayWrapper {
-    sometimes[][] arr;
-}
-int get(int n) {
-    if (n == 0) return 0;
-    return 1 + get(n-1);
+int f() {
+    int[] a = ((new int[2][3][3])[0])[1];
+    {
+        string b = (new string[3])[0];
+        {
+            int c = ((new string[3][3][3])[0][1])[2].length();
+            return c;
+        }
+    }
 }
 int main() {
-    sometimes keep = new sometimes;
-    int n = 3;
-    keep.naive = 2 + get(n) * 4 / 5;
-    bool fun = (keep.naive - 5 * 3) != (666 ^ 7);
-    while (getInt() < Wallace) {
-        keep.naive++;
-        ++n;
+    string a = "abc";
+    print(a);
+    println(toString(a.length()));
+    print(getString());
+    print(toString(3));
+    string c = a.substring(0,10);
+    int b  = a.parseInt();
+    {
+        int b = a.ord(3);
+        {
+            string b;
+        }
+        return b;
     }
-    return 0;
+    return getInt();
 }
-
-
-/*!! metadata:
-=== comment ===
-Test program structure-language_manual.mx
-=== is_public ===
-True
-=== assert ===
-success_compile
-=== timeout ===
-0
-=== input ===
-
-=== phase ===
-semantic pretest
-=== output ===
-
-=== exitcode ===
-
-
-!!*/

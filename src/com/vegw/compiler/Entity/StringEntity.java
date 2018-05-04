@@ -7,6 +7,7 @@ import com.vegw.compiler.AST.Stmt.ReturnNode;
 import com.vegw.compiler.AST.Stmt.StmtNode;
 import com.vegw.compiler.FrontEnd.LocalScope;
 import com.vegw.compiler.FrontEnd.Scope;
+import com.vegw.compiler.Type.StringType;
 import com.vegw.compiler.Type.Type;
 import com.vegw.compiler.Utils.Location;
 
@@ -19,11 +20,13 @@ public class StringEntity extends Entity {
 
     public StringEntity() {
         super(new Location(0, 0), "string");
-        Location loc = new Location(0, 0);
         builtinFunction = new LinkedList<FunctionEntity>();
         scope = new LocalScope(null);
+    }
 
+    public void addStringTypeBuiltinFunction() {
 
+        Location loc = new Location(0, 0);
         // Add builtin function
         List<StmtNode> lengthStmts = new LinkedList<StmtNode>() {{
             add(new ReturnNode(loc, new IntegerLiteralNode(loc, 0)));
@@ -41,7 +44,7 @@ public class StringEntity extends Entity {
             add(new ParameterEntity(loc, "left",Type.INT));
             add(new ParameterEntity(loc, "right",Type.INT));
         }};
-        FunctionEntity substring = new FunctionEntity(loc, "substring", Type.INT, substringParams, substringBody);
+        FunctionEntity substring = new FunctionEntity(loc, "substring", Type.STRING, substringParams, substringBody);
         builtinFunction.add(substring);
 
         // Add "string.parseInt()" function

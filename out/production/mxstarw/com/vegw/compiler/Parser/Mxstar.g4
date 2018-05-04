@@ -121,12 +121,12 @@ expression
 
 creator
     :   type=('int' | 'bool' | 'string' | Identifier)
-                    ('[' expression ']')+
+                    ('[' expression ']')*
                     ('[' ']')+
                     ('[' expression ']')+            # ErrorCreator
     |   type=('int' | 'bool' | 'string' | Identifier)
                     ('[' expression ']')+
-                    ('[' ']')?                       # ArrayCreator
+                    ('[' ']')*                       # ArrayCreator
     |   type=Identifier                              # nonArrayCreator
     ;
 

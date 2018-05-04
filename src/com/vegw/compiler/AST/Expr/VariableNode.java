@@ -39,14 +39,15 @@ public class VariableNode extends ExprNode {
     }
 
     public String name() { return name; }
+
     @Override
     public Location location() {
-        return null;
+        return location;
     }
 
     @Override
     public String toString() {
-        return null;
+        return "VariableNode";
     }
 
     public <S, E> E accept(ASTVisitor<S, E> visitor) {

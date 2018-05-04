@@ -177,7 +177,7 @@ public class ASTBuilder extends MxstarBaseListener {
         map.put(ctx, new ClassDefNode(entity));
     }
     @Override public void exitConstructor(MxstarParser.ConstructorContext ctx) {
-        FunctionEntity entity = new FunctionEntity(new Location(ctx), ctx.name.getText(), null, null,
+        FunctionEntity entity = new FunctionEntity(new Location(ctx), ctx.name.getText(), null, new LinkedList<ParameterEntity>(),
                 (BlockNode) map.get(ctx.block()));
         map.put(ctx, new FunctionDefNode(entity));
     }
