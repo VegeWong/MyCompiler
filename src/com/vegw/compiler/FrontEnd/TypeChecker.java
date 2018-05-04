@@ -53,8 +53,8 @@ public class TypeChecker extends Visitor {
         Type expect = Type.INT;
         boolean checkEditable = false;
         switch (node.operator()) {
-            case PREM: case PREP:
             case POSP: case POSM: checkEditable = true;
+            case PREM: case PREP:
             case POS: case NEG:
             case BITN: break;
             case LOGN: expect = Type.BOOL; break;
@@ -67,7 +67,7 @@ public class TypeChecker extends Visitor {
             return null;
         }
         if (checkEditable) {
-            if (node.expr().isAssignable())
+            if (!node.expr().isAssignable())
                 errorHandler.error(node,  "Expression cannot taken as lvalue");
         }
         return null;

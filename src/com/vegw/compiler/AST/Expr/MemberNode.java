@@ -1,6 +1,7 @@
 package com.vegw.compiler.AST.Expr;
 
 import com.vegw.compiler.FrontEnd.ASTVisitor;
+import com.vegw.compiler.Type.FunctionType;
 import com.vegw.compiler.Type.Type;
 import com.vegw.compiler.Utils.Location;
 
@@ -26,7 +27,10 @@ public class MemberNode extends ExprNode {
 
     public String member() { return member; }
 
-    public void setType(Type type) { this.type = type; }
+    public void setType(Type type) {
+        this.type = type;
+        isAssignable = !(type instanceof FunctionType);
+    }
     @Override
     public Location location() {
         return field.location();

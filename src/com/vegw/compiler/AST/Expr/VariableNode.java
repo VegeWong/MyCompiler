@@ -19,7 +19,6 @@ public class VariableNode extends ExprNode {
     protected String name;
     protected Entity entity;
     protected Type type;
-    protected boolean isAbleToSelfAddAndMinus;
 
     public VariableNode(Location location, String name) {
         this.location = location;
