@@ -69,11 +69,9 @@ public class TypeChecker extends Visitor {
         if (checkEditable) {
             if (node.expr() instanceof IntegerLiteralNode)
                 errorHandler.error(node,  "Constant cannot taken as lvalue");
-            else if (node.expr() instanceof VariableNode) {
-                if (!((VariableNode) node.expr()).isAbleToSelfAddAndMinus())
-                    errorHandler.error(node,  "Unary operation " + node.operator().name() +
-                        " cannot be applied to variable has undetermined value:" + node.expr().type().toString());
-            }
+//            else if (!node.expr().isDetermined()) {
+//                errorHandler.error(node,  "Unary operation " + node.operator().name() + " cannot be applied to variable has undetermined value:" + node.expr().type().toString());
+//            }
         }
         return null;
     }

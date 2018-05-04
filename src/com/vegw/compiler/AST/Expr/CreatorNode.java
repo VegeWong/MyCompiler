@@ -13,6 +13,7 @@ public class CreatorNode extends ExprNode {
     protected List<ExprNode> dimensionExprs;
 
     public CreatorNode(Location location, Type type, List<ExprNode> dimensionExprs) {
+        super.isDetermined = false;
         this.location = location;
         this.type = type;
         this.dimensionExprs = dimensionExprs;

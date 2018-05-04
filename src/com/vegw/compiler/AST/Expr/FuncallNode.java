@@ -16,6 +16,7 @@ public class FuncallNode extends ExprNode {
         this.name = name;
         this.params = params;
         super.isAssignable = false;
+        super.isDetermined = true;
     }
 
     public ExprNode name() {

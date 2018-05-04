@@ -12,9 +12,10 @@ public class ArefNode extends ExprNode {
 
 
     public ArefNode(ExprNode base, ExprNode index) {
+        super.isAssignable = true;
         this.base = base;
         this.index = index;
-        super.isAssignable = true;
+        super.isDetermined = false;
     }
 
     public boolean isMultiDimension() {
@@ -35,6 +36,7 @@ public class ArefNode extends ExprNode {
 
     public void setType(Type type) {
         this.type = type;
+        super.isDetermined = base.isDetermined && index.isDetermined;
     }
 
     @Override
