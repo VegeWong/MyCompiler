@@ -2,6 +2,7 @@ package com.vegw.compiler.FrontEnd;
 
 import com.vegw.compiler.AST.ASTNode;
 import com.vegw.compiler.AST.Expr.*;
+import com.vegw.compiler.AST.Expr.Literal.IntegerLiteralNode;
 import com.vegw.compiler.AST.Stmt.*;
 import com.vegw.compiler.AST.Stmt.Def.DefinitionNode;
 import com.vegw.compiler.AST.Stmt.Def.FunctionDefNode;
@@ -38,17 +39,24 @@ public class TypeChecker extends Visitor {
         super.visit(node);
         node.setType(node.expr().type());
         Type expect = Type.INT;
+        boolean checkAssignable = false;
         switch (node.operator()) {
             case PREM: case PREP:
-            case POSP: case POSM:
+            case POSP: case POSM: checkAssignable = true;
             case POS: case NEG:
             case BITN: break;
             case LOGN: expect = Type.BOOL; break;
             default:
                 errorHandler.error(node,  "Unknown unary operation");
-
         }
-        expect.isSameType(node.type());
+        if (!expect.isSameType(node.type())) {
+            errorHandler.error(node,  "Unary operation " + node.operator().name() +
+                    "cannot be applied to type" + node.expr().type().toString());
+        }
+        if (checkAssignable) {
+            if (node.expr() instanceof IntegerLiteralNode)
+                errorHandler.error(node,  "Constant cannot taken as lvalue");
+        }
         return null;
     }
 
@@ -142,7 +150,7 @@ public class TypeChecker extends Visitor {
             for (Iterator pitr = params.iterator(), aitr = args.iterator(); pitr.hasNext();) {
                 Type paramType = ((ParameterEntity)pitr.next()).type();
                 Type argType = ((ExprNode)aitr.next()).type();
-                if (!argType.isSameType(paramType)) {
+                if (!argType.isConvertable(paramType)) {
                     errorHandler.error(node, "The argument differs with required type");
                 }
             }
@@ -194,9 +202,9 @@ public class TypeChecker extends Visitor {
             errorHandler.error(node, "Required member missing");
             return null;
         }
-        
+
         if (ent instanceof FunctionEntity) node.setType(new FunctionType(ent.name(), (FunctionEntity) ent));
-        else node.setType(((VariableEntity) ent).type());
+        else {node.setType(((VariableEntity) ent).type()); node.setIsAssignable(true);}
 
         return null;
     }
@@ -320,7 +328,7 @@ public class TypeChecker extends Visitor {
         ExprNode value = entity.value();
         if (value != null) {
             visit(value);
-            if (!(entity.type().isSameType(value.type()))){
+            if (!(entity.type().isConvertable(value.type()))){
                 errorHandler.error(node, "Initialization conflicts with variable type");
             }
             if (value.type() == Type.VOID) {

@@ -8,10 +8,16 @@ public class MemberNode extends ExprNode {
     protected ExprNode field;
     protected String member;
     protected Type type;
+
     public MemberNode(ExprNode field, String member) {
+        super.isAssignable = false;
         this.field = field;
         this.member = member;
         this.type = null;
+    }
+
+    public void setIsAssignable(boolean is) {
+        super.isAssignable = is;
     }
 
     public ExprNode field() {

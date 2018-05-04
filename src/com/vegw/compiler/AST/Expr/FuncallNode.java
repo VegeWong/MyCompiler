@@ -22,6 +22,10 @@ public class FuncallNode extends ExprNode {
         return name;
     }
 
+    public void setIsAssignable(boolean is) {
+        super.isAssignable = is;
+    }
+
     public List<ExprNode> params() {
         return params;
     }

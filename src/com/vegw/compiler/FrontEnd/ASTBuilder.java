@@ -225,7 +225,7 @@ public class ASTBuilder extends MxstarBaseListener {
             map.put(ctx, new UnaryOpNode(operator, (ExprNode) map.get(ctx.expression())));
     }
     @Override public void exitSubExpression(MxstarParser.SubExpressionContext ctx)  {
-        map.put(ctx, ctx.expression());
+        map.put(ctx, map.get(ctx.expression()));
     }
     @Override public void exitArefExpr(MxstarParser.ArefExprContext ctx) {
         ArefNode arefNode = new ArefNode((ExprNode) map.get(ctx.expression(0)), (ExprNode) map.get(ctx.expression(1)));
@@ -256,7 +256,7 @@ public class ASTBuilder extends MxstarBaseListener {
         Type type = Mapping.PrimitiveType.get(ctx.type.getText());
         if (type == null)
             type = new ClassType(ctx.type.getText());
-        map.put(ctx, new CreatorNode(new Location(ctx), type, null));
+        map.put(ctx, new CreatorNode(new Location(ctx), type, new LinkedList<ExprNode>()));
     }
     @Override public void exitInteger(MxstarParser.IntegerContext ctx) {
         map.put(ctx, new IntegerLiteralNode(new Location(ctx), Integer.parseInt(ctx.IntegerConstant().getText())));
