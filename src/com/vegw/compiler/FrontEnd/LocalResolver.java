@@ -98,14 +98,6 @@ public class LocalResolver extends Visitor {
         }
 
         ast.setScope(toplevel);
-        try {
-            Entity entity = ast.scope.get("main");
-            if (!(entity instanceof FunctionEntity))
-                throw new SemanticException("Variable and class cannot be named as 'main'");
-        } catch (SemanticException se) {
-            errorHandler.error(ast, "Main function missing");
-            throw(se);
-        }
     }
 
     private void pushScope() {

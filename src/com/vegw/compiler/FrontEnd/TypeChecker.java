@@ -8,6 +8,7 @@ import com.vegw.compiler.AST.Stmt.Def.DefinitionNode;
 import com.vegw.compiler.AST.Stmt.Def.FunctionDefNode;
 import com.vegw.compiler.AST.Stmt.Def.VariableDefNode;
 import com.vegw.compiler.Entity.*;
+import com.vegw.compiler.Exception.SemanticException;
 import com.vegw.compiler.Type.*;
 import com.vegw.compiler.Utils.ErrorHandler;
 
@@ -23,7 +24,17 @@ public class TypeChecker extends Visitor {
         errorHandler = h;
     }
 
-    public void check(ASTNode ast) {
+    public void check(ASTNode ast) throws SemanticException {
+        try {
+            Entity entity = ast.scope.get("main");
+            if (!(entity instanceof FunctionEntity))
+                throw new SemanticException("Variable and class cannot be named as 'main'");
+            else if (((FunctionEntity) entity).returnType() != Type.INT)
+                throw new SemanticException("Main function return noninteger result");
+        } catch (SemanticException se) {
+            errorHandler.error(ast, "Main function missing");
+            throw(se);
+        }
         visit(ast.defs);
     }
 
@@ -254,7 +265,6 @@ public class TypeChecker extends Visitor {
     public Void visit(BreakNode node) {
         if (depth == 0)
             errorHandler.error(node, "Break without loop");
-        depth -= 1;
         return null;
     }
 
@@ -267,12 +277,20 @@ public class TypeChecker extends Visitor {
 
     @Override
     public Void visit(ForNode node) {
-        visit(node.init());
-        visit(node.cond());
-        visit(node.step());
-        depth += 1;
-        visit(node.body());
-        depth -= 1;
+        if (node.init() != null)
+            visit(node.init());
+        if (node.cond() != null) {
+            visit(node.cond());
+            if (node.cond().type() != Type.BOOL)
+                errorHandler.error(node, "If condition expression returns non boolean result");
+        }
+        if (node.step() != null)
+            visit(node.step());
+        if (node.body() != null) {
+            depth += 1;
+            visit(node.body());
+            depth -= 1;
+        }
         return null;
     }
 
@@ -283,7 +301,7 @@ public class TypeChecker extends Visitor {
             visit(node.elseBody());
         visit(node.cond());
         if (!(node.cond().type() == Type.BOOL))
-            errorHandler.error(node, "Condition expression for if returns a non bool value");
+            errorHandler.error(node, "Condition expression for if returns a non boolean value");
         return null;
     }
 
@@ -316,9 +334,11 @@ public class TypeChecker extends Visitor {
         if (cond.type() != Type.BOOL) {
             errorHandler.error(node, "Condition expression returns non bool value");
         }
-        depth += 1;
-        visit(node.body());
-        depth -= 1;
+        if (node.body() != null) {
+            depth += 1;
+            visit(node.body());
+            depth -= 1;
+        }
         return null;
     }
 

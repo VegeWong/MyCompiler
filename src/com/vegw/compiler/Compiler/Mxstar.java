@@ -36,6 +36,7 @@ public class Mxstar {
             walker.walk(listener, tree);   // 0th pass, CST -> AST
 
             ASTNode ast  = listener.ast();
+
             LocalResolver resolver = new LocalResolver(new ErrorHandler("LocalResolver"));
             try {
                 resolver.resolve(ast);
@@ -44,10 +45,21 @@ public class Mxstar {
                 ErrorHandler.printLog();
                 exit(1);
             }
+
             TypeChecker typeChecker = new TypeChecker(new ErrorHandler("TypeCheck"));
-            typeChecker.check(ast);
-            ErrorHandler.printLog();
-            if (ErrorHandler.errorCount() != 0) exit(1);
+            try {
+                typeChecker.check(ast);
+            } catch (SemanticException se) {
+                ErrorHandler.printOuterError(se.getMessage());
+                ErrorHandler.printLog();
+                exit(1);
+            }
+
+            if (ErrorHandler.errorCount() != 0){
+                ErrorHandler.printLog();
+                exit(1);
+            }
+
         } catch (IOException io) {
             ErrorHandler.printOuterError("Compile Start Error: IOException");
             ErrorHandler.printOuterError("Detail: " + io.getMessage());
