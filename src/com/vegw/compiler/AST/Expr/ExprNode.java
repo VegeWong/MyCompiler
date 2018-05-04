@@ -8,7 +8,6 @@ abstract public class ExprNode extends Node {
     protected boolean isAssignable;
     protected boolean isDetermined;
     public boolean isAssignable() { return isAssignable; }
-    public boolean isDetermined() { return isDetermined; }
     abstract public <S, E> E accept(ASTVisitor<S, E> visitor);
     abstract public Type type();
 }

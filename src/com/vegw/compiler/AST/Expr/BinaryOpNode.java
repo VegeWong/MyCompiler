@@ -52,7 +52,6 @@ public class BinaryOpNode extends ExprNode {
         this.right = right;
         this.type = t;
         super.isAssignable = false;
-        super.isDetermined = false;
     }
 
     public BinaryOp operator() {
@@ -65,7 +64,6 @@ public class BinaryOpNode extends ExprNode {
 
     public void setType(Type type) {
         this.type = type;
-        super.isDetermined = left.isDetermined && right.isDetermined;
     }
 
     public ExprNode left() {

@@ -11,7 +11,6 @@ public class MemberNode extends ExprNode {
 
     public MemberNode(ExprNode field, String member) {
         super.isAssignable = false;
-        super.isDetermined = true;
         this.field = field;
         this.member = member;
         this.type = null;

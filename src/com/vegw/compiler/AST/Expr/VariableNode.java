@@ -26,19 +26,13 @@ public class VariableNode extends ExprNode {
         this.name = name;
         this.entity = null;
         super.isAssignable = true;
-        super.isDetermined = false;
     }
 
     public void setEntity(Entity entity) {
         this.entity = entity;
         if (entity instanceof FunctionEntity) { type = new FunctionType(entity.name(), (FunctionEntity) entity); }
         else if (entity instanceof ClassEntity) type = new ClassType(entity.name(), (ClassEntity) entity);
-        else {
-            type = ((VariableEntity) entity).type();
-            if (((VariableEntity) entity).value() != null)
-                super.isDetermined = ((VariableEntity) entity).value().isDetermined;
-        }
-
+        else { type = ((VariableEntity) entity).type(); }
     }
 
     public Entity entity() {

@@ -35,7 +35,6 @@ public class UnaryOpNode extends ExprNode {
 
     public void setType(Type type) {
         this.type = type;
-        super.isDetermined = expr.isDetermined;
     }
 
     public ExprNode expr() {
