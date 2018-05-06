@@ -24,7 +24,7 @@ public class Mxstar {
         try {
             InputStream in = System.in;
             ANTLRInputStream input = new ANTLRInputStream(in);
-//            CharStream input = CharStreams.fromFileName("E:\\College-4\\Compiler\\mxstarw\\test\\1.mx");
+//            CharStream input = CharStreams.fromFileName("E:\\College-4\\Compiler\\mxstar\\test\\1.mx");
             MxstarLexer lexer = new MxstarLexer(input);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             MxstarParser parser = new MxstarParser(tokens);

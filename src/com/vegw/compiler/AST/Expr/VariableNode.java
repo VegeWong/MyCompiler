@@ -31,7 +31,10 @@ public class VariableNode extends ExprNode {
         this.entity = entity;
         if (entity instanceof FunctionEntity) { type = new FunctionType(entity.name(), (FunctionEntity) entity); }
         else if (entity instanceof ClassEntity) type = new ClassType(entity.name(), (ClassEntity) entity);
-        else { type = ((VariableEntity) entity).type(); }
+        else {
+            type = ((VariableEntity) entity).type();
+            super.isAssignable = !entity.name().equals("this");
+        }
     }
 
     public Entity entity() {
