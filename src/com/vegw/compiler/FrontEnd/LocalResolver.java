@@ -1,25 +1,25 @@
 package com.vegw.compiler.FrontEnd;
 
 import com.vegw.compiler.AST.ASTNode;
-import com.vegw.compiler.AST.Expr.ArefNode;
 import com.vegw.compiler.AST.Expr.CreatorNode;
-import com.vegw.compiler.AST.Expr.FuncallNode;
-import com.vegw.compiler.AST.Expr.Literal.IntegerLiteralNode;
-import com.vegw.compiler.AST.Expr.Literal.StringLiteralNode;
 import com.vegw.compiler.AST.Expr.VariableNode;
-import com.vegw.compiler.AST.Stmt.*;
+import com.vegw.compiler.AST.Stmt.BlockNode;
 import com.vegw.compiler.AST.Stmt.Def.ClassDefNode;
 import com.vegw.compiler.AST.Stmt.Def.DefinitionNode;
 import com.vegw.compiler.AST.Stmt.Def.FunctionDefNode;
 import com.vegw.compiler.AST.Stmt.Def.VariableDefNode;
+import com.vegw.compiler.AST.Stmt.IfNode;
+import com.vegw.compiler.AST.Stmt.WhileNode;
 import com.vegw.compiler.Entity.*;
 import com.vegw.compiler.Exception.SemanticException;
-import com.vegw.compiler.Type.*;
+import com.vegw.compiler.Type.ArrayType;
+import com.vegw.compiler.Type.ClassType;
+import com.vegw.compiler.Type.FunctionType;
+import com.vegw.compiler.Type.Type;
+import com.vegw.compiler.Utils.BuiltinFunction;
 import com.vegw.compiler.Utils.ErrorHandler;
 import com.vegw.compiler.Utils.Location;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Stack;
 
 
@@ -242,56 +242,18 @@ public class LocalResolver extends Visitor {
     }
 
 
+    private void addFunction(String funcName) {
+        topScope.entities.put(funcName, BuiltinFunction.get("__FUNC__" + funcName));
+    }
     private void addGlobalBuiltinFunction() {
+        addFunction("print");
+        addFunction("println");
+        addFunction("getString");
+        addFunction("getInt");
+        addFunction("toString");
+    }
+    private void addBuiltinFunction() {
         Type.STRING.entity().addStringTypeBuiltinFunction();
-        Location loc = new Location(0,0);
-        // Add "print()" function
-        List<StmtNode> printStmts = new LinkedList<StmtNode>();
-        BlockNode printBody = new BlockNode(loc, printStmts);
-        List<ParameterEntity> printParams = new LinkedList<ParameterEntity>() {{
-            add(new ParameterEntity(loc, "str", Type.STRING));
-        }};
-        FunctionEntity print = new FunctionEntity(loc, "print", Type.VOID, printParams, printBody);
-        currentScope.entities().put("print", print);
-
-        // Add "println()" function
-        List<StmtNode> printlnStmts = new LinkedList<StmtNode>();
-        BlockNode printlnBody = new BlockNode(loc, printlnStmts);
-        List<ParameterEntity> printlnParams = new LinkedList<ParameterEntity>() {{
-            add(new ParameterEntity(loc, "str", Type.STRING));
-        }};
-        FunctionEntity println = new FunctionEntity(loc, "println", Type.VOID, printlnParams, printlnBody);
-        currentScope.entities().put("println", println);
-
-        // Add "getString()" function
-        List<StmtNode> getStringStmts = new LinkedList<StmtNode>(){{
-            add(new ReturnNode(loc, new StringLiteralNode(loc, " ")));
-        }};
-        BlockNode getStringBody = new BlockNode(loc, getStringStmts);
-        List<ParameterEntity> getStringParams = new LinkedList<ParameterEntity>() {{
-        }};
-        FunctionEntity getString = new FunctionEntity(loc, "getString", Type.STRING, getStringParams, getStringBody);
-        currentScope.entities().put("getString", getString);
-
-        // Add "getInt()" function
-        List<StmtNode> getIntStmts = new LinkedList<StmtNode>(){{
-            add(new ReturnNode(loc, new IntegerLiteralNode(loc, 0)));
-        }};
-        BlockNode getIntBody = new BlockNode(loc, getIntStmts);
-        List<ParameterEntity> getIntParams = new LinkedList<ParameterEntity>() {{
-        }};
-        FunctionEntity getInt = new FunctionEntity(loc, "getInt", Type.INT, getIntParams, getIntBody);
-        currentScope.entities().put("getInt", getInt);
-
-        // Add "toString()" function
-        List<StmtNode> toStringStmts = new LinkedList<StmtNode>(){{
-            add(new ReturnNode(loc, new StringLiteralNode(loc, " ")));
-        }};
-        BlockNode toStringBody = new BlockNode(loc, toStringStmts);
-        List<ParameterEntity> toStringParams = new LinkedList<ParameterEntity>() {{
-            add(new ParameterEntity(loc, "i", Type.INT));
-        }};
-        FunctionEntity toString = new FunctionEntity(loc, "toString", Type.STRING, toStringParams, toStringBody);
-        currentScope.entities().put("toString", toString);
+        addGlobalBuiltinFunction();
     }
 }

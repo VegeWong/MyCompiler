@@ -2,6 +2,7 @@ package com.vegw.compiler.Entity;
 
 import com.vegw.compiler.AST.Stmt.BlockNode;
 import com.vegw.compiler.FrontEnd.Scope;
+import com.vegw.compiler.IR.Tree.Label;
 import com.vegw.compiler.Type.Type;
 import com.vegw.compiler.Utils.Location;
 
@@ -13,6 +14,13 @@ public class FunctionEntity extends Entity {
     protected BlockNode body;
     protected boolean isConstructor;
     protected Scope scope;
+
+    // For IR
+    public Label begin;
+    public Label end;
+
+
+
 
     public FunctionEntity(Location location, String name,
                           Type returnType, List<ParameterEntity> params,

@@ -1,6 +1,10 @@
 package com.vegw.compiler.Type;
 
+import com.vegw.compiler.Utils.Constants;
+
 public class BoolType extends Type {
+
+    public BoolType() { super.size = Constants.BoolSize; }
 
     @Override
     public boolean isConvertable(Type t) {

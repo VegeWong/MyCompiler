@@ -1,6 +1,5 @@
 package com.vegw.compiler.AST.Expr;
 
-import com.vegw.compiler.AST.Stmt.Def.VariableDefNode;
 import com.vegw.compiler.Entity.ClassEntity;
 import com.vegw.compiler.Entity.Entity;
 import com.vegw.compiler.Entity.FunctionEntity;
@@ -61,4 +60,7 @@ public class VariableNode extends ExprNode {
     public Type type() {
         return type;
     }
+
+    @Override
+    public int size() { return type.size; }
 }

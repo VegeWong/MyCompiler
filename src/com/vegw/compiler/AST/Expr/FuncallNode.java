@@ -3,6 +3,7 @@ package com.vegw.compiler.AST.Expr;
 import com.vegw.compiler.FrontEnd.ASTVisitor;
 import com.vegw.compiler.Type.FunctionType;
 import com.vegw.compiler.Type.Type;
+import com.vegw.compiler.Utils.Constants;
 import com.vegw.compiler.Utils.Location;
 
 import java.util.List;
@@ -47,9 +48,13 @@ public class FuncallNode extends ExprNode {
     public FunctionType functionType() {
         return (FunctionType)name.type();
     }
+
     @Override
     public Type type() {
         return functionType().entity().returnType();
+
     }
+    @Override
+    public int size() { return Constants.NullSize; }
 
 }

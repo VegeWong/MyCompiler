@@ -5,12 +5,17 @@ import com.vegw.compiler.FrontEnd.Scope;
 import com.vegw.compiler.Type.Type;
 import com.vegw.compiler.Utils.Location;
 
-import java.util.LinkedList;
-
 public class VariableEntity extends Entity {
     protected Type type;
     protected ExprNode value;
     protected Scope scope;
+
+    // Record offset if variable is a member
+    public void setOffset(int off) {
+        super.offset = off;
+        super.isMember = true;
+    }
+
 
     public VariableEntity(Location location, String name,
                           Type type) {

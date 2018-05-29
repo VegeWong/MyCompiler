@@ -1,14 +1,17 @@
 package com.vegw.compiler.Type;
 
 import com.vegw.compiler.Entity.ClassEntity;
+import com.vegw.compiler.Utils.Constants;
 
 public class ClassType extends Type {
     protected String name;
     protected ClassEntity entity;
 
+
     public ClassType(String name) {
         this.name = name;
         this.entity = null;
+        super.size = Constants.PointerSize;
     }
 
     public ClassType(String name, ClassEntity entity) {

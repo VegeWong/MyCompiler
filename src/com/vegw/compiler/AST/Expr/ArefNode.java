@@ -2,6 +2,7 @@ package com.vegw.compiler.AST.Expr;
 
 import com.vegw.compiler.FrontEnd.ASTVisitor;
 import com.vegw.compiler.Type.Type;
+import com.vegw.compiler.Utils.Constants;
 import com.vegw.compiler.Utils.Location;
 
 public class ArefNode extends ExprNode {
@@ -47,6 +48,11 @@ public class ArefNode extends ExprNode {
         String str;
         str = "ArefNode";
         return str;
+    }
+
+    @Override
+    public int size() {
+        return isMultiDimension()? Constants.PointerSize : base.size();
     }
 
     public <S, E> E accept(ASTVisitor<S, E> visitor) {

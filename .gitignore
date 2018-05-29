@@ -4,3 +4,6 @@ mxstarw.iml
 *.log
 *.tokens
 *.interp
+bin/*
+gen/*
+out/*

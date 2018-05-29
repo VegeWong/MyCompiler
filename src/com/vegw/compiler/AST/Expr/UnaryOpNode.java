@@ -13,7 +13,7 @@ public class UnaryOpNode extends ExprNode {
          POS, NEG,
          LOGN,
          BITN
-     }
+    }
 
     protected UnaryOp operator;
     protected ExprNode expr;
@@ -22,7 +22,7 @@ public class UnaryOpNode extends ExprNode {
     public UnaryOpNode(UnaryOp op, ExprNode expr) {
         this.operator = op;
         this.expr = expr;
-        super.isAssignable = false;
+        super.isAssignable = (op == UnaryOp.POSP || op == UnaryOp.PREM);
     }
 
     public UnaryOp operator() {

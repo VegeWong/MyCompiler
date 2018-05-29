@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.Map;
 
 public class TopLevelScope extends Scope {
-    protected Map<String, Entity> entities;
+
 
     public TopLevelScope() {
-        entities = new LinkedHashMap<String, Entity>();
+        super.entities = new LinkedHashMap<String, Entity>();
     }
 
     @Override

@@ -10,11 +10,11 @@ import java.util.Map;
 
 public class LocalScope extends Scope {
     protected Scope parent;
-    protected Map<String, Entity> entities;
 
     public LocalScope(Scope parent) {
+        super.entities = new LinkedHashMap<String, Entity>();
         this.parent = parent;
-        this.entities = new LinkedHashMap<String, Entity>();
+
     }
 
     public Map<String, Entity> entities() {

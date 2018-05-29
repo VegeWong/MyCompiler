@@ -1,6 +1,7 @@
 package com.vegw.compiler.Type;
 
 import com.vegw.compiler.Entity.ArrayEntity;
+import com.vegw.compiler.Utils.Constants;
 
 public class ArrayType extends Type {
     protected Type baseType;
@@ -10,7 +11,9 @@ public class ArrayType extends Type {
     public ArrayType(Type baseType, int demension) {
         this.baseType = baseType;
         this.demension = demension;
+        super.size = Constants.PointerSize;
     }
+
 
     public int demension() {
         return demension;

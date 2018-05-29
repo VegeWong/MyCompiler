@@ -87,10 +87,12 @@ public class TypeChecker extends Visitor {
                 }
                 if (left.isSameType(Type.INT) || left.isSameType(Type.STRING)) {
                     node.setType(left);
+
                 }
                 else
                     errorHandler.error(node, "Binary operator " + node.operator().name() +
                             " cannot be applied to type:" + left.toString());
+
                 break;
             }
             case LT: case GT:
@@ -227,8 +229,7 @@ public class TypeChecker extends Visitor {
             return null;
         }
 
-        if (ent instanceof FunctionEntity) node.setType(new FunctionType(ent.name(), (FunctionEntity) ent));
-        else {node.setType(((VariableEntity) ent).type()); node.setIsAssignable(true);}
+        node.setEntity(ent);
 
         return null;
     }

@@ -2,6 +2,7 @@ package com.vegw.compiler.AST.Expr.Literal;
 
 import com.vegw.compiler.FrontEnd.ASTVisitor;
 import com.vegw.compiler.Type.Type;
+import com.vegw.compiler.Utils.Constants;
 import com.vegw.compiler.Utils.Location;
 
 public class StringLiteralNode extends LiteralNode {
@@ -29,4 +30,7 @@ public class StringLiteralNode extends LiteralNode {
     public Type type() {
         return Type.STRING;
     }
+
+    @Override
+    public int size() { return Constants.AddrSize; }
 }

@@ -15,11 +15,13 @@ public class ClassEntity extends Entity {
     protected List<VariableDefNode> vars;
     protected Scope scope;
     protected ClassType classType;
+    protected int size;
 
     public ClassEntity(Location location, String name,
                        List<FunctionDefNode> funcs,
                        List<VariableDefNode> vars) {
         super(location, name);
+        super.thisPtr = this;
         this.funcs = funcs;
         this.vars = vars;
         classType = null;
@@ -35,6 +37,8 @@ public class ClassEntity extends Entity {
     public Scope scope() {
         return scope;
     }
+
+    public void setOffset() { this.size = scope.setMemberOffset(this); }
 
     public FunctionDefNode constructor() {
         return constructor;

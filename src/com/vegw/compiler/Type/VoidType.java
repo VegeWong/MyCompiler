@@ -2,6 +2,8 @@ package com.vegw.compiler.Type;
 
 public class VoidType extends Type {
 
+    public VoidType() { super.size = 0; }
+
     @Override
     public boolean isConvertable(Type t) {
         return (t == Type.VOID);

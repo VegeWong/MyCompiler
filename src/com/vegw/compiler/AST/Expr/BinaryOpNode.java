@@ -2,6 +2,7 @@ package com.vegw.compiler.AST.Expr;
 
 import com.vegw.compiler.FrontEnd.ASTVisitor;
 import com.vegw.compiler.Type.Type;
+import com.vegw.compiler.Utils.Constants;
 import com.vegw.compiler.Utils.Location;
 
 public class BinaryOpNode extends ExprNode {
@@ -92,6 +93,9 @@ public class BinaryOpNode extends ExprNode {
         String str = "BinaryOp " + "Operator: " + operator;
         return str;
     }
+
+    @Override
+    public int size() { return Constants.NullSize; }
 
     public <S, E> E accept(ASTVisitor<S, E> visitor) {
         return visitor.visit(this);

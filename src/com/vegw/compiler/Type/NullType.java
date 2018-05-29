@@ -1,6 +1,10 @@
 package com.vegw.compiler.Type;
 
+import com.vegw.compiler.Utils.Constants;
+
 public class NullType extends Type {
+
+    public NullType() { super.size = Constants.PointerSize; }
 
     @Override
     public boolean isConvertable(Type t) {
