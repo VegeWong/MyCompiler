@@ -12,7 +12,6 @@ import com.vegw.compiler.AST.Stmt.Def.DefinitionNode;
 import com.vegw.compiler.AST.Stmt.Def.FunctionDefNode;
 import com.vegw.compiler.AST.Stmt.Def.VariableDefNode;
 import com.vegw.compiler.Entity.*;
-import com.vegw.compiler.Exception.InternException;
 import com.vegw.compiler.FrontEnd.ASTVisitor;
 import com.vegw.compiler.FrontEnd.LocalScope;
 import com.vegw.compiler.FrontEnd.Scope;
@@ -32,12 +31,16 @@ import java.util.Stack;
 public class IRGenerator implements ASTVisitor<Void,Expr> {
     private final static Imme ZERO = new Imme(0);
     private final static Imme ONE = new Imme(1);
+    private final static Imme EIGHT = new Imme(8);
 
     private List<IRInstruction> stmts;
     protected ASTNode ast;
     private FunctionEntity curFunc;
     private Stack<Scope> stack;
     private Scope curScope;
+
+    // malloc function
+    private final static FunctionEntity malloc = BuiltinFunction.get("__FUNC__malloc");
 
     // Target of continue and break in loop
     private Label continueTarget = null;
@@ -64,17 +67,19 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
         return tmp;
     }
 
-    private void processAssign(Expr dst, Expr src) throws InternException {
-        Expr dstAddr;
-
-        if (dst instanceof Var)
-            dstAddr = new Addr(((Var) dst).entity);
-        else if (dst instanceof Mem)
-            dstAddr = ((Mem) dst).addr;
+    private Expr getAddr(Expr expr){
+        Expr addr;
+        if (expr instanceof Var)
+            addr = new Addr(((Var) expr).entity);
+        else if (expr instanceof Mem)
+            addr = expr;
         else
-            throw new InternException("Invalid assign object");
+            throw new Error("Invalid addressing object");
+        return addr;
+    }
 
-        stmts.add(new Assign(dstAddr, src));
+    private void processAssign(Expr dst, Expr src){
+        stmts.add(new Assign(getAddr(dst), src));
     }
 
     public IRGenerator(ASTNode ast) {
@@ -157,8 +162,7 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
     private Expr addCjumpOrReturn(boolean cond, ExprNode node, Expr obj) {
         if (cond) {
             Var tmp = createIntTmp();
-            try { processAssign(tmp, obj); }
-            catch (InternException ie) { errorHandler.error(node, ie.getMessage()); }
+            processAssign(tmp, obj);
             stmts.add(new Cjump(tmp, node.ifTrue, node.ifFalse));
             return null;
         }
@@ -199,16 +203,16 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
             case PREM: case PREP:{
                 Binop.BinOp op = node.operator() == UnaryOpNode.UnaryOp.PREP? Binop.BinOp.ADD: Binop.BinOp.SUB;
                 Expr e = uvisit(node.expr());
-                try {processAssign(e, new Binop(op, e, ONE));} catch (InternException ie) {errorHandler.error(node, ie.getMessage());}
+                processAssign(e, new Binop(op, e, ONE));
                 res = e;
                 break;
             }
             case POSM: case POSP: {
                 Var tmp = createIntTmp();
                 Expr e = uvisit(node.expr());
-                try {processAssign(tmp, e);} catch (InternException ie) {errorHandler.error(node, ie.getMessage());}
+                processAssign(tmp, e);
                 Binop.BinOp op = node.operator() == UnaryOpNode.UnaryOp.PREP? Binop.BinOp.ADD: Binop.BinOp.SUB;
-                try {processAssign(e, new Binop(op, e, ONE));} catch (InternException ie) {errorHandler.error(node, ie.getMessage());}
+                processAssign(e, new Binop(op, e, ONE));
                 res = tmp;
             }
         }
@@ -304,8 +308,7 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
             Binop.BinOp op;
             switch (node.operator()) {
                 case ASSIGN: {
-                    try { processAssign(left, right); }
-                    catch (InternException ie) { errorHandler.error(node, ie.getMessage()); }
+                    processAssign(left, right);
                     return null;
                 }
                 case ADD: op = Binop.BinOp.ADD; break;
@@ -338,8 +341,9 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
         List<Expr> args = new LinkedList<Expr>();
         for (ExprNode param : node.params())
             args.add(uvisit(param));
-
-        return addCjumpOrReturn(node.ifTrue == null, node, new Call(entity, args));
+        Var tmp = createIntTmp();
+        processAssign(tmp, new Call(entity, args));
+        return addCjumpOrReturn(node.ifTrue == null, node, tmp);
     } // Finished
 
     @Override
@@ -369,11 +373,13 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
         Expr index = uvisit(node.index());
         --arefDepth;
 
-        MoveAddr addr = new MoveAddr(base, index);
-        Var tmp = createIntTmp();
-        try { processAssign(tmp, addr); }
-        catch (InternException ie) { errorHandler.error(node, ie.getMessage()); }
-        return tmp;
+        Mem addr = new Mem(base, index);
+        if (arefDepth > 0) {
+            Var tmp = createIntTmp();
+            processAssign(tmp, addr);
+            return tmp;
+        }
+        else return addr;
     } // Finished
 
     @Override
@@ -382,7 +388,7 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
         if (node.entity() instanceof FunctionEntity)
             errorHandler.error(node, "Visiting class member function");
         int offset = node.entity().offset();
-        return new MoveAddr(base, ZERO, new Imme(offset));
+        return new Mem(base, ZERO, new Imme(offset));
     } // Finished
 
     @Override
@@ -394,23 +400,63 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
                 errorHandler.error(node, "Class member without thisPtr");
             Expr base = new Addr(entity.thisPtr());
             int offset = entity.offset();
-            return new MoveAddr(base, ZERO, new Imme(offset));
+            return new Mem(base, ZERO, new Imme(offset));
         }
         else return new Var(entity);
     } // Finished
 
+    private void createArray(List<Expr> dimensionArgs, Expr dst, int now, int allLayer, Type type, FunctionEntity constructor) {
+        Var nowSubscript = createIntTmp();
+        Var maxSubscript = createIntTmp();
+        Label dimensionBodyLabel = new Label("dimension_body");
+        Label dimensionEndLabel = new Label("dimension_end");
+        processAssign(nowSubscript, ZERO);
+        processAssign(maxSubscript, (Expr) dimensionArgs.get(now));
+        List<Expr> mallocArgs = new LinkedList<>() {{
+            new Binop(Binop.BinOp.MUL, new Binop(Binop.BinOp.ADD, maxSubscript, ONE), EIGHT);
+        }};
+        processAssign(dst, new Call(malloc, mallocArgs));
+        stmts.add(dimensionBodyLabel);
+        Mem daddr = new Mem(dst, nowSubscript, EIGHT);
+
+        if (dimensionArgs.size() > now + 1)
+            createArray(dimensionArgs, daddr, now + 1, allLayer, type, constructor);
+        else if (allLayer == now + 1 && type instanceof ClassType && constructor != null) {
+            Var tmp = createIntTmp();
+            processAssign(tmp, new Call(malloc, new LinkedList<Expr>(){{add(new Imme(((ClassType) type).entity().size()));}}));
+            stmts.add(new Call(constructor, new LinkedList<Expr>(){{add(new Mem(tmp, null, ZERO));}}));
+            processAssign(daddr, new Mem(tmp, ZERO, ZERO));
+        }
+
+        processAssign(nowSubscript, new Binop(Binop.BinOp.ADD, nowSubscript, ONE));
+        stmts.add(new Cjump(new Binop(Binop.BinOp.LT, nowSubscript, maxSubscript),
+                dimensionBodyLabel, dimensionEndLabel));
+        stmts.add(dimensionEndLabel);
+    }
     @Override
     public Expr visit(CreatorNode node) {
         Type type = node.type();
         FunctionEntity constructor = null;
+        List<Expr> dimensionArgs = new LinkedList<Expr>();
+        for (ExprNode expr : node.dimensionExpr())
+            dimensionArgs.add(uvisit(expr));
+
+        Var tmp = createIntTmp();
         boolean isArray = type instanceof ArrayType;
         if (isArray) {
             Type baseType = ((ArrayType) type).baseType();
             if (baseType instanceof ClassType)
                 constructor = ((ClassType) baseType).entity().constructor().entity();
 
+            if (dimensionArgs.size() > 0)
+                createArray(dimensionArgs, tmp, 0, ((ArrayType) type).demension(), baseType, constructor);
         }
-        return null;
+        else {
+            processAssign(tmp, new Call(malloc, new LinkedList<Expr>(){{add(new Imme(((ClassType) type).entity().size()));}}));
+            constructor = ((ClassType) type).entity().constructor().entity();
+            stmts.add(new Call(constructor, new LinkedList<Expr>(){{add(new Mem(tmp, null, ZERO));}}));
+        }
+        return tmp;
     }
 
     @Override

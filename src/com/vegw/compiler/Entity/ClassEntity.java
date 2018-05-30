@@ -28,6 +28,8 @@ public class ClassEntity extends Entity {
         scope = null;
     }
 
+    public int size() { return size; }
+
     public ClassType classType() { return classType; }
 
     public void setScope(Scope scope) {
