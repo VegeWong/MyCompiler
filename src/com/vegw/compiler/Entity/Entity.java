@@ -19,7 +19,11 @@ public class Entity {
 
     public void setThisPtr(ClassEntity entity) { thisPtr = entity; }
 
+    public void setThisptr(ClassEntity entity) { thisPtr = entity; }
+
     public ClassEntity thisPtr() { return thisPtr; }
+
+    public void setMember(boolean isMember) { this.isMember = isMember; }
 
     public boolean isMember() { return isMember; }
 

@@ -33,6 +33,11 @@ public class UnaryOpNode extends ExprNode {
         return this.type;
     }
 
+    @Override
+    public int size() {
+        return 0;
+    }
+
     public void setType(Type type) {
         this.type = type;
     }

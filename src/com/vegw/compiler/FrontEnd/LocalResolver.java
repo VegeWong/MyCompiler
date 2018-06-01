@@ -28,6 +28,7 @@ public class LocalResolver extends Visitor {
     private final ErrorHandler errorHandler;
     private ConstantTable constantTable;
     private Scope currentScope;
+    private ClassEntity currentClass;
     private TopLevelScope topScope;
     private boolean isBody;
 
@@ -36,7 +37,7 @@ public class LocalResolver extends Visitor {
         this.errorHandler = h;
         this.stack = new Stack<>();
         this.constantTable = new ConstantTable();
-
+        this.currentClass = null;
     }
 
     private boolean resolveType(Type type) {
@@ -181,10 +182,11 @@ public class LocalResolver extends Visitor {
     @Override
     public Void visit(ClassDefNode node) {
         ClassEntity entity = node.entity();
+        currentClass = entity;
         pushScope();
         ClassType thisType = new ClassType(entity.name());
         thisType.setEntity(entity);
-        currentScope.entities().put("this", new VariableEntity(node.location(),"this", thisType));
+//        currentScope.entities().put("this", new VariableEntity(node.location(),"this", thisType));
         for (VariableDefNode var : entity.vars()) {
             visit(var);
         }
@@ -200,6 +202,7 @@ public class LocalResolver extends Visitor {
             visit(func);
         }
         entity.setScope(popScope());
+        currentClass = null;
         return null;
     }
 
@@ -209,6 +212,8 @@ public class LocalResolver extends Visitor {
         if (!resolveType(node.entity().returnType()))
             errorHandler.error(node, "Cannot resolve type" + node.entity().returnType().toString());
 
+        if (currentClass != null)
+            node.entity().params().add(0, new ParameterEntity(node.location(), "this", currentClass.classType()));
         for (ParameterEntity entity : node.entity().params()) {
             String name = entity.name();
             Type type = entity.type();

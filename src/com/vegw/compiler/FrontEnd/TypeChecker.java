@@ -173,10 +173,15 @@ public class TypeChecker extends Visitor {
         super.visit(node);
         List<ParameterEntity> params = node.functionType().entity().params();
         List<ExprNode> args = node.params();
-        if (params.size() != args.size())
+        boolean isMemberFunction = params.get(0).name().equals("this");
+        int paramOffset = isMemberFunction? 1 : 0;
+        if (params.size() != args.size() + paramOffset)
             errorHandler.error(node, "The number of parameters differs with arguments given");
         else {
-            for (Iterator pitr = params.iterator(), aitr = args.iterator(); pitr.hasNext();) {
+            Iterator pitr = params.iterator();
+            Iterator aitr = args.iterator();
+            if (isMemberFunction) pitr.next();
+            for (; pitr.hasNext();) {
                 Type paramType = ((ParameterEntity)pitr.next()).type();
                 Type argType = ((ExprNode)aitr.next()).type();
                 if (!argType.isConvertable(paramType)) {

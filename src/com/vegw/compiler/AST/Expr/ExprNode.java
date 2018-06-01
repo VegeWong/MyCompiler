@@ -2,7 +2,7 @@ package com.vegw.compiler.AST.Expr;
 
 import com.vegw.compiler.AST.Node;
 import com.vegw.compiler.FrontEnd.ASTVisitor;
-import com.vegw.compiler.IR.Tree.Label;
+import com.vegw.compiler.IR.LinearIR.Label;
 import com.vegw.compiler.Type.Type;
 
 abstract public class ExprNode extends Node {

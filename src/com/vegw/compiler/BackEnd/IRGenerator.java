@@ -15,7 +15,7 @@ import com.vegw.compiler.Entity.*;
 import com.vegw.compiler.FrontEnd.ASTVisitor;
 import com.vegw.compiler.FrontEnd.LocalScope;
 import com.vegw.compiler.FrontEnd.Scope;
-import com.vegw.compiler.IR.Tree.*;
+import com.vegw.compiler.IR.LinearIR.*;
 import com.vegw.compiler.Type.ArrayType;
 import com.vegw.compiler.Type.ClassType;
 import com.vegw.compiler.Type.Type;
@@ -38,6 +38,8 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
     private FunctionEntity curFunc;
     private Stack<Scope> stack;
     private Scope curScope;
+
+    private int labelCnt = 0;
 
     // malloc function
     private final static FunctionEntity malloc = BuiltinFunction.get("__FUNC__malloc");
@@ -89,6 +91,8 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
         curScope = stack.peek();
     }
 
+    public List<IRInstruction> getStmts() { return this.stmts; }
+
     public void generate() {
 
         Map<String, Entity> map = ast.scope.entities();
@@ -116,16 +120,14 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
                 for (FunctionDefNode func : e.funcs()) {
                     FIX = name + "." + FUNC_PREFIX;
                     FunctionEntity fe = ((FunctionDefNode) func).entity();
+                    fe.setThisPtr(e);
+                    fe.setMember(true);
                     curFunc = fe;
                     fe.rename(FIX + fe.name());
                     compileFunction(fe);
                 }
             }
         }
-
-
-
-
     }
 
     private void compileFunction(FunctionEntity e) {
@@ -135,10 +137,18 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
         e.end = end;
 
         stmts.add(begin);
-
+        // Initialization of global variables
+        if (e.name().equals("main")) {
+            for (DefinitionNode def : ast.defs) {
+                if (def instanceof VariableDefNode)
+                    uvisit(def);
+            }
+        }
         visit(e.body());
-
+        if (!(e.body().stmts().get(e.body().stmts().size() - 1) instanceof ReturnNode))
+            stmts.add(new Jump(end));
         stmts.add(end);
+
     }
 
     private Expr uvisit(ExprNode node) {
@@ -161,8 +171,12 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
 
     private Expr addCjumpOrReturn(boolean cond, ExprNode node, Expr obj) {
         if (cond) {
-            Var tmp = createIntTmp();
-            processAssign(tmp, obj);
+            Var tmp;
+            if (!(obj instanceof Var)) {
+                tmp = createIntTmp();
+                processAssign(tmp, obj);
+            }
+            else tmp = (Var) obj;
             stmts.add(new Cjump(tmp, node.ifTrue, node.ifFalse));
             return null;
         }
@@ -174,30 +188,45 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
         boolean needCjump = false;
         // For short-circuit
         if (node.ifTrue != null) {
-            needCjump = true;
             if (node.operator().equals(UnaryOpNode.UnaryOp.LOGN)) {
                 node.expr().ifTrue = node.ifFalse;
                 node.expr().ifFalse = node.ifTrue;
             }
+            else needCjump = true;
         }
 
+
+        Var tmp = createIntTmp();
         Expr res = null;
         switch (node.operator()) {
             case POS: res = uvisit(node.expr()); break;
             case NEG: {
-                res = (node.expr() instanceof IntegerLiteralNode)?
-                        new Imme(-((IntegerLiteralNode)node.expr()).value()):
-                                new Uniop(Uniop.UniOp.NEG, uvisit(node.expr()));
+                if (node.expr() instanceof IntegerLiteralNode)
+                    res = new Imme(-((IntegerLiteralNode)node.expr()).value());
+                else {
+                    processAssign(tmp, new Uniop(Uniop.UniOp.NEG, uvisit(node.expr())));
+                    res = tmp;
+                }
                 break;
             }
-            case LOGN: case BITN:{
+            case LOGN:{
                 ExprNode en = node.expr();
                 if (en instanceof BoolLiteralNode)
                     res = new Imme(~(((BoolLiteralNode) en).value()? 1: 0));
-                else if (en instanceof IntegerLiteralNode)
+                else {
+                    processAssign(tmp, new Uniop(Uniop.UniOp.LNOT, uvisit(node.expr())));
+                    res = tmp;
+                }
+                break;
+            }
+            case BITN: {
+                ExprNode en = node.expr();
+                if (en instanceof IntegerLiteralNode)
                     res = new Imme(~((IntegerLiteralNode) en).value());
-                else
-                    res = new Uniop(Uniop.UniOp.NOT, uvisit(node.expr()));
+                else {
+                    processAssign(tmp, new Uniop(Uniop.UniOp.BNOT, uvisit(node.expr())));
+                    res = tmp;
+                }
                 break;
             }
             case PREM: case PREP:{
@@ -208,7 +237,6 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
                 break;
             }
             case POSM: case POSP: {
-                Var tmp = createIntTmp();
                 Expr e = uvisit(node.expr());
                 processAssign(tmp, e);
                 Binop.BinOp op = node.operator() == UnaryOpNode.UnaryOp.PREP? Binop.BinOp.ADD: Binop.BinOp.SUB;
@@ -221,7 +249,7 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
 
     @Override
     public Expr visit(BinaryOpNode node) {
-        Label rightLabel = new Label("rhs__begin__");
+        Label rightLabel = new Label(labelCnt + "rhs__begin__");
         boolean needCjump = false;
         // For short-circuit
         if (node.ifTrue != null) {
@@ -247,7 +275,8 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
         if (node.ifTrue != null && !needCjump) stmts.add(rightLabel);
         Expr right = uvisit(node.right());
 
-        Expr res = null;
+        Var tmp = createIntTmp();
+        Expr res;
         if (left instanceof Imme && right instanceof Imme) {
             int l = ((Imme) left).value;
             int r = ((Imme) right).value;
@@ -287,9 +316,26 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
         }
         else if (node.left().type().equals(Type.STRING)) {
             String funcName = "__STRING__" + ".__FUNC__";
-            List<Expr> args = new LinkedList<Expr>() {{
-                add(left);
-                add(right);
+
+            Var tmpLeft;
+            if (left instanceof Var)
+                tmpLeft = (Var) left;
+            else {
+                tmpLeft = createIntTmp();
+                processAssign(tmpLeft, left);
+            }
+
+            Var tmpRight;
+            if (right instanceof Var)
+                tmpRight = (Var) right;
+            else {
+                tmpRight = createIntTmp();
+                processAssign(tmpRight, right);
+            }
+
+            List<Var> args = new LinkedList<Var>() {{
+                add(tmpLeft);
+                add(tmpRight);
             }};
 
             switch (node.operator()) {
@@ -302,7 +348,8 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
                 case NE: funcName += "ne"; break;
                 default: errorHandler.error(node, "Ivalid binary operation for two string"); funcName += "UNKNOW"; break;
             }
-            res = new Call(BuiltinFunction.get(funcName), args);
+            processAssign(tmp, new Call(BuiltinFunction.get(funcName), args));
+            res = tmp;
         }
         else {
             Binop.BinOp op;
@@ -330,17 +377,31 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
                 case NE: op = Binop.BinOp.NE; break;
                 default: op = Binop.BinOp.EQ; errorHandler.error(node, "Unknown binary operator"); break;
             }
-            res = new Binop(op, left, right);
+            processAssign(tmp, new Binop(op, left, right));
+            res = tmp;
         }
         return addCjumpOrReturn(needCjump, node, res);
     } // Finished
 
     @Override
     public Expr visit(FuncallNode node) {
+
         FunctionEntity entity = node.functionType().entity();
-        List<Expr> args = new LinkedList<Expr>();
-        for (ExprNode param : node.params())
-            args.add(uvisit(param));
+        List<Var> args = new LinkedList<Var>();
+        for (ExprNode param : node.params()) {
+            Expr expr = uvisit(param);
+            if (!(expr instanceof Var)) {
+                Var paramTmp = createIntTmp();
+                processAssign(paramTmp, expr);
+                args.add(paramTmp);
+            }
+            else args.add((Var) expr);
+        }
+        if (node.name() instanceof MemberNode) {
+            Var addrTmp = createIntTmp();
+            processAssign(addrTmp, getAddr(uvisit(node.name())));
+            ((LinkedList<Var>) args).addFirst(addrTmp);
+        }
         Var tmp = createIntTmp();
         processAssign(tmp, new Call(entity, args));
         return addCjumpOrReturn(node.ifTrue == null, node, tmp);
@@ -386,9 +447,9 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
     public Expr visit(MemberNode node) { // Finished
         Expr base = uvisit(node.field());
         if (node.entity() instanceof FunctionEntity)
-            errorHandler.error(node, "Visiting class member function");
+            return base;
         int offset = node.entity().offset();
-        return new Mem(base, ZERO, new Imme(offset));
+        return new Mem(base, null, new Imme(offset));
     } // Finished
 
     @Override
@@ -398,9 +459,9 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
             ClassEntity classEntity = entity.thisPtr();
             if (classEntity == null)
                 errorHandler.error(node, "Class member without thisPtr");
-            Expr base = new Addr(entity.thisPtr());
+            Expr base = new Addr(classEntity);
             int offset = entity.offset();
-            return new Mem(base, ZERO, new Imme(offset));
+            return new Mem(base, null, new Imme(offset));
         }
         else return new Var(entity);
     } // Finished
@@ -408,12 +469,15 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
     private void createArray(List<Expr> dimensionArgs, Expr dst, int now, int allLayer, Type type, FunctionEntity constructor) {
         Var nowSubscript = createIntTmp();
         Var maxSubscript = createIntTmp();
-        Label dimensionBodyLabel = new Label("dimension_body");
-        Label dimensionEndLabel = new Label("dimension_end");
+        Label dimensionBodyLabel = new Label(labelCnt + "dimension_body");
+        Label dimensionEndLabel = new Label(labelCnt + "dimension_end");
         processAssign(nowSubscript, ZERO);
         processAssign(maxSubscript, (Expr) dimensionArgs.get(now));
-        List<Expr> mallocArgs = new LinkedList<>() {{
-            new Binop(Binop.BinOp.MUL, new Binop(Binop.BinOp.ADD, maxSubscript, ONE), EIGHT);
+        List<Var> mallocArgs = new LinkedList<Var>() {{
+            Var tmp = createIntTmp();
+            processAssign(tmp, new Binop(Binop.BinOp.ADD, maxSubscript, ONE));
+            processAssign(tmp, new Binop(Binop.BinOp.MUL, tmp, EIGHT));
+            add(tmp);
         }};
         processAssign(dst, new Call(malloc, mallocArgs));
         stmts.add(dimensionBodyLabel);
@@ -423,14 +487,18 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
             createArray(dimensionArgs, daddr, now + 1, allLayer, type, constructor);
         else if (allLayer == now + 1 && type instanceof ClassType && constructor != null) {
             Var tmp = createIntTmp();
-            processAssign(tmp, new Call(malloc, new LinkedList<Expr>(){{add(new Imme(((ClassType) type).entity().size()));}}));
-            stmts.add(new Call(constructor, new LinkedList<Expr>(){{add(new Mem(tmp, null, ZERO));}}));
-            processAssign(daddr, new Mem(tmp, ZERO, ZERO));
+            processAssign(tmp, new Call(malloc, new LinkedList<Var>(){{
+                Var mallocTmp = createIntTmp();
+                processAssign(mallocTmp, new Imme(((ClassType) type).entity().size()));
+                add(mallocTmp);
+            }}));
+            stmts.add(new Call(constructor, new LinkedList<Var>(){{add(tmp);}}));
+            processAssign(daddr, tmp);
         }
 
         processAssign(nowSubscript, new Binop(Binop.BinOp.ADD, nowSubscript, ONE));
         stmts.add(new Cjump(new Binop(Binop.BinOp.LT, nowSubscript, maxSubscript),
-                dimensionBodyLabel, dimensionEndLabel));
+                dimensionBodyLabel, null));
         stmts.add(dimensionEndLabel);
     }
     @Override
@@ -452,9 +520,13 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
                 createArray(dimensionArgs, tmp, 0, ((ArrayType) type).demension(), baseType, constructor);
         }
         else {
-            processAssign(tmp, new Call(malloc, new LinkedList<Expr>(){{add(new Imme(((ClassType) type).entity().size()));}}));
+            processAssign(tmp, new Call(malloc, new LinkedList<Var>(){{
+                Var mallocTmp = createIntTmp();
+                processAssign(mallocTmp, new Imme(((ClassType) type).entity().size()));
+                add(mallocTmp);
+            }}));
             constructor = ((ClassType) type).entity().constructor().entity();
-            stmts.add(new Call(constructor, new LinkedList<Expr>(){{add(new Mem(tmp, null, ZERO));}}));
+            stmts.add(new Call(constructor, new LinkedList<Var>(){{add(tmp);}}));
         }
         return tmp;
     }
@@ -486,10 +558,10 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
 
     @Override
     public Void visit(ForNode node) {
-        Label condLabel = new Label("for_cond");
-        Label bodyLabel = new Label("for_body");
-        Label stepLabel = new Label("for_step");
-        Label endLabel = new Label("for_end");
+        Label condLabel = new Label(labelCnt + "for_cond");
+        Label bodyLabel = new Label(labelCnt + "for_body");
+        Label stepLabel = new Label(labelCnt + "for_step");
+        Label endLabel = new Label(labelCnt + "for_end");
 
         Label tempStoreForContinueTarget = continueTarget;
         Label tempStoreForBreakTarget = breakTarget;
@@ -525,9 +597,9 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
 
     @Override
     public Void visit(IfNode node) {
-        Label thenLabel = new Label("if_then");
-        Label elseLabel = new Label("if_else");
-        Label endLabel = new Label("if_end");
+        Label thenLabel = new Label(labelCnt + "if_then");
+        Label elseLabel = new Label(labelCnt + "if_else");
+        Label endLabel = new Label(labelCnt + "if_end");
 
         node.cond().ifTrue = thenLabel;
         node.cond().ifFalse = node.elseBody() != null? elseLabel : endLabel;
@@ -556,9 +628,9 @@ public class IRGenerator implements ASTVisitor<Void,Expr> {
 
     @Override
     public Void visit(WhileNode node) {
-        Label condLabel = new Label("while_cond");
-        Label endLabel = new Label("while_end");
-        Label bodyLabel = node.body() == null? endLabel: new Label("while_body");
+        Label condLabel = new Label(labelCnt + "while_cond");
+        Label endLabel = new Label(labelCnt + "while_end");
+        Label bodyLabel = node.body() == null? endLabel: new Label(labelCnt + "while_body");
 
         Label tempStoreForContinueTarget = continueTarget;
         Label tempStoreForBreakTarget = breakTarget;

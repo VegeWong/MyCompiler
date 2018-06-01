@@ -1,4 +1,7 @@
-package com.vegw.compiler.IR.Tree;
+package com.vegw.compiler.IR.LinearIR;
+
+import com.vegw.compiler.BackEnd.InstructionSelector;
+import com.vegw.compiler.NASM.Operand.Operand;
 
 public class Binop extends Expr {
     public enum BinOp {
@@ -17,5 +20,8 @@ public class Binop extends Expr {
         left = l;
         right = r;
     }
+
+    @Override
+    public Operand accept(InstructionSelector is) { return is.visit(this); }
 
 }

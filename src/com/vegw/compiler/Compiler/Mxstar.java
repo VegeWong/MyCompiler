@@ -9,8 +9,6 @@ import com.vegw.compiler.Parser.MxstarLexer;
 import com.vegw.compiler.Parser.MxstarParser;
 import com.vegw.compiler.Utils.ErrorHandler;
 import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
@@ -22,9 +20,9 @@ import static java.lang.System.exit;
 public class Mxstar {
     public static void main(String[] args) {
         try {
-//            InputStream in = System.in;
-//            ANTLRInputStream input = new ANTLRInputStream(in);
-            CharStream input = CharStreams.fromFileName("E:\\College-4\\Compiler\\mxstar\\test\\1.mx");
+            InputStream in = System.in;
+            ANTLRInputStream input = new ANTLRInputStream(in);
+//            CharStream input = CharStreams.fromFileName("E:\\College-4\\Compiler\\mxstar\\test\\1.mx");
             MxstarLexer lexer = new MxstarLexer(input);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             MxstarParser parser = new MxstarParser(tokens);

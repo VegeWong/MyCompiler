@@ -2,10 +2,13 @@ package com.vegw.compiler.Entity;
 
 import com.vegw.compiler.AST.Stmt.BlockNode;
 import com.vegw.compiler.FrontEnd.Scope;
-import com.vegw.compiler.IR.Tree.Label;
+import com.vegw.compiler.IR.LinearIR.IRInstruction;
+import com.vegw.compiler.IR.LinearIR.Label;
+import com.vegw.compiler.NASM.Instruction.Instruction;
 import com.vegw.compiler.Type.Type;
 import com.vegw.compiler.Utils.Location;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class FunctionEntity extends Entity {
@@ -19,7 +22,12 @@ public class FunctionEntity extends Entity {
     public Label begin;
     public Label end;
 
+    private List<IRInstruction> irInstructions = new LinkedList<IRInstruction>();
+    private List<Instruction> inst = new LinkedList<Instruction>();
 
+    public void addIRInst(IRInstruction ins) {
+        irInstructions.add(ins);
+    }
 
 
     public FunctionEntity(Location location, String name,
