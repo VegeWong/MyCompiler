@@ -26,6 +26,7 @@ public class TypeChecker extends Visitor {
 
     public void check(ASTNode ast) throws SemanticException {
         try {
+            System.out.println("Hello!");
             Entity entity = ast.scope.get("main");
             if (!(entity instanceof FunctionEntity))
                 throw new SemanticException("Variable and class cannot be named as 'main'");
