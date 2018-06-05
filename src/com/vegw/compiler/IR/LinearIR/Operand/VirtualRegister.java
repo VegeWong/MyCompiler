@@ -1,6 +1,6 @@
-package com.vegw.compiler.NASM.Operand;
+package com.vegw.compiler.IR.LinearIR.Operand;
 
-public class VirtualRegister extends Operand {
+public class VirtualRegister extends Register {
     public int cnt = -1;
     private Operand value;
 
@@ -20,6 +20,6 @@ public class VirtualRegister extends Operand {
 
     @Override
     public String toNASM() {
-        throw new InternalError("Converting virtual register to NASM string");
+        return "qword [rbp-" + cnt*8 + "]";
     }
 }

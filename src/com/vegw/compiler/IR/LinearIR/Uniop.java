@@ -1,7 +1,8 @@
 package com.vegw.compiler.IR.LinearIR;
 
-import com.vegw.compiler.BackEnd.InstructionSelector;
-import com.vegw.compiler.NASM.Operand.Operand;
+//import com.vegw.compiler.BackEnd.InstructionSelector;
+import com.vegw.compiler.BackEnd.Translator;
+import com.vegw.compiler.IR.LinearIR.Operand.Operand;
 
 public class Uniop extends Expr {
     public enum UniOp {
@@ -11,12 +12,17 @@ public class Uniop extends Expr {
     }
 
     public UniOp operator;
-    public Expr expr;
-    public Uniop(UniOp op, Expr e) {
+    public Operand operand;
+    public Uniop(UniOp op, Operand e) {
         operator = op;
-        expr = e;
+        operand = e;
     }
 
+//    @Override
+//    public Operand accept(InstructionSelector is) { return is.visit(this); }
+
     @Override
-    public Operand accept(InstructionSelector is) { return is.visit(this); }
+    public void accept(Translator translator) {
+        translator.visit(this);
+    }
 }

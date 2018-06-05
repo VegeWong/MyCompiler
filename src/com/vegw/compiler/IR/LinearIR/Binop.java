@@ -1,7 +1,7 @@
 package com.vegw.compiler.IR.LinearIR;
 
-import com.vegw.compiler.BackEnd.InstructionSelector;
-import com.vegw.compiler.NASM.Operand.Operand;
+import com.vegw.compiler.BackEnd.Translator;
+import com.vegw.compiler.IR.LinearIR.Operand.Operand;
 
 public class Binop extends Expr {
     public enum BinOp {
@@ -12,16 +12,20 @@ public class Binop extends Expr {
     }
 
     public BinOp operator;
-    public Expr left;
-    public Expr right;
+    public Operand left;
+    public Operand right;
 
-    public Binop(BinOp op, Expr l , Expr r) {
+    public Binop(BinOp op, Operand l , Operand r) {
         operator = op;
         left = l;
         right = r;
     }
 
-    @Override
-    public Operand accept(InstructionSelector is) { return is.visit(this); }
+//    @Override
+//    public Operand accept(InstructionSelector is) { return is.visit(this); }
 
+    @Override
+    public void accept(Translator translator) {
+        translator.visit(this);
+    }
 }

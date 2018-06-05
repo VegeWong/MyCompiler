@@ -1,20 +1,23 @@
 package com.vegw.compiler.IR.LinearIR;
 
-import com.vegw.compiler.BackEnd.InstructionSelector;
+//import com.vegw.compiler.BackEnd.InstructionSelector;
+import com.vegw.compiler.BackEnd.Translator;
 import com.vegw.compiler.Entity.FunctionEntity;
-import com.vegw.compiler.NASM.Operand.Operand;
-
-import java.util.List;
 
 public class Call extends Expr {
     public FunctionEntity func;
-    public List<Var> args;
 
-    public Call(FunctionEntity f, List<Var> a) {
+    public Call(FunctionEntity f) {
         func = f;
-        args = a;
     }
 
+//    @Override
+//    public Operand accept(InstructionSelector is) { return is.visit(this); }
+
     @Override
-    public Operand accept(InstructionSelector is) { return is.visit(this); }
+    public void accept(Translator translator) {
+        translator.visit(this);
+    }
+
 }
+

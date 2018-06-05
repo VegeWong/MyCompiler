@@ -1,4 +1,4 @@
-package com.vegw.compiler.NASM.Operand;
+package com.vegw.compiler.IR.LinearIR.Operand;
 
 abstract public class Operand {
 

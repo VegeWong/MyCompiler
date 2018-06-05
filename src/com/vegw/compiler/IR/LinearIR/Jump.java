@@ -1,11 +1,16 @@
 package com.vegw.compiler.IR.LinearIR;
 
-import com.vegw.compiler.BackEnd.InstructionSelector;
-import com.vegw.compiler.NASM.Operand.Operand;
+//import com.vegw.compiler.BackEnd.InstructionSelector;
+import com.vegw.compiler.BackEnd.Translator;
 
 public class Jump extends Expr {
     public Label target;
     public Jump(Label t) { target = t; }
-
+//
+//    @Override
+//    public Operand accept(InstructionSelector is) { return is.visit(this); }
     @Override
-    public Operand accept(InstructionSelector is) { return is.visit(this); }}
+    public void accept(Translator translator) {
+        translator.visit(this);
+    }
+}

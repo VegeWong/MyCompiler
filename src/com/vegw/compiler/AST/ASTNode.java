@@ -1,9 +1,6 @@
 package com.vegw.compiler.AST;
 
-import com.vegw.compiler.AST.Stmt.Def.ClassDefNode;
 import com.vegw.compiler.AST.Stmt.Def.DefinitionNode;
-import com.vegw.compiler.AST.Stmt.Def.FunctionDefNode;
-import com.vegw.compiler.AST.Stmt.Def.VariableDefNode;
 import com.vegw.compiler.FrontEnd.ConstantTable;
 import com.vegw.compiler.FrontEnd.Scope;
 import com.vegw.compiler.Utils.Location;
@@ -19,15 +16,13 @@ public class ASTNode extends Node {
     public ASTNode(Location location, List<DefinitionNode> defs) {
         this.location = location;
         this.defs = defs;
+        this.constantTable = new ConstantTable();
     }
 
     public void setScope(Scope scope) {
         this.scope = scope;
     }
 
-    public void setConstantTable(ConstantTable constantTable) {
-        this.constantTable = constantTable;
-    }
 
     @Override
     public Location location() {

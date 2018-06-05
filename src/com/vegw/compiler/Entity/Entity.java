@@ -2,7 +2,7 @@ package com.vegw.compiler.Entity;
 
 import com.vegw.compiler.Utils.Location;
 
-public class Entity {
+abstract public class Entity {
     protected String name;
     protected Location location;
     protected String internalName = "__DefaultInternalName__";

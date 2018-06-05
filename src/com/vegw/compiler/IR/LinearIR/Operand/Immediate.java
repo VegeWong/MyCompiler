@@ -1,4 +1,4 @@
-package com.vegw.compiler.NASM.Operand;
+package com.vegw.compiler.IR.LinearIR.Operand;
 
 public class Immediate extends Operand {
     // Fixed to 10-based integer && qword
@@ -10,6 +10,6 @@ public class Immediate extends Operand {
 
     @Override
     public String toNASM() {
-        return null;
+        return String.valueOf(value);
     }
 }

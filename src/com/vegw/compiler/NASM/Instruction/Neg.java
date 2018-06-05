@@ -1,6 +1,6 @@
 package com.vegw.compiler.NASM.Instruction;
 
-import com.vegw.compiler.NASM.Operand.VirtualRegister;
+import com.vegw.compiler.IR.LinearIR.Operand.VirtualRegister;
 
 public class Neg extends Instruction {
     private VirtualRegister operand;

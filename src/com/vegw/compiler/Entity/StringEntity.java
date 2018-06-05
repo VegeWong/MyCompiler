@@ -15,7 +15,7 @@ public class StringEntity extends Entity {
     }
 
     private void addBuiltinFunction(String funcName) {
-        scope.entities().put(funcName, BuiltinFunction.get("__String__.__FUNC__" + funcName));
+        scope.entities().put(funcName, BuiltinFunction.get("string." + funcName));
     }
 
     public void addStringTypeBuiltinFunction() {

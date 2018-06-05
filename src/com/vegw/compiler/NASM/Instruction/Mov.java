@@ -1,6 +1,6 @@
 package com.vegw.compiler.NASM.Instruction;
 
-import com.vegw.compiler.NASM.Operand.Operand;
+import com.vegw.compiler.IR.LinearIR.Operand.Operand;
 
 public class Mov extends Instruction {
     private Operand left;

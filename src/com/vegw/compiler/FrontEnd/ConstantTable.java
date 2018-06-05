@@ -1,23 +1,21 @@
 package com.vegw.compiler.FrontEnd;
 
 
-import com.vegw.compiler.Entity.StringConstEntity;
-
 import java.util.HashMap;
 import java.util.Map;
 
 public class ConstantTable {
-    protected Map<String, StringConstEntity> strs;
+    public Map<String, String> strs;
 
     public ConstantTable() {
-        strs = new HashMap<String, StringConstEntity>();
+        strs = new HashMap<String, String>();
     }
 
-    public void put(String key, StringConstEntity value) {
-        strs.put(key, value);
+    public void put(String key, String name) {
+        strs.put(key, name);
     }
 
-    public StringConstEntity get(String key) {
+    public String get(String key) {
         return strs.get(key);
     }
 

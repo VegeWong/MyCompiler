@@ -248,7 +248,7 @@ public class LocalResolver extends Visitor {
 
 
     private void addFunction(String funcName) {
-        topScope.entities.put(funcName, BuiltinFunction.get("__FUNC__" + funcName));
+        topScope.entities.put(funcName, BuiltinFunction.get(funcName));
     }
     private void addGlobalBuiltinFunction() {
         addFunction("print");

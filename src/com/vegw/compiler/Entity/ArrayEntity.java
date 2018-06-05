@@ -26,7 +26,8 @@ public class ArrayEntity extends Entity {
             add(new ReturnNode(loc, new IntegerLiteralNode(loc, 0)));
         }};
         BlockNode body = new BlockNode(loc, stmts);
-        FunctionEntity size = new FunctionEntity(loc, "size", Type.INT, new LinkedList<ParameterEntity>(), body);
+        FunctionEntity size = new FunctionEntity(loc, "__ARRAY__.__FUNC__size", Type.INT, new LinkedList<ParameterEntity>(), body);
+        size.rename("array.size");
         builtinFunction.add(size);
         scope.entities().put("size", size);
     }
