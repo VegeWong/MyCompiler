@@ -23,9 +23,9 @@ public class BuiltinFunction {
             add(new ParameterEntity(loc, "left",Type.INT));
             add(new ParameterEntity(loc, "right",Type.INT));
         }};
-        FunctionEntity substring = new FunctionEntity(loc, "string.subString", Type.STRING, substringParams, null);
-        substring.rename("string.subString");
-        put("string.subString", substring);
+        FunctionEntity substring = new FunctionEntity(loc, "string.substring", Type.STRING, substringParams, null);
+        substring.rename("string.substring");
+        put("string.substring", substring);
 
         // Add "string.parseInt()" function
         FunctionEntity parseInt = new FunctionEntity(loc, "string.parseInt", Type.INT, new LinkedList<>(), null);

@@ -80,7 +80,7 @@ public class LocalResolver extends Visitor {
         stack.add(toplevel);
         currentScope = stack.peek();
 
-        addGlobalBuiltinFunction();
+        addBuiltinFunction();
         for (DefinitionNode node : ast.defs){
             if (node instanceof VariableDefNode)
                 continue;

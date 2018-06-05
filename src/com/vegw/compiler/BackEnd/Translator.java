@@ -77,19 +77,15 @@ public class Translator {
         }
 
         offset = curFunc.virtualRegisterCnt * 8;
-        if (curFunc.callOtherFunc) {
-            list.add("\tsub     rsp, " + offset + "\n");
-            if (curFunc.name().equals("main")) return;
-            for (int i = 0; i < 6; ++i)
-                list.add("\tpush     " + registerList.calleeSavedRegs.get(i).toNASM()+"\n");
-        }
+        list.add("\tsub     rsp, " + offset + "\n");
+        if (curFunc.name().equals("main")) return;
+        for (int i = 1; i < 6; ++i)
+            list.add("\tpush     " + registerList.calleeSavedRegs.get(i).toNASM()+"\n");
+
     }
 
     private void exitFunc() {
-        if (curFunc.callOtherFunc) {
-            for (int i = 5; i >= 0; --i)
-                list.add("\tpop     " + registerList.calleeSavedRegs.get(i).toNASM()+"\n");
-        }
+        // Done in "return"
     }
 
     public void translate() {
@@ -110,8 +106,8 @@ public class Translator {
         Map<String, String> staticStrs = irGenerator.ast.constantTable.strs;
         for (String key : staticStrs.keySet()) {
             String name = staticStrs.get(key);
-            list.add("\tdq\t" + key.length() + "\n" + name + ":\n\tdb\t");
-            for (int i = 0; i < key.length(); ++i) list.add(Integer.toString((int)key.charAt(i)) + ", ");
+            list.add("\tdq\t" + (key.length() - 2) + "\n" + name + ":\n\tdb\t");
+            for (int i = 1; i < key.length() - 1; ++i) list.add(Integer.toString((int)key.charAt(i)) + ", ");
             list.add("0\n");
         }
 //            for (String u : rt.SC) {
@@ -140,7 +136,6 @@ public class Translator {
             enterFunc();
             for (IRInstruction ins : curFunc.irInstructions)
                 uvisit(ins);
-            exitFunc();
         }
         Builtin();
     }
@@ -176,7 +171,10 @@ public class Translator {
     private void loadDiv(Operand l, Operand r, String op, boolean isDiv) {
         boolean changel = false, changeR = false;
         PhysicalRegister tmpl = null, tmpr = null;
-
+        if (r instanceof Immediate) {
+            list.add("\tmov     r8, " + r + "\n");
+            r = r8;
+        }
         if (r.toNASM().equals("rax") || r.toNASM().equals("rdx")) {
             System.err.println("loadDiv meets right operation in rax");
             list.add("\tmov     r8, rax\n");
@@ -184,6 +182,7 @@ public class Translator {
             r = r8;
             changeR = true;
         }
+
 
         if (!l.toNASM().equals("rax")) {
             changel = true;
@@ -282,6 +281,15 @@ public class Translator {
     public void visit(Cjump ins) {
         Operand l = prepare(((Binop) ins.cond).left, rcx);
         Operand r = prepare(((Binop) ins.cond).right, rdx);
+        if (l instanceof Immediate) {
+            Operand tmp = r;
+            r = l;
+            l = tmp;
+        }
+        if (l instanceof Address && r instanceof Address) {
+            list.add("\tmov     rcx, " + l.toNASM() + "\n");
+            l = rcx;
+        }
         list.add("\tcmp     " + l.toNASM() + ", " + r.toNASM() +"\n");
 
         switch (((Binop) ins.cond).operator) {
@@ -325,6 +333,11 @@ public class Translator {
         list.add(ins.toNASM() + ":\n");
     }
     public void visit(Return ins) {
+        if (!curFunc.name().equals("main")) {
+            for (int i = 5; i >= 1; --i)
+                list.add("\tpop     " + registerList.calleeSavedRegs.get(i).toNASM()+"\n");
+        }
+        list.add("\tleave\n");
         list.add("\tret\n");
     }
     public void visit(Uniop ins) {

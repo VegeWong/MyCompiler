@@ -173,7 +173,8 @@ public class TypeChecker extends Visitor {
         super.visit(node);
         List<ParameterEntity> params = node.functionType().entity().params();
         List<ExprNode> args = node.params();
-        boolean isMemberFunction = params.get(0).name().equals("this");
+
+        boolean isMemberFunction = params.size() > 0? params.get(0).name().equals("this"): false;
         int paramOffset = isMemberFunction? 1 : 0;
         if (params.size() != args.size() + paramOffset)
             errorHandler.error(node, "The number of parameters differs with arguments given");
@@ -224,11 +225,13 @@ public class TypeChecker extends Visitor {
             return null;
         }
         Scope scope;
+        String prefix = "";
         if (type instanceof ClassType) { scope = ((ClassType) type).entity().scope(); }
         else if (type instanceof ArrayType) { scope = ((ArrayType) type).entity().scope(); }
         else { scope = ((StringType) type).entity().scope(); }
 
-        Entity ent = scope.getCurrentScope(node.member());
+
+            Entity ent = scope.getCurrentScope(node.member());
         if (ent == null) {
             errorHandler.error(node, "Required member missing");
             return null;

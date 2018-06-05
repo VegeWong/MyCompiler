@@ -284,6 +284,17 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         return false;
     }
 
+    private int islog(Immediate imm) {
+        int cnt = 0;
+        int a = imm.value;
+        while (a % 2 == 0) {
+            cnt += 1;
+            a /= 2;
+        }
+        if (a > 1) return -1;
+        else return cnt;
+    }
+
     public Operand visit(BinaryOpNode node) {
         Location loc = node.location();
         BoolLiteralNode T = new BoolLiteralNode(loc, true);
@@ -337,7 +348,7 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
             switch (node.operator()) {
                 case ADD: res = new Immediate(l + r); break;
                 case SUB: res = new Immediate(l - r); break;
-                case MUL: res = new Immediate(l * r); break;
+                case MUL:res = new Immediate(l * r); break;
                 case DIV: res = new Immediate(l / r); break;
                 case MOD: res = new Immediate(l % r); break;
                 case LE: res = new Immediate(l <= r? 1: 0); break;
@@ -364,7 +375,7 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
             String l = ((Str) left).value;
             String r = ((Str) right).value;
             switch (node.operator()) {
-                case ADD: res = new Str(addStringConst(l + r), l + r); break;
+                case ADD: res = new Str(l.substring(1,l.length()-1) + r.substring(1, r.length()-1),addStringConst(l.substring(1,l.length()-1) + r.substring(1, r.length()-1))); break;
                 case LE: res = new Immediate(l.compareTo(r) <= 0? 1: 0); break;
                 case GE: res = new Immediate(l.compareTo(r) >= 0? 1: 0); break;
                 case LT: res = new Immediate(l.compareTo(r) < 0? 1: 0); break;
@@ -385,7 +396,6 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
             processAssign(rsi, right);
 
             switch (node.operator()) {
-
                 case ADD: funcName += "add"; break;
                 case LE: funcName += "le"; break;
                 case GE: funcName += "de"; break;
@@ -395,8 +405,21 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
                 case NE: funcName += "ne"; break;
                 default: errorHandler.error(node, "Ivalid binary operation for two string"); funcName += "UNKNOW"; break;
             }
-           curFunc.addIRInst(new Call(BuiltinFunction.get(funcName)));
+
+            curFunc.addIRInst(new Call(BuiltinFunction.get(funcName)));
+            processAssign(tmp, rax);
             curFunc.callOtherFunc = true;
+            res = tmp;
+        }
+        else if (right instanceof Immediate &&
+                (node.operator().equals(BinaryOpNode.BinaryOp.MUL) ||
+                        node.operator().equals(BinaryOpNode.BinaryOp.DIV) &&
+                islog((Immediate) right) > 0)) {
+            processAssign(tmp, left);
+            if (node.operator().equals(BinaryOpNode.BinaryOp.MUL))
+                curFunc.addIRInst(new Binop(Binop.BinOp.LSH, tmp, new Immediate(islog((Immediate) right))));
+            else
+                curFunc.addIRInst(new Binop(Binop.BinOp.RSH, tmp, new Immediate(islog((Immediate) right))));
             res = tmp;
         }
         else {
@@ -708,11 +731,14 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         curFunc.addIRInst(condLabel);
         uvisit(node.cond());
 
+
         curFunc.addIRInst(bodyLabel);
         if (node.body() != null) {
             uvisit(node.body());
-            curFunc.addIRInst(endLabel);
+            curFunc.addIRInst(new Jump(condLabel));
         }
+
+        curFunc.addIRInst(endLabel);
 
         continueTarget = tempStoreForContinueTarget;
         breakTarget = tempStoreForBreakTarget;
