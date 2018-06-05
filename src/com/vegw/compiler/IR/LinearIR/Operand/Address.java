@@ -18,8 +18,11 @@ public class Address extends Operand{
         String str = "qword [" + base.toNASM();
         if (scaledOffset != null)
             str += "+8*" + scaledOffset.toNASM();
-        if (offset != null && offset.value != 0)
+        if (offset != null && offset.value != 0) {
+            if (offset.value > 0)
+                str += "+";
             str += offset.toNASM();
+        }
         str += "]";
         return str;
     }

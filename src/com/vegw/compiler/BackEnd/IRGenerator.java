@@ -439,8 +439,8 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         }
         else if (right instanceof Immediate &&
                 (node.operator().equals(BinaryOpNode.BinaryOp.MUL) ||
-                        node.operator().equals(BinaryOpNode.BinaryOp.DIV) &&
-                islog((Immediate) right) > 0)) {
+                        node.operator().equals(BinaryOpNode.BinaryOp.DIV)) &&
+                islog((Immediate) right) > 0) {
             processAssign(tmp, left);
             if (node.operator().equals(BinaryOpNode.BinaryOp.MUL))
                 curFunc.addIRInst(new Binop(Binop.BinOp.LSH, tmp, new Immediate(islog((Immediate) right))));
@@ -567,7 +567,12 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         if (node.entity() instanceof FunctionEntity)
             return base;
         int offset = node.entity().offset();
-        return new Address(base, null, new Immediate(offset));
+        Address addr = new Address(base, null, new Immediate(offset));
+        if (hasLabel(node)){
+            Binop cond = new Binop(Binop.BinOp.NE, addr, ZERO);
+            curFunc.addIRInst(new Cjump(cond, node.ifTrue, node.ifFalse));
+        }
+        return addr;
     } // Finished
 
     @Override
@@ -636,6 +641,7 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         else {
             processAssign(rdi, new Immediate(((ClassType) type).entity().size()));
             curFunc.addIRInst(new Call(malloc));
+            processAssign(tmp, rax);
             if (((ClassType) type).entity().constructor() != null) {
                 constructor = ((ClassType) type).entity().constructor().entity();
                 processAssign(rdi, rax);

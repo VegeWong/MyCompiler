@@ -11,21 +11,6 @@ extern strlen
 extern memcpy
 extern scanf
 section .data
-	dq	1
-__staticString__2:
-	db	65, 0
-	dq	1
-__staticString__3:
-	db	66, 0
-	dq	1
-__staticString__4:
-	db	67, 0
-	dq	5
-__staticString__1:
-	db	32, 45, 45, 62, 32, 0
-	dq	5
-__staticString__0:
-	db	109, 111, 118, 101, 32, 0
 intbuffer:
 	dq 0
 format1:
@@ -37,7 +22,7 @@ section .bss
 stringbuffer:
 	resb 256
 section .text
-cd:
+a:
 	push    rbp
 	mov     rbp, rsp
 	mov     qword [rbp-8], rdi
@@ -45,92 +30,88 @@ cd:
 	mov     qword [rbp-24], rdx
 	mov     qword [rbp-32], rcx
 	mov     qword [rbp-40], r8
-	sub     rsp, 184
+	mov     qword [rbp-48], r9
+	sub     rsp, 168
 	push     rbx
 	push     r12
 	push     r13
 	push     r14
 	push     r15
-cd.__begin__:
-	cmp     qword [rbp-8], 1
-	je     if_then0
-	jne     if_else0
-if_then0:
-	mov     rdi, __staticString__0
-	mov     rsi, qword [rbp-16]
-	call    string.add
-	mov     qword [rbp-72], rax
-	mov     rdi, qword [rbp-72]
-	mov     rsi, __staticString__1
-	call    string.add
-	mov     qword [rbp-64], rax
-	mov     rdi, qword [rbp-64]
-	mov     rsi, qword [rbp-32]
-	call    string.add
-	mov     qword [rbp-56], rax
-	mov     rdi, qword [rbp-56]
-	call    println
-	mov     qword [rbp-80], rax
-	mov     rax, qword [rbp-40]
-	mov     qword [rbp-88], rax
-	mov     rax, qword [rbp-40]
-	add     rax, 1
-	mov     qword [rbp-40], rax
-	jmp    if_end0
-if_else0:
-	mov     rax, qword [rbp-8]
-	mov     qword [rbp-104], rax
-	mov     rax, qword [rbp-104]
-	sub     rax, 1
-	mov     qword [rbp-104], rax
-	mov     rdi, qword [rbp-104]
-	mov     rsi, qword [rbp-16]
-	mov     rdx, qword [rbp-32]
-	mov     rcx, qword [rbp-24]
-	mov     r8, qword [rbp-40]
-	call    cd
-	mov     qword [rbp-112], rax
-	mov     rax, qword [rbp-112]
-	mov     qword [rbp-40], rax
-	mov     rdi, __staticString__0
-	mov     rsi, qword [rbp-16]
-	call    string.add
-	mov     qword [rbp-136], rax
-	mov     rdi, qword [rbp-136]
-	mov     rsi, __staticString__1
-	call    string.add
-	mov     qword [rbp-128], rax
-	mov     rdi, qword [rbp-128]
-	mov     rsi, qword [rbp-32]
-	call    string.add
-	mov     qword [rbp-120], rax
-	mov     rdi, qword [rbp-120]
-	call    println
-	mov     qword [rbp-144], rax
+a.__begin__:
 	mov     rax, qword [rbp-8]
 	mov     qword [rbp-160], rax
 	mov     rax, qword [rbp-160]
-	sub     rax, 1
+	add     rax, qword [rbp-16]
 	mov     qword [rbp-160], rax
-	mov     rdi, qword [rbp-160]
-	mov     rsi, qword [rbp-24]
-	mov     rdx, qword [rbp-16]
-	mov     rcx, qword [rbp-32]
-	mov     r8, qword [rbp-40]
-	call    cd
-	mov     qword [rbp-168], rax
-	mov     rax, qword [rbp-168]
-	mov     qword [rbp-40], rax
-	mov     rax, qword [rbp-40]
-	mov     qword [rbp-176], rax
-	mov     rax, qword [rbp-40]
-	add     rax, 1
-	mov     qword [rbp-40], rax
-if_end0:
-	mov     rax, qword [rbp-40]
-	jmp    cd.__end__
-	jmp    cd.__end__
-cd.__end__:
+	mov     rax, qword [rbp-160]
+	mov     qword [rbp-152], rax
+	mov     rax, qword [rbp-152]
+	add     rax, qword [rbp-24]
+	mov     qword [rbp-152], rax
+	mov     rax, qword [rbp-152]
+	mov     qword [rbp-144], rax
+	mov     rax, qword [rbp-144]
+	add     rax, qword [rbp-32]
+	mov     qword [rbp-144], rax
+	mov     rax, qword [rbp-144]
+	mov     qword [rbp-136], rax
+	mov     rax, qword [rbp-136]
+	add     rax, qword [rbp-40]
+	mov     qword [rbp-136], rax
+	mov     rax, qword [rbp-136]
+	mov     qword [rbp-128], rax
+	mov     rax, qword [rbp-128]
+	add     rax, qword [rbp-48]
+	mov     qword [rbp-128], rax
+	mov     rax, qword [rbp-128]
+	mov     qword [rbp-120], rax
+	mov     rax, qword [rbp-120]
+	add     rax, qword [rbp+16]
+	mov     qword [rbp-120], rax
+	mov     rax, qword [rbp-120]
+	mov     qword [rbp-112], rax
+	mov     rax, qword [rbp-112]
+	add     rax, qword [rbp+24]
+	mov     qword [rbp-112], rax
+	mov     rax, qword [rbp-112]
+	mov     qword [rbp-104], rax
+	mov     rax, qword [rbp-104]
+	add     rax, qword [rbp+32]
+	mov     qword [rbp-104], rax
+	mov     rax, qword [rbp-104]
+	mov     qword [rbp-96], rax
+	mov     rax, qword [rbp-96]
+	add     rax, qword [rbp+40]
+	mov     qword [rbp-96], rax
+	mov     rax, qword [rbp-96]
+	mov     qword [rbp-88], rax
+	mov     rax, qword [rbp-88]
+	add     rax, qword [rbp+48]
+	mov     qword [rbp-88], rax
+	mov     rax, qword [rbp-88]
+	mov     qword [rbp-80], rax
+	mov     rax, qword [rbp-80]
+	add     rax, qword [rbp+56]
+	mov     qword [rbp-80], rax
+	mov     rax, qword [rbp-80]
+	mov     qword [rbp-72], rax
+	mov     rax, qword [rbp-72]
+	add     rax, qword [rbp+64]
+	mov     qword [rbp-72], rax
+	mov     rax, qword [rbp-72]
+	mov     qword [rbp-64], rax
+	mov     rax, qword [rbp-64]
+	add     rax, qword [rbp+72]
+	mov     qword [rbp-64], rax
+	mov     rax, qword [rbp-64]
+	mov     qword [rbp-56], rax
+	mov     rax, qword [rbp-56]
+	add     rax, qword [rbp+80]
+	mov     qword [rbp-56], rax
+	mov     rax, qword [rbp-56]
+	jmp    a.__end__
+	jmp    a.__end__
+a.__end__:
 	pop     r15
 	pop     r14
 	pop     r13
@@ -141,33 +122,40 @@ cd.__end__:
 main:
 	push    rbp
 	mov     rbp, rsp
-	sub     rsp, 120
+	sub     rsp, 32
 main.__begin__:
-	mov     rax, qword __staticString__2
-	mov     qword [rbp-16], rax
-	mov     rax, qword __staticString__3
-	mov     qword [rbp-32], rax
-	mov     rax, qword __staticString__4
-	mov     qword [rbp-48], rax
-	call    getInt
-	mov     qword [rbp-72], rax
-	mov     rax, qword [rbp-72]
-	mov     qword [rbp-64], rax
-	mov     rdi, qword [rbp-64]
-	mov     rsi, qword [rbp-16]
-	mov     rdx, qword [rbp-32]
-	mov     rcx, qword [rbp-48]
-	mov     r8, 0
-	call    cd
-	mov     qword [rbp-96], rax
-	mov     rax, qword [rbp-96]
-	mov     qword [rbp-88], rax
-	mov     rdi, qword [rbp-88]
+	mov     rdi, 1
+	mov     rsi, 2
+	mov     rdx, 3
+	mov     rcx, 4
+	mov     r8, 5
+	mov     r9, 6
+	mov     rax, 7
+	mov     qword [rsp+16], rax
+	mov     rax, 8
+	mov     qword [rsp+24], rax
+	mov     rax, 9
+	mov     qword [rsp+32], rax
+	mov     rax, 10
+	mov     qword [rsp+40], rax
+	mov     rax, 11
+	mov     qword [rsp+48], rax
+	mov     rax, 12
+	mov     qword [rsp+56], rax
+	mov     rax, 13
+	mov     qword [rsp+64], rax
+	mov     rax, 14
+	mov     qword [rsp+72], rax
+	mov     rax, 15
+	mov     qword [rsp+80], rax
+	call    a
+	mov     qword [rbp-8], rax
+	mov     rdi, qword [rbp-8]
 	call    toString
-	mov     qword [rbp-104], rax
-	mov     rdi, qword [rbp-104]
+	mov     qword [rbp-16], rax
+	mov     rdi, qword [rbp-16]
 	call    println
-	mov     qword [rbp-112], rax
+	mov     qword [rbp-24], rax
 	mov     rax, 0
 	jmp    main.__end__
 	jmp    main.__end__
