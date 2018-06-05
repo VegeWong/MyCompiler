@@ -79,6 +79,7 @@ public class Translator {
         offset = curFunc.virtualRegisterCnt * 8;
         if (curFunc.callOtherFunc) {
             list.add("\tsub     rsp, " + offset + "\n");
+            if (curFunc.name().equals("main")) return;
             for (int i = 0; i < 6; ++i)
                 list.add("\tpush     " + registerList.calleeSavedRegs.get(i).toNASM()+"\n");
         }
@@ -166,7 +167,7 @@ public class Translator {
         if (!(l instanceof PhysicalRegister))
             list.add("\tmov     " + reg.toNASM() + ", " + l.toNASM() +"\n");
 
-        list.add("\t" + op + "     " + rax + ", " + r.toNASM() +"\n");
+        list.add("\t" + op + "     rax" + ", " + r.toNASM() +"\n");
 
         if (!(l instanceof PhysicalRegister))
             list.add("\tmov     " + l.toNASM() + ", " + reg.toNASM() +"\n");
@@ -191,7 +192,7 @@ public class Translator {
             }
             list.add("\tmov     rax, " + l.toNASM() +"\n");
         }
-        list.add("\tcqo");
+        list.add("\tcqo\n");
 
         list.add("\t" + op + "     " + r.toNASM() +"\n");
 
@@ -280,7 +281,7 @@ public class Translator {
 
     public void visit(Cjump ins) {
         Operand l = prepare(((Binop) ins.cond).left, rcx);
-        Operand r = prepare(((Binop) ins.cond).left, rdx);
+        Operand r = prepare(((Binop) ins.cond).right, rdx);
         list.add("\tcmp     " + l.toNASM() + ", " + r.toNASM() +"\n");
 
         switch (((Binop) ins.cond).operator) {

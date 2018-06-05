@@ -24,10 +24,7 @@ import com.vegw.compiler.Utils.BuiltinFunction;
 import com.vegw.compiler.Utils.ErrorHandler;
 import com.vegw.compiler.Utils.Location;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 public class IRGenerator implements ASTVisitor<Void,Operand> {
     private final static Immediate ZERO = new Immediate(0);
@@ -92,6 +89,8 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
     private boolean hasLabel(ExprNode node) { return node.ifTrue != null || node.ifFalse != null; }
 
     private void processAssign(Operand dst, Operand src){
+        if (dst == null || src == null)
+            System.err.println("Assign operand is null");
         if (!(dst instanceof Register || dst instanceof Address))
             throw new Error("Invalid addressing object");
         curFunc.addIRInst(new Assign(dst, src));
@@ -211,33 +210,33 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         
         VirtualRegister tmp = createIntTmp();
         Operand res = null;
+        Operand operand = uvisit(node.expr());
         switch (node.operator()) {
-            case POS: res = uvisit(node.expr()); break;
+            case POS: res = operand; break;
             case NEG: {
-                if (node.expr() instanceof IntegerLiteralNode)
-                    res = new Immediate(-((IntegerLiteralNode)node.expr()).value());
+                if (operand instanceof Immediate)
+                    res = new Immediate(-((Immediate) operand).value);
                 else {
-                    processAssign(tmp, uvisit(node.expr()));
+                    processAssign(tmp, operand);
                     curFunc.addIRInst(new Uniop(Uniop.UniOp.NEG, tmp));
                     res = tmp;
                 }
                 break;
             }
             case LOGN:{
-                ExprNode en = node.expr();
-                if (en instanceof BoolLiteralNode)
-                    res = new Immediate(~(((BoolLiteralNode) en).value()? 1: 0));
+                if (operand instanceof Immediate)
+                    res = new Immediate(~((Immediate) operand).value);
                 else {
-                    processAssign(tmp, uvisit(node.expr()));
+                    if (hasLabel(node)) return null;
+                    processAssign(tmp, operand);
                     curFunc.addIRInst(new Uniop(Uniop.UniOp.LNOT, tmp));
                     res = tmp;
                 }
                 break;
             }
             case BITN: {
-                ExprNode en = node.expr();
-                if (en instanceof IntegerLiteralNode)
-                    res = new Immediate(~((IntegerLiteralNode) en).value());
+                if (operand instanceof Immediate)
+                    res = new Immediate(~((Immediate) operand).value);
                 else {
                     processAssign(tmp, uvisit(node.expr()));
                     curFunc.addIRInst(new Uniop(Uniop.UniOp.BNOT, tmp));
@@ -247,15 +246,12 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
             }
             case PREM: case PREP:{
                 Binop.BinOp op = node.operator() == UnaryOpNode.UnaryOp.PREP? Binop.BinOp.ADD: Binop.BinOp.SUB;
-                Operand e = uvisit(node.expr());
-                processAssign(rax, e);
-                curFunc.addIRInst(new Binop(Binop.BinOp.ADD, rax, ONE));
-                res = e;
+                curFunc.addIRInst(new Binop(Binop.BinOp.ADD, operand, ONE));
+                res = operand;
                 break;
             }
             case POSM: case POSP: {
-                Operand e = uvisit(node.expr());
-                processAssign(rax, e);
+                processAssign(rax, operand);
                 Binop.BinOp op = node.operator() == UnaryOpNode.UnaryOp.PREP? Binop.BinOp.ADD: Binop.BinOp.SUB;
                 curFunc.addIRInst(new Binop(op, rax, ONE));
                 res = rax;
@@ -264,12 +260,53 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         return res;
     } // Finished
 
+    private boolean shortCircuitAssign(BinaryOpNode node) {
+        Location loc = node.location();
+        BoolLiteralNode T = new BoolLiteralNode(loc, true);
+        BoolLiteralNode F = new BoolLiteralNode(loc, false);
+        if (node.operator().equals(BinaryOpNode.BinaryOp.ASSIGN)) {
+            if (node.right() instanceof BinaryOpNode) {
+                BinaryOpNode.BinaryOp op = ((BinaryOpNode) node.right()).operator();
+                if (op.equals(BinaryOpNode.BinaryOp.LOG_AND) ||
+                        ((BinaryOpNode) node.right()).operator().equals(BinaryOpNode.BinaryOp.LOG_OR)) {
+                    BlockNode thenBlock = new BlockNode(node.location(), new LinkedList<StmtNode>() {{
+                        add(new ExprStmtNode(new BinaryOpNode(Type.BOOL, node.left(), BinaryOpNode.BinaryOp.ASSIGN, T)));
+                    }});
+                    BlockNode elseBlock = new BlockNode(loc, new LinkedList<StmtNode>() {{
+                        add(new ExprStmtNode(new BinaryOpNode(Type.BOOL, node.left(), BinaryOpNode.BinaryOp.ASSIGN, F)));
+                    }});
+                    IfNode avateorNode = new IfNode(node.location(), node.right(), thenBlock, elseBlock);
+                    uvisit(avateorNode);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
-    @Override
     public Operand visit(BinaryOpNode node) {
-        Label rightLabel = new Label(labelCnt + "rhs__begin__");
+        Location loc = node.location();
+        BoolLiteralNode T = new BoolLiteralNode(loc, true);
+        BoolLiteralNode F = new BoolLiteralNode(loc, false);
+        if (node.operator().equals(BinaryOpNode.BinaryOp.ASSIGN)) {
+            if (node.left().type().equals(Type.BOOL) && !(node.right() instanceof BoolLiteralNode)) {
+                BlockNode thenBlock = new BlockNode(node.location(), new LinkedList<StmtNode>() {{
+                    add(new ExprStmtNode(new BinaryOpNode(Type.BOOL, node.left(), BinaryOpNode.BinaryOp.ASSIGN, T)));
+                }});
+                BlockNode elseBlock = new BlockNode(loc, new LinkedList<StmtNode>() {{
+                    add(new ExprStmtNode(new BinaryOpNode(Type.BOOL, node.left(), BinaryOpNode.BinaryOp.ASSIGN, F)));
+                }});
+                IfNode avateorNode = new IfNode(node.location(), node.right(), thenBlock, elseBlock);
+                visit(avateorNode);
+                return null;
+            }
+        }
+
+        Label rightLabel = new Label("rhs__begin__" + labelCnt);
+        labelCnt++;
         boolean needCjump = false;
-        // For short-circuit
+
+        // For short-circuit jump
         if (hasLabel(node)) {
             if (node.operator().equals(BinaryOpNode.BinaryOp.LOG_OR)) {
                 node.left().ifTrue = node.ifTrue;
@@ -287,12 +324,13 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
                 needCjump = true;
         }
 
+        VirtualRegister tmp = createIntTmp();
+        Operand res = null;
+
         Operand left = uvisit(node.left());
         if (hasLabel(node) && !needCjump) curFunc.addIRInst(rightLabel);
         Operand right = uvisit(node.right());
 
-        VirtualRegister tmp = createIntTmp();
-        Operand res;
         if (left instanceof Immediate && right instanceof Immediate) {
             int l = ((Immediate) left).value;
             int r = ((Immediate) right).value;
@@ -309,12 +347,18 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
                 case EQ: res = new Immediate(l == r? 1: 0); break;
                 case NE: res = new Immediate(l != r? 1: 0); break;
                 case XOR: res = new Immediate(l ^ r); break;
-                case LS: res = new Immediate(l >> r); break;
-                case RS: res = new Immediate(l << r); break;
+                case LS: res = new Immediate(l << r); break;
+                case RS: res = new Immediate(l >> r); break;
                 case LOG_OR: case BIT_OR: res = new Immediate(l | r); break;
                 case LOG_AND: case BIT_AND: res = new Immediate(l & r); break;
                 default: errorHandler.error(node, "Ivalid binary operation for two Immediate"); res = new Immediate(0); break;
             }
+            if (node.operator().equals(BinaryOpNode.BinaryOp.LOG_AND) || node.operator().equals(BinaryOpNode.BinaryOp.LOG_OR))
+                if (hasLabel(node)) {
+                    curFunc.addIRInst(new Jump(((Immediate) res).value == 1? node.ifTrue : node.ifFalse));
+                    return null;
+                }
+
         }
         else if (left instanceof Str && right instanceof Str) {
             String l = ((Str) left).value;
@@ -382,10 +426,14 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
                 case NE: op = Binop.BinOp.NE; basicBool = true; break;
                 default: op = Binop.BinOp.EQ; errorHandler.error(node, "Unknown binary operator"); break;
             }
+            // The min unit of bool (a rel b)
             if (basicBool && hasLabel(node)) {
                 curFunc.addIRInst(new Cjump(new Binop(op, left, right), node.ifTrue, node.ifFalse));
                 return null;
             }
+            if (node.operator().equals(BinaryOpNode.BinaryOp.LOG_AND) || node.operator().equals(BinaryOpNode.BinaryOp.LOG_OR))
+                if (left == null && right == null)
+                    return null;
             processAssign(tmp, left);
             curFunc.addIRInst(new Binop(op, tmp, right));
             res = tmp;
@@ -474,6 +522,11 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
     @Override
     public Operand visit(VariableNode node) {
         Entity entity = node.entity();
+        if (hasLabel(node)) {
+            curFunc.addIRInst(new Cjump(new Binop(Binop.BinOp.NE, curFunc.getVReg(entity), ZERO), node.ifTrue, node.ifFalse));
+            return null;
+        }
+
         if (entity.isMember()) {
             Entity thisEntity = curScope.entities().get("this");
             if (thisEntity == null)
@@ -488,8 +541,9 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
     private void createArray(List<Operand> dimensionArgs, Operand dst, int now, int allLayer, Type type, FunctionEntity constructor) {
         VirtualRegister nowSubscript = createIntTmp();
         VirtualRegister maxSubscript = createIntTmp();
-        Label dimensionBodyLabel = new Label(labelCnt + "dimension_body");
-        Label dimensionEndLabel = new Label(labelCnt + "dimension_end");
+        Label dimensionBodyLabel = new Label("dimension_body" + labelCnt);
+        Label dimensionEndLabel = new Label("dimension_end" + labelCnt);
+        labelCnt++;
         processAssign(nowSubscript, ZERO);
         processAssign(maxSubscript, (Operand) dimensionArgs.get(now));
         processAssign(rax, maxSubscript);
@@ -567,11 +621,11 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
 
     @Override
     public Void visit(ForNode node) {
-        Label condLabel = new Label(labelCnt + "for_cond");
-        Label bodyLabel = new Label(labelCnt + "for_body");
-        Label stepLabel = new Label(labelCnt + "for_step");
-        Label endLabel = new Label(labelCnt + "for_end");
-
+        Label condLabel = new Label("for_cond" + labelCnt);
+        Label bodyLabel = new Label("for_body" + labelCnt);
+        Label stepLabel = new Label("for_step" + labelCnt);
+        Label endLabel = new Label("for_end" + labelCnt);
+        labelCnt++;
         Label tempStoreForContinueTarget = continueTarget;
         Label tempStoreForBreakTarget = breakTarget;
 
@@ -606,25 +660,26 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
 
     @Override
     public Void visit(IfNode node) {
-        Label thenLabel = new Label(labelCnt + "if_then");
-        Label elseLabel = new Label(labelCnt + "if_else");
-        Label endLabel = new Label(labelCnt + "if_end");
-
+        Label thenLabel = new Label("if_then" + labelCnt);
+        Label elseLabel = new Label("if_else" + labelCnt);
+        Label endLabel = new Label("if_end" + labelCnt);
+        labelCnt++;
         node.cond().ifTrue = thenLabel;
         node.cond().ifFalse = node.elseBody() != null? elseLabel : endLabel;
         uvisit(node.cond());
 
         curFunc.addIRInst(thenLabel);
-        if (node.thenBody() != null)
+        if (node.thenBody() != null) {
             uvisit(node.thenBody());
-
-        curFunc.addIRInst(elseLabel);
-        if (node.elseBody() != null) {
-            uvisit(node.elseBody());
-            curFunc.addIRInst(endLabel);
+            curFunc.addIRInst(new Jump(endLabel));
         }
 
+        if (node.elseBody() != null) {
+            curFunc.addIRInst(elseLabel);
+            uvisit(node.elseBody());
+        }
 
+        curFunc.addIRInst(endLabel);
         return null;
     } // Finished
 
@@ -638,9 +693,9 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
 
     @Override
     public Void visit(WhileNode node) {
-        Label condLabel = new Label(labelCnt + "while_cond");
-        Label endLabel = new Label(labelCnt + "while_end");
-        Label bodyLabel = node.body() == null? endLabel: new Label(labelCnt + "while_body");
+        Label condLabel = new Label("while_cond" + labelCnt);
+        Label endLabel = new Label("while_end" + labelCnt);
+        Label bodyLabel = node.body() == null? endLabel: new Label("while_body" + labelCnt);
 
         Label tempStoreForContinueTarget = continueTarget;
         Label tempStoreForBreakTarget = breakTarget;
