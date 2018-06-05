@@ -188,12 +188,38 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         return null;
     }
 
+    private Map<Integer, Integer> strmap = new HashMap<Integer, Integer>(){{
+        put(92, 92);   //     \\
+        put(97, 7);    //     \a
+        put(98, 8);    //     \b
+        put(48, 0);    //     \0
+        put(116, 9);   //     \t
+        put(110, 10);  //     \n
+        put(118, 11);  //     \v
+        put(102, 12);  //     \f
+        put(114, 13);  //     \r
+        put(34, 34);  //      \"
+    }};
+
     private String addStringConst(String str) {
-        String res =  ast.constantTable.get(str);
+        StringBuffer nstr = new StringBuffer();
+        for (int i = 0; i < str.length(); ++i) {
+            if (str.charAt(i) == 92) {
+                int c = str.charAt(++i);
+                int a = (int) strmap.get(c);
+                nstr.append((char) a);
+            }
+            else
+                nstr.append((char) str.charAt(i));
+        }
+
+        String newStr = nstr.toString();
+        System.err.println(newStr);
+        String res =  ast.constantTable.get(newStr);
         if (res == null) {
             res = "__staticString__"+ strCnt;
             strCnt++;
-            ast.constantTable.put(str, res);
+            ast.constantTable.put(newStr, res);
         }
         return res;
     }
@@ -251,10 +277,10 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
                 break;
             }
             case POSM: case POSP: {
-                processAssign(rax, operand);
-                Binop.BinOp op = node.operator() == UnaryOpNode.UnaryOp.PREP? Binop.BinOp.ADD: Binop.BinOp.SUB;
-                curFunc.addIRInst(new Binop(op, rax, ONE));
-                res = rax;
+                processAssign(tmp, operand);
+                Binop.BinOp op = node.operator() == UnaryOpNode.UnaryOp.POSP? Binop.BinOp.ADD: Binop.BinOp.SUB;
+                curFunc.addIRInst(new Binop(op, operand, ONE));
+                res = tmp;
             }
         }
         return res;
@@ -514,7 +540,9 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
 
     @Override
     public Operand visit(StringLiteralNode node) {
-        return new Str(addStringConst(node.value()), node.value());
+        String str = node.value();
+        str = str.substring(1, str.length() - 1);
+        return new Str(addStringConst(str), node.value());
     } // Finished
 
     @Override
@@ -578,7 +606,7 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         curFunc.addIRInst(dimensionBodyLabel);
         Address daddr = new Address(dst, nowSubscript, EIGHT);
 
-        if (dimensionArgs.size() > now)
+        if (dimensionArgs.size() > now + 1)
             createArray(dimensionArgs, daddr, now + 1, allLayer, type, constructor);
 
         curFunc.addIRInst(new Binop(Binop.BinOp.ADD, nowSubscript, ONE));
@@ -666,7 +694,7 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
 
         curFunc.addIRInst(bodyLabel);
         if (node.body() != null) {
-            uvisit(node.cond());
+            uvisit(node.body());
         }
 
         curFunc.addIRInst(stepLabel);

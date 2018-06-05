@@ -106,8 +106,8 @@ public class Translator {
         Map<String, String> staticStrs = irGenerator.ast.constantTable.strs;
         for (String key : staticStrs.keySet()) {
             String name = staticStrs.get(key);
-            list.add("\tdq\t" + (key.length() - 2) + "\n" + name + ":\n\tdb\t");
-            for (int i = 1; i < key.length() - 1; ++i) list.add(Integer.toString((int)key.charAt(i)) + ", ");
+            list.add("\tdq\t" + key.length() + "\n" + name + ":\n\tdb\t");
+            for (int i = 0; i < key.length(); ++i) list.add(Integer.toString((int)key.charAt(i)) + ", ");
             list.add("0\n");
         }
 //            for (String u : rt.SC) {
