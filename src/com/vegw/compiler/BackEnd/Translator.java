@@ -356,7 +356,10 @@ public class Translator {
     public void visit(Uniop ins) {
         Operand operand = prepare(ins.operand, rcx);
         switch (ins.operator) {
-            case NEG:  list.add("\tnot     " + operand.toNASM() + "\n");
+            case NEG: {
+                list.add("\tnot     " + operand.toNASM() + "\n");
+                list.add("\tinc     " + operand.toNASM() + "\n");
+            }
         }
     }
     public void Builtin() {
