@@ -518,8 +518,13 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         FunctionEntity entity = node.functionType().entity();
         List<Operand> args = new LinkedList<Operand>();
 
-        if (((FunctionType)node.name().type()).entity().thisPtr() != null || node.name() instanceof MemberNode )
-            args.add(operand);
+        if (((FunctionType)node.name().type()).entity().thisPtr() != null || node.name() instanceof MemberNode ) {
+            if (!(node.name() instanceof MemberNode) && curFunc.thisPtr() == ((FunctionType)node.name().type()).entity().thisPtr())
+                args.add(new Address(rbp, null , new Immediate(-8)));
+            else
+                args.add(operand);
+        }
+
         for (int i = 0; i < node.params().size(); ++i)
             args.add(uvisit(node.params().get(i)));
 
@@ -612,7 +617,7 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
             curFunc.addIRInst(new Cjump(new Binop(Binop.BinOp.NE, isGV? gv:curFunc.getVReg(entity), ZERO), node.ifTrue, node.ifFalse));
             return null;
         }
-        if (entity.isMember()) {
+        if (entity.isMember() && !(entity instanceof FunctionEntity)) {
             Entity thisEntity = curScope.entities().get("this");
             if (thisEntity == null)
                 errorHandler.error(node, "Class member without thisPtr");
@@ -620,8 +625,7 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
             int offset = entity.offset();
             VirtualRegister tmp = createIntTmp();
             processAssign(tmp, base);
-            curFunc.addIRInst(new Binop(Binop.BinOp.ADD, tmp, new Immediate(offset)));
-            return tmp;
+            return new Address(base, null, new Immediate(offset));
         }
         else return isGV? gv:curFunc.getVReg(entity);
     } // Finished

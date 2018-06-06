@@ -70,9 +70,6 @@ if_then0:
 if_end0:
 	mov     rax, qword [rbp-8]
 	mov     qword [rbp-40], rax
-	mov     rax, qword [rbp-40]
-	add     rax, 0
-	mov     qword [rbp-40], rax
 	mov     rdi, qword [rbp-16]
 	call    array.size
 	mov     qword [rbp-48], rax
@@ -90,8 +87,9 @@ if_end0:
 	mov	r11, qword [rbp-56]
 	mov     rax, qword [rbp-48]
 	mov     qword [r11-8], rax
+	mov	r11, qword [rbp-8]
 	mov     rax, qword [rbp-56]
-	mov     qword [rbp-40], rax
+	mov     qword [r11], rax
 	mov     rax, 0
 	mov     qword [rbp-88], rax
 for_cond4:
@@ -105,12 +103,10 @@ for_cond4:
 for_body4:
 	mov     rax, qword [rbp-8]
 	mov     qword [rbp-120], rax
-	mov     rax, qword [rbp-120]
-	add     rax, 0
-	mov     qword [rbp-120], rax
+	mov	r10, qword [rbp-8]
 	mov	r11, qword [rbp-88]
 	shl	r11, 3
-	add	r11, qword [rbp-120]
+	add	r11, qword [r10]
 	mov	r12, qword [rbp-88]
 	shl	r12, 3
 	add	r12, qword [rbp-16]
@@ -144,10 +140,8 @@ vector.getDim:
 vector.getDim.__begin__:
 	mov     rax, qword [rbp-8]
 	mov     qword [rbp-24], rax
-	mov     rax, qword [rbp-24]
-	add     rax, 0
-	mov     qword [rbp-24], rax
-	cmp     qword [rbp-24], 0
+	mov	r10, qword [rbp-8]
+	cmp     qword [r10], 0
 	je     if_then8
 	jne     if_end8
 if_then8:
@@ -157,10 +151,8 @@ if_then8:
 if_end8:
 	mov     rax, qword [rbp-8]
 	mov     qword [rbp-32], rax
-	mov     rax, qword [rbp-32]
-	add     rax, 0
-	mov     qword [rbp-32], rax
-	mov     rdi, qword [rbp-32]
+	mov	r12, qword [rbp-8]
+	mov     rdi, qword [r12]
 	call    array.size
 	mov     qword [rbp-40], rax
 	mov     rax, qword [rbp-40]
@@ -191,12 +183,7 @@ vector.dot.__begin__:
 	mov     rax, 0
 	mov     qword [rbp-48], rax
 while_cond12:
-	mov     rax, qword [rbp-8]
-	mov     qword [rbp-64], rax
-	mov     rax, qword [rbp-64]
-	add     rax, 0
-	mov     qword [rbp-64], rax
-	mov     rdi, qword [rbp-64]
+	mov     rdi, qword [rbp-8]
 	call    vector.getDim
 	mov     qword [rbp-72], rax
 	mov     rcx, qword [rbp-32]
@@ -206,12 +193,10 @@ while_cond12:
 while_body12:
 	mov     rax, qword [rbp-8]
 	mov     qword [rbp-96], rax
-	mov     rax, qword [rbp-96]
-	add     rax, 0
-	mov     qword [rbp-96], rax
+	mov	r10, qword [rbp-8]
 	mov	r12, qword [rbp-32]
 	shl	r12, 3
-	add	r12, qword [rbp-96]
+	add	r12, qword [r10]
 	mov     rax, qword [r12]
 	mov     qword [rbp-88], rax
 	mov	r10, qword [rbp-16]
@@ -253,10 +238,8 @@ vector.scalarInPlaceMultiply:
 vector.scalarInPlaceMultiply.__begin__:
 	mov     rax, qword [rbp-8]
 	mov     qword [rbp-32], rax
-	mov     rax, qword [rbp-32]
-	add     rax, 0
-	mov     qword [rbp-32], rax
-	cmp     qword [rbp-32], 0
+	mov	r10, qword [rbp-8]
+	cmp     qword [r10], 0
 	je     if_then15
 	jne     if_end15
 if_then15:
@@ -267,12 +250,7 @@ if_end15:
 	mov     rax, 0
 	mov     qword [rbp-48], rax
 for_cond17:
-	mov     rax, qword [rbp-8]
-	mov     qword [rbp-64], rax
-	mov     rax, qword [rbp-64]
-	add     rax, 0
-	mov     qword [rbp-64], rax
-	mov     rdi, qword [rbp-64]
+	mov     rdi, qword [rbp-8]
 	call    vector.getDim
 	mov     qword [rbp-72], rax
 	mov     rcx, qword [rbp-48]
@@ -315,7 +293,7 @@ vector.scalarInPlaceMultiply.__end__:
 vector.add:
 	push    rbp
 	mov     rbp, rsp
-	sub     rsp, 232
+	sub     rsp, 208
 	mov     qword [rbp-8], rdi
 	mov     qword [rbp-16], rsi
 	push     rbx
@@ -324,12 +302,7 @@ vector.add:
 	push     r14
 	push     r15
 vector.add.__begin__:
-	mov     rax, qword [rbp-8]
-	mov     qword [rbp-40], rax
-	mov     rax, qword [rbp-40]
-	add     rax, 0
-	mov     qword [rbp-40], rax
-	mov     rdi, qword [rbp-40]
+	mov     rdi, qword [rbp-8]
 	call    vector.getDim
 	mov     qword [rbp-48], rax
 	mov     rdi, qword [rbp-16]
@@ -340,15 +313,10 @@ vector.add.__begin__:
 	jne     if_then22
 	je     rhs__begin__23
 rhs__begin__23:
-	mov     rax, qword [rbp-8]
-	mov     qword [rbp-72], rax
-	mov     rax, qword [rbp-72]
-	add     rax, 0
-	mov     qword [rbp-72], rax
-	mov     rdi, qword [rbp-72]
+	mov     rdi, qword [rbp-8]
 	call    vector.getDim
-	mov     qword [rbp-80], rax
-	cmp     qword [rbp-80], 0
+	mov     qword [rbp-72], rax
+	cmp     qword [rbp-72], 0
 	je     if_then22
 	jne     if_end22
 if_then22:
@@ -358,80 +326,68 @@ if_then22:
 if_end22:
 	mov     rdi, 8
 	call    malloc
-	mov     qword [rbp-104], rax
-	mov     rax, qword [rbp-104]
 	mov     qword [rbp-96], rax
-	mov     rax, qword [rbp-8]
-	mov     qword [rbp-120], rax
-	mov     rax, qword [rbp-120]
-	add     rax, 0
-	mov     qword [rbp-120], rax
-	mov     rdi, qword [rbp-120]
+	mov     rax, qword [rbp-96]
+	mov     qword [rbp-88], rax
+	mov     rdi, qword [rbp-8]
 	call    vector.getDim
-	mov     qword [rbp-128], rax
+	mov     qword [rbp-112], rax
 	mov     rax, 0
-	mov     qword [rbp-144], rax
-	mov     rax, qword [rbp-128]
-	mov     qword [rbp-152], rax
-	mov     rax, qword [rbp-152]
+	mov     qword [rbp-128], rax
+	mov     rax, qword [rbp-112]
+	mov     qword [rbp-136], rax
+	mov     rax, qword [rbp-136]
 	add     rax, 1
 	shl	rax, 3
 	mov     rdi, rax
 	call    malloc
 	add     rax, 8
-	mov     qword [rbp-136], rax
-	mov	r11, qword [rbp-136]
-	mov     rax, qword [rbp-128]
+	mov     qword [rbp-120], rax
+	mov	r11, qword [rbp-120]
+	mov     rax, qword [rbp-112]
 	mov     qword [r11-8], rax
-	mov	r11, qword [rbp-96]
-	mov     rax, qword [rbp-136]
+	mov	r11, qword [rbp-88]
+	mov     rax, qword [rbp-120]
 	mov     qword [r11], rax
 	mov     rax, 0
-	mov     qword [rbp-168], rax
+	mov     qword [rbp-152], rax
 for_cond29:
-	mov     rax, qword [rbp-8]
-	mov     qword [rbp-184], rax
-	mov     rax, qword [rbp-184]
-	add     rax, 0
-	mov     qword [rbp-184], rax
-	mov     rdi, qword [rbp-184]
+	mov     rdi, qword [rbp-8]
 	call    vector.getDim
-	mov     qword [rbp-192], rax
-	mov     rcx, qword [rbp-168]
-	cmp     rcx, qword [rbp-192]
+	mov     qword [rbp-168], rax
+	mov     rcx, qword [rbp-152]
+	cmp     rcx, qword [rbp-168]
 	jl     for_body29
 	jnl     for_end29
 for_body29:
 	mov     rax, qword [rbp-8]
-	mov     qword [rbp-216], rax
-	mov     rax, qword [rbp-216]
-	add     rax, 0
-	mov     qword [rbp-216], rax
-	mov	r12, qword [rbp-168]
+	mov     qword [rbp-192], rax
+	mov	r10, qword [rbp-8]
+	mov	r12, qword [rbp-152]
 	shl	r12, 3
-	add	r12, qword [rbp-216]
+	add	r12, qword [r10]
 	mov     rax, qword [r12]
-	mov     qword [rbp-208], rax
+	mov     qword [rbp-184], rax
 	mov	r10, qword [rbp-16]
-	mov	r11, qword [rbp-168]
+	mov	r11, qword [rbp-152]
 	shl	r11, 3
 	add	r11, qword [r10]
-	mov     rax, qword [rbp-208]
+	mov     rax, qword [rbp-184]
 	add     rax, qword [r11]
-	mov     qword [rbp-208], rax
-	mov	r10, qword [rbp-96]
-	mov	r11, qword [rbp-168]
+	mov     qword [rbp-184], rax
+	mov	r10, qword [rbp-88]
+	mov	r11, qword [rbp-152]
 	shl	r11, 3
 	add	r11, qword [r10]
-	mov     rax, qword [rbp-208]
+	mov     rax, qword [rbp-184]
 	mov     qword [r11], rax
 for_step29:
-	mov     rax, qword [rbp-168]
+	mov     rax, qword [rbp-152]
 	add     rax, 1
-	mov     qword [rbp-168], rax
+	mov     qword [rbp-152], rax
 	jmp    for_cond29
 for_end29:
-	mov     rax, qword [rbp-96]
+	mov     rax, qword [rbp-88]
 	jmp    vector.add.__end__
 	jmp    vector.add.__end__
 vector.add.__end__:
@@ -455,12 +411,7 @@ vector.set:
 	push     r14
 	push     r15
 vector.set.__begin__:
-	mov     rax, qword [rbp-8]
-	mov     qword [rbp-40], rax
-	mov     rax, qword [rbp-40]
-	add     rax, 0
-	mov     qword [rbp-40], rax
-	mov     rdi, qword [rbp-40]
+	mov     rdi, qword [rbp-8]
 	call    vector.getDim
 	mov     qword [rbp-48], rax
 	mov     rcx, qword [rbp-48]
@@ -474,12 +425,10 @@ if_then34:
 if_end34:
 	mov     rax, qword [rbp-8]
 	mov     qword [rbp-64], rax
-	mov     rax, qword [rbp-64]
-	add     rax, 0
-	mov     qword [rbp-64], rax
+	mov	r10, qword [rbp-8]
 	mov	r11, qword [rbp-16]
 	shl	r11, 3
-	add	r11, qword [rbp-64]
+	add	r11, qword [r10]
 	mov     rax, qword [rbp-24]
 	mov     qword [r11], rax
 	mov     rax, 1
@@ -496,7 +445,7 @@ vector.set.__end__:
 vector.tostring:
 	push    rbp
 	mov     rbp, rsp
-	sub     rsp, 200
+	sub     rsp, 192
 	mov     qword [rbp-8], rdi
 	push     rbx
 	push     r12
@@ -506,12 +455,7 @@ vector.tostring:
 vector.tostring.__begin__:
 	mov     rax, qword __staticString__0
 	mov     qword [rbp-24], rax
-	mov     rax, qword [rbp-8]
-	mov     qword [rbp-40], rax
-	mov     rax, qword [rbp-40]
-	add     rax, 0
-	mov     qword [rbp-40], rax
-	mov     rdi, qword [rbp-40]
+	mov     rdi, qword [rbp-8]
 	call    vector.getDim
 	mov     qword [rbp-48], rax
 	cmp     qword [rbp-48], 0
@@ -520,12 +464,10 @@ vector.tostring.__begin__:
 if_then38:
 	mov     rax, qword [rbp-8]
 	mov     qword [rbp-80], rax
-	mov     rax, qword [rbp-80]
-	add     rax, 0
-	mov     qword [rbp-80], rax
+	mov	r10, qword [rbp-8]
 	mov	r12, 0
 	shl	r12, 3
-	add	r12, qword [rbp-80]
+	add	r12, qword [r10]
 	mov     rdi, qword [r12]
 	call    toString
 	mov     qword [rbp-88], rax
@@ -540,39 +482,32 @@ if_end38:
 	mov     rax, 1
 	mov     qword [rbp-104], rax
 for_cond42:
-	mov     rax, qword [rbp-8]
-	mov     qword [rbp-120], rax
-	mov     rax, qword [rbp-120]
-	add     rax, 0
-	mov     qword [rbp-120], rax
-	mov     rdi, qword [rbp-120]
+	mov     rdi, qword [rbp-8]
 	call    vector.getDim
-	mov     qword [rbp-128], rax
+	mov     qword [rbp-120], rax
 	mov     rcx, qword [rbp-104]
-	cmp     rcx, qword [rbp-128]
+	cmp     rcx, qword [rbp-120]
 	jl     for_body42
 	jnl     for_end42
 for_body42:
 	mov     rdi, qword [rbp-24]
 	mov     rsi, __staticString__1
 	call    string.add
-	mov     qword [rbp-152], rax
+	mov     qword [rbp-144], rax
 	mov     rax, qword [rbp-8]
-	mov     qword [rbp-160], rax
-	mov     rax, qword [rbp-160]
-	add     rax, 0
-	mov     qword [rbp-160], rax
+	mov     qword [rbp-152], rax
+	mov	r10, qword [rbp-8]
 	mov	r12, qword [rbp-104]
 	shl	r12, 3
-	add	r12, qword [rbp-160]
+	add	r12, qword [r10]
 	mov     rdi, qword [r12]
 	call    toString
-	mov     qword [rbp-168], rax
-	mov     rdi, qword [rbp-152]
-	mov     rsi, qword [rbp-168]
+	mov     qword [rbp-160], rax
+	mov     rdi, qword [rbp-144]
+	mov     rsi, qword [rbp-160]
 	call    string.add
-	mov     qword [rbp-144], rax
-	mov     rax, qword [rbp-144]
+	mov     qword [rbp-136], rax
+	mov     rax, qword [rbp-136]
 	mov     qword [rbp-24], rax
 for_step42:
 	mov     rax, qword [rbp-104]
@@ -583,8 +518,8 @@ for_end42:
 	mov     rdi, qword [rbp-24]
 	mov     rsi, __staticString__2
 	call    string.add
-	mov     qword [rbp-192], rax
-	mov     rax, qword [rbp-192]
+	mov     qword [rbp-184], rax
+	mov     rax, qword [rbp-184]
 	mov     qword [rbp-24], rax
 	mov     rax, qword [rbp-24]
 	jmp    vector.tostring.__end__
@@ -626,17 +561,12 @@ if_end50:
 if_then52:
 	mov     rax, qword [rbp-8]
 	mov     qword [rbp-56], rax
-	mov     rax, qword [rbp-56]
-	add     rax, 0
-	mov     qword [rbp-56], rax
+	mov	r11, qword [rbp-8]
 	mov     rax, 0
-	mov     qword [rbp-56], rax
+	mov     qword [r11], rax
 	jmp    if_end52
 if_else52:
 	mov     rax, qword [rbp-8]
-	mov     qword [rbp-72], rax
-	mov     rax, qword [rbp-72]
-	add     rax, 0
 	mov     qword [rbp-72], rax
 	mov     rdi, qword [rbp-16]
 	call    vector.getDim
@@ -655,17 +585,13 @@ if_else52:
 	mov	r11, qword [rbp-88]
 	mov     rax, qword [rbp-80]
 	mov     qword [r11-8], rax
+	mov	r11, qword [rbp-8]
 	mov     rax, qword [rbp-88]
-	mov     qword [rbp-72], rax
+	mov     qword [r11], rax
 	mov     rax, 0
 	mov     qword [rbp-120], rax
 for_cond57:
-	mov     rax, qword [rbp-8]
-	mov     qword [rbp-136], rax
-	mov     rax, qword [rbp-136]
-	add     rax, 0
-	mov     qword [rbp-136], rax
-	mov     rdi, qword [rbp-136]
+	mov     rdi, qword [rbp-8]
 	call    vector.getDim
 	mov     qword [rbp-144], rax
 	mov     rcx, qword [rbp-120]
@@ -675,12 +601,10 @@ for_cond57:
 for_body57:
 	mov     rax, qword [rbp-8]
 	mov     qword [rbp-160], rax
-	mov     rax, qword [rbp-160]
-	add     rax, 0
-	mov     qword [rbp-160], rax
+	mov	r10, qword [rbp-8]
 	mov	r11, qword [rbp-120]
 	shl	r11, 3
-	add	r11, qword [rbp-160]
+	add	r11, qword [r10]
 	mov	r10, qword [rbp-16]
 	mov	r12, qword [rbp-120]
 	shl	r12, 3
@@ -708,7 +632,7 @@ vector.copy.__end__:
 main:
 	push    rbp
 	mov     rbp, rsp
-	sub     rsp, 368
+	sub     rsp, 344
 main.__begin__:
 	mov     rdi, 8
 	call    malloc
@@ -731,63 +655,54 @@ main.__begin__:
 	mov     qword [r11-8], rax
 	mov     rax, qword [rbp-48]
 	mov     qword [rbp-40], rax
-	mov     rdi, qword [rbp-40]
-	call    array.size
-	mov     qword [rbp-88], rax
-	mov     rdi, qword [rbp-88]
-	call    toString
-	mov     qword [rbp-96], rax
-	mov     rdi, qword [rbp-96]
-	call    print
-	mov     qword [rbp-104], rax
 	mov     rax, 0
-	mov     qword [rbp-120], rax
+	mov     qword [rbp-80], rax
 for_cond64:
-	cmp     qword [rbp-120], 10
+	cmp     qword [rbp-80], 10
 	jl     for_body64
 	jnl     for_end64
 for_body64:
 	mov     rax, 9
-	mov     qword [rbp-144], rax
-	mov     rax, qword [rbp-144]
-	sub     rax, qword [rbp-120]
-	mov     qword [rbp-144], rax
-	mov	r11, qword [rbp-120]
+	mov     qword [rbp-104], rax
+	mov     rax, qword [rbp-104]
+	sub     rax, qword [rbp-80]
+	mov     qword [rbp-104], rax
+	mov	r11, qword [rbp-80]
 	shl	r11, 3
 	add	r11, qword [rbp-40]
-	mov     rax, qword [rbp-144]
+	mov     rax, qword [rbp-104]
 	mov     qword [r11], rax
 for_step64:
-	mov     rax, qword [rbp-120]
+	mov     rax, qword [rbp-80]
 	add     rax, 1
-	mov     qword [rbp-120], rax
+	mov     qword [rbp-80], rax
 	jmp    for_cond64
 for_end64:
 	mov     rsi, qword [rbp-40]
 	mov     rdi, qword [rbp-16]
 	call    vector.init
-	mov     qword [rbp-160], rax
+	mov     qword [rbp-120], rax
 	mov     rdi, __staticString__3
 	call    print
-	mov     qword [rbp-168], rax
+	mov     qword [rbp-136], rax
 	mov     rdi, qword [rbp-16]
 	call    vector.tostring
-	mov     qword [rbp-184], rax
-	mov     rdi, qword [rbp-184]
+	mov     qword [rbp-152], rax
+	mov     rdi, qword [rbp-152]
 	call    println
-	mov     qword [rbp-192], rax
+	mov     qword [rbp-160], rax
 	mov     rdi, 8
 	call    malloc
-	mov     qword [rbp-216], rax
-	mov     rax, qword [rbp-216]
-	mov     qword [rbp-208], rax
+	mov     qword [rbp-184], rax
+	mov     rax, qword [rbp-184]
+	mov     qword [rbp-176], rax
 	mov     rsi, qword [rbp-16]
-	mov     rdi, qword [rbp-208]
+	mov     rdi, qword [rbp-176]
 	call    vector.copy
-	mov     qword [rbp-224], rax
+	mov     qword [rbp-192], rax
 	mov     rdx, 817
 	mov     rsi, 3
-	mov     rdi, qword [rbp-208]
+	mov     rdi, qword [rbp-176]
 	call    vector.set
 	cmp     rax, 0
 	jne     if_then70
@@ -795,57 +710,57 @@ for_end64:
 if_then70:
 	mov     rdi, __staticString__4
 	call    println
-	mov     qword [rbp-232], rax
+	mov     qword [rbp-200], rax
 	jmp    if_end70
 if_end70:
 	mov     rdi, __staticString__5
 	call    print
+	mov     qword [rbp-208], rax
+	mov     rdi, qword [rbp-176]
+	call    vector.tostring
+	mov     qword [rbp-216], rax
+	mov     rdi, qword [rbp-216]
+	call    println
+	mov     qword [rbp-224], rax
+	mov     rdi, __staticString__6
+	call    print
+	mov     qword [rbp-232], rax
+	mov     rsi, qword [rbp-176]
+	mov     rdi, qword [rbp-16]
+	call    vector.add
 	mov     qword [rbp-240], rax
-	mov     rdi, qword [rbp-208]
+	mov     rdi, qword [rbp-240]
 	call    vector.tostring
 	mov     qword [rbp-248], rax
 	mov     rdi, qword [rbp-248]
 	call    println
 	mov     qword [rbp-256], rax
-	mov     rdi, __staticString__6
-	call    print
-	mov     qword [rbp-264], rax
-	mov     rsi, qword [rbp-208]
-	mov     rdi, qword [rbp-16]
-	call    vector.add
-	mov     qword [rbp-272], rax
-	mov     rdi, qword [rbp-272]
-	call    vector.tostring
-	mov     qword [rbp-280], rax
-	mov     rdi, qword [rbp-280]
-	call    println
-	mov     qword [rbp-288], rax
 	mov     rdi, __staticString__7
 	call    print
-	mov     qword [rbp-296], rax
-	mov     rsi, qword [rbp-208]
+	mov     qword [rbp-264], rax
+	mov     rsi, qword [rbp-176]
 	mov     rdi, qword [rbp-16]
 	call    vector.dot
-	mov     qword [rbp-304], rax
-	mov     rdi, qword [rbp-304]
+	mov     qword [rbp-280], rax
+	mov     rdi, qword [rbp-280]
 	call    toString
-	mov     qword [rbp-312], rax
-	mov     rdi, qword [rbp-312]
+	mov     qword [rbp-288], rax
+	mov     rdi, qword [rbp-288]
 	call    println
-	mov     qword [rbp-320], rax
+	mov     qword [rbp-296], rax
 	mov     rdi, __staticString__8
 	call    print
-	mov     qword [rbp-328], rax
+	mov     qword [rbp-304], rax
 	mov     rsi, 8
-	mov     rdi, qword [rbp-208]
+	mov     rdi, qword [rbp-176]
 	call    vector.scalarInPlaceMultiply
-	mov     qword [rbp-344], rax
-	mov     rdi, qword [rbp-344]
+	mov     qword [rbp-320], rax
+	mov     rdi, qword [rbp-320]
 	call    vector.tostring
-	mov     qword [rbp-352], rax
-	mov     rdi, qword [rbp-352]
+	mov     qword [rbp-328], rax
+	mov     rdi, qword [rbp-328]
 	call    println
-	mov     qword [rbp-360], rax
+	mov     qword [rbp-336], rax
 	mov     rax, 0
 	jmp    main.__end__
 	jmp    main.__end__

@@ -90,7 +90,6 @@ int main(){
 	vector x = new vector;
 	int[] a = new int[10];
 	int i;
-	print(toString(a.size()));
 	for (i = 0; i < 10; ++i){
 		a[i] = 9 - i;
 	}
