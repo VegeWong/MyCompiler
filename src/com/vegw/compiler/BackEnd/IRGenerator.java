@@ -19,6 +19,7 @@ import com.vegw.compiler.IR.LinearIR.*;
 import com.vegw.compiler.IR.LinearIR.Operand.*;
 import com.vegw.compiler.Type.ArrayType;
 import com.vegw.compiler.Type.ClassType;
+import com.vegw.compiler.Type.FunctionType;
 import com.vegw.compiler.Type.Type;
 import com.vegw.compiler.Utils.BuiltinFunction;
 import com.vegw.compiler.Utils.ErrorHandler;
@@ -492,10 +493,12 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
 
     @Override
     public Operand visit(FuncallNode node) {
+        Operand operand = uvisit(node.name());
         FunctionEntity entity = node.functionType().entity();
-//        if (node.name() instanceof MemberNode) {
-//
-//        }
+
+        if (((FunctionType) node.name().type()).name().equals("array.size")) {
+            processAssign(rdi, operand);
+        }
 
         for (int i = 0; i < node.params().size(); ++i) {
             Operand t = uvisit(node.params().get(i));
@@ -608,6 +611,7 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         processAssign(rdi, rax);
         curFunc.addIRInst(new Call(malloc));
         processAssign(dst, rax);
+        processAssign(new Address(dst, null, new Immediate(-8)), (Operand) dimensionArgs.get(now));
         curFunc.addIRInst(dimensionBodyLabel);
         Address daddr = new Address(dst, nowSubscript, EIGHT);
 
