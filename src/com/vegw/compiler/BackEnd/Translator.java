@@ -47,8 +47,8 @@ public class Translator {
         if (operand instanceof VirtualRegister)
             return new Address(rbp, null, new Immediate(-((((VirtualRegister) operand).cnt) * 8)));
         else if (operand instanceof Address) {
-            Operand base = prepare(((Address) operand).base, null);
-            Operand index = prepare(((Address) operand).scaledOffset, null);
+            Operand base = prepare(((Address) operand).base, r10);
+            Operand index = prepare(((Address) operand).scaledOffset, r11);
 
             if (base instanceof Address || index instanceof Address) {
                 if (index != null) {

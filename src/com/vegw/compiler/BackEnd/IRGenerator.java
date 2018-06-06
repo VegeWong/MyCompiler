@@ -497,15 +497,17 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
     public Operand visit(FuncallNode node) {
         Operand operand = uvisit(node.name());
         FunctionEntity entity = node.functionType().entity();
+        int argOffset = 0;
 
         if (node.name() instanceof MemberNode) {
             processAssign(rdi, operand);
+            argOffset += 1;
         }
 
         for (int i = 0; i < node.params().size(); ++i) {
             Operand t = uvisit(node.params().get(i));
-            if (i < 6) processAssign(registerList.paramRegs.get(i), t);
-            else processAssign(new Address(rsp, null, new Immediate(8 * (i - 4))), t);
+            if (i + argOffset < 6) processAssign(registerList.paramRegs.get(i + argOffset), t);
+            else processAssign(new Address(rsp, null, new Immediate(8 * (i + argOffset - 4))), t);
         }
         curFunc.addIRInst(new Call(entity));
 
@@ -599,7 +601,7 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         else return curFunc.getVReg(entity);
     } // Finished
 
-    private void createArray(List<Operand> dimensionArgs, Operand dst, int now, int allLayer, Type type, FunctionEntity constructor) {
+    private void createArray(List<Operand> dimensionArgs, Operand dst, int now) {
         VirtualRegister nowSubscript = createIntTmp();
         VirtualRegister maxSubscript = createIntTmp();
         Label dimensionBodyLabel = new Label("dimension_body" + labelCnt);
@@ -614,12 +616,14 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         curFunc.addIRInst(new Call(malloc));
         processAssign(dst, rax);
         processAssign(new Address(dst, null, new Immediate(-8)), (Operand) dimensionArgs.get(now));
+
+        VirtualRegister tmp = createIntTmp();
+        processAssign(tmp, dst);
         curFunc.addIRInst(dimensionBodyLabel);
-        Address daddr = new Address(dst, nowSubscript, EIGHT);
-
         if (dimensionArgs.size() > now + 1)
-            createArray(dimensionArgs, daddr, now + 1, allLayer, type, constructor);
+            createArray(dimensionArgs, new Address(tmp, null, null), now + 1);
 
+        curFunc.addIRInst(new Binop(Binop.BinOp.ADD, tmp, EIGHT));
         curFunc.addIRInst(new Binop(Binop.BinOp.ADD, nowSubscript, ONE));
         curFunc.addIRInst(new Cjump(new Binop(Binop.BinOp.LT, nowSubscript, maxSubscript),
                 dimensionBodyLabel, null));
@@ -637,12 +641,8 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         VirtualRegister tmp = createIntTmp();
         boolean isArray = type instanceof ArrayType;
         if (isArray) {
-            Type baseType = ((ArrayType) type).baseType();
-            if (baseType instanceof ClassType)
-                constructor = ((ClassType) baseType).entity().constructor().entity();
-
             if (dimensionArgs.size() > 0)
-                createArray(dimensionArgs, tmp, 0, ((ArrayType) type).demension(), baseType, constructor);
+                createArray(dimensionArgs, tmp, 0);
         }
         else {
             processAssign(rdi, new Immediate(((ClassType) type).entity().size()));
