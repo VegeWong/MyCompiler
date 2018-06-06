@@ -504,6 +504,7 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
             if (node.operator().equals(BinaryOpNode.BinaryOp.LOG_AND) || node.operator().equals(BinaryOpNode.BinaryOp.LOG_OR))
                 if (left == null && right == null)
                     return null;
+            if (hasLabel(node)) return null;
             processAssign(tmp, left);
             curFunc.addIRInst(new Binop(op, tmp, right));
             res = tmp;
