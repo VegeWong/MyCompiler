@@ -71,7 +71,7 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
     private int arefDepth = 0;
 
     public List<FunctionEntity> funcs;
-
+    public List<GlobalVarible> globalVars;
 
     // ======== Function =============
 
@@ -94,7 +94,7 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
     private void processAssign(Operand dst, Operand src){
         if (dst == null || src == null)
             System.err.println("Assign operand is null");
-        if (!(dst instanceof Register || dst instanceof Address))
+        if (!(dst instanceof Register || dst instanceof Address || dst instanceof GlobalVarible))
             throw new Error("Invalid addressing object");
         curFunc.addIRInst(new Assign(dst, src));
     }
@@ -105,6 +105,7 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         stack.push(ast.scope);
         curScope = stack.peek();
         funcs = new LinkedList<FunctionEntity>();
+        globalVars = new LinkedList<GlobalVarible>();
     }
 
     public void generate() {
@@ -113,6 +114,11 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
             Entity entity = map.get(key);
             if (entity instanceof ClassEntity)
                 ((ClassEntity) entity).setOffset();
+            else if (entity instanceof VariableEntity) {
+                GlobalVarible gv = new GlobalVarible(entity.name());
+                entity.setGlobalVariables(gv);
+                globalVars.add(gv);
+            }
         }
 
         String FIX;
@@ -267,7 +273,7 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
                 if (operand instanceof Immediate)
                     res = new Immediate(~((Immediate) operand).value);
                 else {
-                    processAssign(tmp, uvisit(node.expr()));
+                    processAssign(tmp, operand);
                     curFunc.addIRInst(new Uniop(Uniop.UniOp.BNOT, tmp));
                     res = tmp;
                 }
@@ -289,29 +295,29 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         return res;
     } // Finished
 
-    private boolean shortCircuitAssign(BinaryOpNode node) {
-        Location loc = node.location();
-        BoolLiteralNode T = new BoolLiteralNode(loc, true);
-        BoolLiteralNode F = new BoolLiteralNode(loc, false);
-        if (node.operator().equals(BinaryOpNode.BinaryOp.ASSIGN)) {
-            if (node.right() instanceof BinaryOpNode) {
-                BinaryOpNode.BinaryOp op = ((BinaryOpNode) node.right()).operator();
-                if (op.equals(BinaryOpNode.BinaryOp.LOG_AND) ||
-                        ((BinaryOpNode) node.right()).operator().equals(BinaryOpNode.BinaryOp.LOG_OR)) {
-                    BlockNode thenBlock = new BlockNode(node.location(), new LinkedList<StmtNode>() {{
-                        add(new ExprStmtNode(new BinaryOpNode(Type.BOOL, node.left(), BinaryOpNode.BinaryOp.ASSIGN, T)));
-                    }});
-                    BlockNode elseBlock = new BlockNode(loc, new LinkedList<StmtNode>() {{
-                        add(new ExprStmtNode(new BinaryOpNode(Type.BOOL, node.left(), BinaryOpNode.BinaryOp.ASSIGN, F)));
-                    }});
-                    IfNode avateorNode = new IfNode(node.location(), node.right(), thenBlock, elseBlock);
-                    uvisit(avateorNode);
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
+//    private boolean shortCircuitAssign(BinaryOpNode node) {
+//        Location loc = node.location();
+//        BoolLiteralNode T = new BoolLiteralNode(loc, true);
+//        BoolLiteralNode F = new BoolLiteralNode(loc, false);
+//        if (node.operator().equals(BinaryOpNode.BinaryOp.ASSIGN)) {
+//            if (node.right() instanceof BinaryOpNode) {
+//                BinaryOpNode.BinaryOp op = ((BinaryOpNode) node.right()).operator();
+//                if (op.equals(BinaryOpNode.BinaryOp.LOG_AND) ||
+//                        ((BinaryOpNode) node.right()).operator().equals(BinaryOpNode.BinaryOp.LOG_OR)) {
+//                    BlockNode thenBlock = new BlockNode(node.location(), new LinkedList<StmtNode>() {{
+//                        add(new ExprStmtNode(new BinaryOpNode(Type.BOOL, node.left(), BinaryOpNode.BinaryOp.ASSIGN, T)));
+//                    }});
+//                    BlockNode elseBlock = new BlockNode(loc, new LinkedList<StmtNode>() {{
+//                        add(new ExprStmtNode(new BinaryOpNode(Type.BOOL, node.left(), BinaryOpNode.BinaryOp.ASSIGN, F)));
+//                    }});
+//                    IfNode avateorNode = new IfNode(node.location(), node.right(), thenBlock, elseBlock);
+//                    uvisit(avateorNode);
+//                    return true;
+//                }
+//            }
+//        }
+//        return false;
+//    }
 
     private int islog(Immediate imm) {
         int cnt = 0;
@@ -518,7 +524,7 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
             args.add(uvisit(node.params().get(i)));
 
         for (int i = args.size() - 1; i >= 0; --i) {
-            if (i < 6) processAssign(registerList.paramRegs.get(i ), args.get(i));
+            if (i < 6) processAssign(registerList.paramRegs.get(i), args.get(i));
             else curFunc.addIRInst(new Push(args.get(i)));
         }
 
@@ -539,9 +545,11 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
     public Operand visit(BoolLiteralNode node) {
         Immediate res = new Immediate(node.value()? 1 : 0);
         if (hasLabel(node)) {
-            VirtualRegister tmp = createIntTmp();
-            processAssign(tmp, res);
-            curFunc.addIRInst(new Cjump(new Binop(Binop.BinOp.NE, tmp, ZERO), node.ifTrue, node.ifFalse));
+            if (res.value == 1 && node.ifTrue != null)
+                curFunc.addIRInst(new Jump(node.ifTrue));
+            if (res.value == 0 && node.ifFalse != null)
+                curFunc.addIRInst(new Jump(node.ifFalse));
+            return null;
         }
         return res;
     } // Finished
@@ -598,11 +606,12 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
     @Override
     public Operand visit(VariableNode node) {
         Entity entity = node.entity();
+        boolean isGV = entity.isGlobalVariables();
+        GlobalVarible gv = entity.gvalue;
         if (hasLabel(node)) {
-            curFunc.addIRInst(new Cjump(new Binop(Binop.BinOp.NE, curFunc.getVReg(entity), ZERO), node.ifTrue, node.ifFalse));
+            curFunc.addIRInst(new Cjump(new Binop(Binop.BinOp.NE, isGV? gv:curFunc.getVReg(entity), ZERO), node.ifTrue, node.ifFalse));
             return null;
         }
-
         if (entity.isMember()) {
             Entity thisEntity = curScope.entities().get("this");
             if (thisEntity == null)
@@ -611,7 +620,7 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
             int offset = entity.offset();
             return new Address(base, null, new Immediate(offset));
         }
-        else return curFunc.getVReg(entity);
+        else return isGV? gv:curFunc.getVReg(entity);
     } // Finished
 
     private void createArray(List<Operand> dimensionArgs, Operand dst, int now) {

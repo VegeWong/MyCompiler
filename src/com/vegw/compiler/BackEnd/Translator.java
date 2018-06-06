@@ -50,7 +50,8 @@ public class Translator {
             Operand base = prepare(((Address) operand).base, r10);
             Operand index = prepare(((Address) operand).scaledOffset, r11);
 
-            if (base instanceof Address || index instanceof Address) {
+            if (base instanceof Address || base instanceof GlobalVarible ||
+                    index instanceof Address || index instanceof GlobalVarible) {
                 if (index != null) {
                     list.add("\tmov\t" + tmp.name + ", " + index.toNASM() + "\n");
                     list.add("\tshl\t" + tmp.name + ", " + 3 + "\n");
@@ -111,6 +112,10 @@ public class Translator {
             for (int i = 0; i < key.length(); ++i) list.add(Integer.toString((int)key.charAt(i)) + ", ");
             list.add("0\n");
         }
+        for (GlobalVarible globalv : irGenerator.globalVars) {
+            String name = globalv.name;
+            list.add(name + ":\n\tdq\t0\n");
+        }
 //            for (String u : rt.SC) {
 //                ans.append("\tdq\t" + u.length() + "\nstr__" + Integer.toString(cc++) + ":\n\tdb\t");
 //                for (int i = 0; i < u.length(); ++i) ans.append(Integer.toString((int)u.charAt(i)) + ", ");
@@ -131,6 +136,7 @@ public class Translator {
         list.add("section .bss\n");
         list.add("stringbuffer:\n");
         list.add("\tresb 256\n");
+
         list.add("section .text\n");
         for (FunctionEntity func : irGenerator.funcs) {
             curFunc = func;
@@ -292,7 +298,8 @@ public class Translator {
             r = l;
             l = tmp;
         }
-        if (l instanceof Address && r instanceof Address) {
+        if ((l instanceof Address || l instanceof  GlobalVarible) &&
+                (r instanceof Address || r instanceof GlobalVarible)) {
             list.add("\tmov     rcx, " + l.toNASM() + "\n");
             l = rcx;
         }

@@ -1,5 +1,6 @@
 package com.vegw.compiler.Entity;
 
+import com.vegw.compiler.IR.LinearIR.Operand.GlobalVarible;
 import com.vegw.compiler.Utils.Location;
 
 abstract public class Entity {
@@ -9,8 +10,11 @@ abstract public class Entity {
 
     protected ClassEntity thisPtr = null;
     protected boolean isMember = false;
+    protected boolean isGlobalVariables = false;
     protected int offset = 0;
 
+
+    public GlobalVarible gvalue = null;
 
     public Entity(Location location, String name) {
         this.location = location;
@@ -27,6 +31,13 @@ abstract public class Entity {
 
     public boolean isMember() { return isMember; }
 
+    public void setGlobalVariables(GlobalVarible gv) {
+        gvalue = gv;
+        isGlobalVariables = true;
+    }
+
+    public boolean isGlobalVariables() { return isGlobalVariables; }
+
     public int offset() { return offset; }
 
     public void rename(String internalName) { this.internalName = internalName;}
@@ -38,6 +49,7 @@ abstract public class Entity {
     public String name(){
         return name;
     }
+
 
 
 }
