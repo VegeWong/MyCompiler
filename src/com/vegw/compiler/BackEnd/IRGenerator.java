@@ -509,18 +509,19 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
     public Operand visit(FuncallNode node) {
         Operand operand = uvisit(node.name());
         FunctionEntity entity = node.functionType().entity();
-        int argOffset = 0;
+        List<Operand> args = new LinkedList<Operand>();
 
-        if (node.name() instanceof MemberNode) {
-            processAssign(rdi, operand);
-            argOffset += 1;
+        if (node.name() instanceof MemberNode)
+            args.add(operand);
+
+        for (int i = 0; i < node.params().size(); ++i)
+            args.add(uvisit(node.params().get(i)));
+
+        for (int i = args.size() - 1; i >= 0; --i) {
+            if (i < 6) processAssign(registerList.paramRegs.get(i ), args.get(i));
+            else curFunc.addIRInst(new Push(args.get(i)));
         }
 
-        for (int i = node.params().size() - 1; i >= 0; --i) {
-            Operand t = uvisit(node.params().get(i));
-            if (i + argOffset < 6) processAssign(registerList.paramRegs.get(i + argOffset), t);
-            else curFunc.addIRInst(new Push(t));
-        }
         curFunc.addIRInst(new Call(entity));
 
         if (hasLabel(node)) {

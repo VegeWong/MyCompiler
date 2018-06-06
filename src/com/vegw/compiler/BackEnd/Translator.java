@@ -71,13 +71,14 @@ public class Translator {
         list.add("\tpush    rbp\n");
         list.add("\tmov     rbp, rsp\n");
 
+        offset = curFunc.virtualRegisterCnt * 8;
+        list.add("\tsub     rsp, " + offset + "\n");
+
         int size = min(6, curFunc.params().size());
         for (int i = 0; i < size; ++i) {
             list.add("\tmov     qword [rbp-" + (i + 1) * 8 + "], " + registerList.paramRegs.get(i).toNASM() + "\n");
         }
 
-        offset = curFunc.virtualRegisterCnt * 8;
-        list.add("\tsub     rsp, " + offset + "\n");
         if (curFunc.name().equals("main")) return;
         for (int i = 1; i < 6; ++i)
             list.add("\tpush     " + registerList.calleeSavedRegs.get(i).toNASM()+"\n");
