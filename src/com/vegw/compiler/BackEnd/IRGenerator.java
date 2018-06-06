@@ -618,7 +618,10 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
                 errorHandler.error(node, "Class member without thisPtr");
             VirtualRegister base = curFunc.getVReg(thisEntity);
             int offset = entity.offset();
-            return new Address(base, null, new Immediate(offset));
+            VirtualRegister tmp = createIntTmp();
+            processAssign(tmp, base);
+            curFunc.addIRInst(new Binop(Binop.BinOp.ADD, tmp, new Immediate(offset)));
+            return tmp;
         }
         else return isGV? gv:curFunc.getVReg(entity);
     } // Finished
@@ -674,7 +677,7 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
             processAssign(tmp, rax);
             if (((ClassType) type).entity().constructor() != null) {
                 constructor = ((ClassType) type).entity().constructor().entity();
-                processAssign(rdi, rax);
+                processAssign(rdi, tmp);
                 curFunc.addIRInst(new Call(constructor));
             }
         }

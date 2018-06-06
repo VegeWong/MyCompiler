@@ -26,7 +26,7 @@ public class Mxstar {
         try {
 //             CharStream input = CharStreams.fromFileName("E:\\College-4\\Compiler\\mxstar\\test\\1.mx");
 //             FileOutputStream out = new FileOutputStream("E:\\College-4\\Compiler\\mxstar\\test\\1.out");
-//
+////
            InputStream in = System.in;
            ANTLRInputStream input = new ANTLRInputStream(in);
            OutputStream out = System.out;
