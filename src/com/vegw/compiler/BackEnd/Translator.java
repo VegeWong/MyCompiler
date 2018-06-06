@@ -140,6 +140,11 @@ public class Translator {
         Builtin();
     }
 
+    public void visit(Push ins) {
+        Operand o = prepare(ins.operand, r11);
+        list.add("\tpush    " + o.toNASM() + "\n");
+    }
+
     public void visit(Assign ins) {
         if (ins.left.toNASM() == ins.right.toNASM()) return;
 

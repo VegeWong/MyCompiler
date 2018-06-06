@@ -22,25 +22,96 @@ section .bss
 stringbuffer:
 	resb 256
 section .text
-printNum:
+a:
 	push    rbp
 	mov     rbp, rsp
 	mov     qword [rbp-8], rdi
-	sub     rsp, 48
+	mov     qword [rbp-16], rsi
+	mov     qword [rbp-24], rdx
+	mov     qword [rbp-32], rcx
+	mov     qword [rbp-40], r8
+	mov     qword [rbp-48], r9
+	sub     rsp, 168
 	push     rbx
 	push     r12
 	push     r13
 	push     r14
 	push     r15
-printNum.__begin__:
-	mov     rdi, qword [rbp-8]
-	call    toString
-	mov     qword [rbp-32], rax
-	mov     rdi, qword [rbp-32]
-	call    println
-	mov     qword [rbp-40], rax
-	jmp    printNum.__end__
-printNum.__end__:
+a.__begin__:
+	mov     rax, qword [rbp-8]
+	mov     qword [rbp-160], rax
+	mov     rax, qword [rbp-160]
+	add     rax, qword [rbp-16]
+	mov     qword [rbp-160], rax
+	mov     rax, qword [rbp-160]
+	mov     qword [rbp-152], rax
+	mov     rax, qword [rbp-152]
+	add     rax, qword [rbp-24]
+	mov     qword [rbp-152], rax
+	mov     rax, qword [rbp-152]
+	mov     qword [rbp-144], rax
+	mov     rax, qword [rbp-144]
+	add     rax, qword [rbp-32]
+	mov     qword [rbp-144], rax
+	mov     rax, qword [rbp-144]
+	mov     qword [rbp-136], rax
+	mov     rax, qword [rbp-136]
+	add     rax, qword [rbp-40]
+	mov     qword [rbp-136], rax
+	mov     rax, qword [rbp-136]
+	mov     qword [rbp-128], rax
+	mov     rax, qword [rbp-128]
+	add     rax, qword [rbp-48]
+	mov     qword [rbp-128], rax
+	mov     rax, qword [rbp-128]
+	mov     qword [rbp-120], rax
+	mov     rax, qword [rbp-120]
+	add     rax, qword [rbp+16]
+	mov     qword [rbp-120], rax
+	mov     rax, qword [rbp-120]
+	mov     qword [rbp-112], rax
+	mov     rax, qword [rbp-112]
+	add     rax, qword [rbp+24]
+	mov     qword [rbp-112], rax
+	mov     rax, qword [rbp-112]
+	mov     qword [rbp-104], rax
+	mov     rax, qword [rbp-104]
+	add     rax, qword [rbp+32]
+	mov     qword [rbp-104], rax
+	mov     rax, qword [rbp-104]
+	mov     qword [rbp-96], rax
+	mov     rax, qword [rbp-96]
+	add     rax, qword [rbp+40]
+	mov     qword [rbp-96], rax
+	mov     rax, qword [rbp-96]
+	mov     qword [rbp-88], rax
+	mov     rax, qword [rbp-88]
+	add     rax, qword [rbp+48]
+	mov     qword [rbp-88], rax
+	mov     rax, qword [rbp-88]
+	mov     qword [rbp-80], rax
+	mov     rax, qword [rbp-80]
+	add     rax, qword [rbp+56]
+	mov     qword [rbp-80], rax
+	mov     rax, qword [rbp-80]
+	mov     qword [rbp-72], rax
+	mov     rax, qword [rbp-72]
+	add     rax, qword [rbp+64]
+	mov     qword [rbp-72], rax
+	mov     rax, qword [rbp-72]
+	mov     qword [rbp-64], rax
+	mov     rax, qword [rbp-64]
+	add     rax, qword [rbp+72]
+	mov     qword [rbp-64], rax
+	mov     rax, qword [rbp-64]
+	mov     qword [rbp-56], rax
+	mov     rax, qword [rbp-56]
+	add     rax, qword [rbp+80]
+	mov     qword [rbp-56], rax
+	mov     rax, qword [rbp-56]
+	jmp    a.__end__
+	jmp    a.__end__
+a.__end__:
 	pop     r15
 	pop     r14
 	pop     r13
@@ -51,338 +122,31 @@ printNum.__end__:
 main:
 	push    rbp
 	mov     rbp, rsp
-	sub     rsp, 568
+	sub     rsp, 56
 main.__begin__:
-	mov     rax, 0
+	push    15
+	push    14
+	push    13
+	push    12
+	push    11
+	push    10
+	push    9
+	push    8
+	push    7
+	mov     r9, 6
+	mov     r8, 5
+	mov     rcx, 4
+	mov     rdx, 3
+	mov     rsi, 2
+	mov     rdi, 1
+	call    a
 	mov     qword [rbp-32], rax
-	mov     rax, 4
+	mov     rdi, qword [rbp-32]
+	call    toString
 	mov     qword [rbp-40], rax
-	mov     rax, qword [rbp-40]
-	add     rax, 1
-	shl	rax, 3
-	mov     rdi, rax
-	call    malloc
-	mov     qword [rbp-24], rax
-	mov	r11, qword [rbp-24]
-	mov     rax, 4
-	mov     qword [r11-8], rax
-	mov     rax, qword [rbp-24]
+	mov     rdi, qword [rbp-40]
+	call    println
 	mov     qword [rbp-48], rax
-dimension_body1:
-	mov     rax, qword [rbp-48]
-	add     rax, 8
-	mov     qword [rbp-48], rax
-	mov     rax, qword [rbp-32]
-	add     rax, 1
-	mov     qword [rbp-32], rax
-	mov     rcx, qword [rbp-32]
-	cmp     rcx, qword [rbp-40]
-	jl     dimension_body1
-dimension_end1:
-	mov     rax, qword [rbp-24]
-	mov     qword [rbp-16], rax
-	mov     rax, 0
-	mov     qword [rbp-80], rax
-	mov     rax, 5
-	mov     qword [rbp-88], rax
-	mov     rax, qword [rbp-88]
-	add     rax, 1
-	shl	rax, 3
-	mov     rdi, rax
-	call    malloc
-	mov     qword [rbp-72], rax
-	mov	r11, qword [rbp-72]
-	mov     rax, 5
-	mov     qword [r11-8], rax
-	mov     rax, qword [rbp-72]
-	mov     qword [rbp-96], rax
-dimension_body3:
-	mov     rax, qword [rbp-96]
-	add     rax, 8
-	mov     qword [rbp-96], rax
-	mov     rax, qword [rbp-80]
-	add     rax, 1
-	mov     qword [rbp-80], rax
-	mov     rcx, qword [rbp-80]
-	cmp     rcx, qword [rbp-88]
-	jl     dimension_body3
-dimension_end3:
-	mov     rax, qword [rbp-72]
-	mov     qword [rbp-64], rax
-	mov     rax, 0
-	mov     qword [rbp-112], rax
-for_cond4:
-	cmp     qword [rbp-112], 4
-	jl     for_body4
-	jnl     for_end4
-for_body4:
-	mov     rax, 0
-	mov     qword [rbp-144], rax
-	mov     rax, 11
-	mov     qword [rbp-152], rax
-	mov     rax, qword [rbp-152]
-	add     rax, 1
-	shl	rax, 3
-	mov     rdi, rax
-	call    malloc
-	mov     qword [rbp-136], rax
-	mov	r11, qword [rbp-136]
-	mov     rax, 11
-	mov     qword [r11-8], rax
-	mov     rax, qword [rbp-136]
-	mov     qword [rbp-160], rax
-dimension_body8:
-	mov     rax, qword [rbp-160]
-	add     rax, 8
-	mov     qword [rbp-160], rax
-	mov     rax, qword [rbp-144]
-	add     rax, 1
-	mov     qword [rbp-144], rax
-	mov     rcx, qword [rbp-144]
-	cmp     rcx, qword [rbp-152]
-	jl     dimension_body8
-dimension_end8:
-	mov	r11, qword [rbp-112]
-	shl	r11, 3
-	add	r11, qword [rbp-16]
-	mov     rax, qword [rbp-136]
-	mov     qword [r11], rax
-for_step4:
-	mov     rax, qword [rbp-112]
-	mov     qword [rbp-168], rax
-	mov     rax, qword [rbp-112]
-	add     rax, 1
-	mov     qword [rbp-112], rax
-	jmp    for_cond4
-for_end4:
-	mov     rax, 0
-	mov     qword [rbp-112], rax
-for_cond9:
-	cmp     qword [rbp-112], 4
-	jl     for_body9
-	jnl     for_end9
-for_body9:
-	mov     rax, 0
-	mov     qword [rbp-200], rax
-for_cond12:
-	cmp     qword [rbp-200], 10
-	jl     for_body12
-	jnl     for_end12
-for_body12:
-	mov	r12, qword [rbp-112]
-	shl	r12, 3
-	add	r12, qword [rbp-16]
-	mov     rax, qword [r12]
-	mov     qword [rbp-224], rax
-	mov	r11, qword [rbp-200]
-	shl	r11, 3
-	add	r11, qword [rbp-224]
-	mov     rax, 888
-	mov     qword [r11], rax
-for_step12:
-	mov     rax, qword [rbp-200]
-	mov     qword [rbp-232], rax
-	mov     rax, qword [rbp-200]
-	add     rax, 1
-	mov     qword [rbp-200], rax
-	jmp    for_cond12
-for_end12:
-for_step9:
-	mov     rax, qword [rbp-112]
-	mov     qword [rbp-240], rax
-	mov     rax, qword [rbp-112]
-	add     rax, 1
-	mov     qword [rbp-112], rax
-	jmp    for_cond9
-for_end9:
-	mov     rax, 0
-	mov     qword [rbp-112], rax
-for_cond16:
-	cmp     qword [rbp-112], 5
-	jl     for_body16
-	jnl     for_end16
-for_body16:
-	mov     rdi, 16
-	call    malloc
-	mov     qword [rbp-272], rax
-	mov	r11, qword [rbp-112]
-	shl	r11, 3
-	add	r11, qword [rbp-64]
-	mov     rax, qword [rbp-272]
-	mov     qword [r11], rax
-	mov	r10, qword [rbp-112]
-	shl	r10, 3
-	add	r10, qword [rbp-64]
-	mov	r11, qword [r10]
-	mov     rax, -1
-	mov     qword [r11], rax
-for_step16:
-	mov     rax, qword [rbp-112]
-	mov     qword [rbp-296], rax
-	mov     rax, qword [rbp-112]
-	add     rax, 1
-	mov     qword [rbp-112], rax
-	jmp    for_cond16
-for_end16:
-	mov	r12, 3
-	shl	r12, 3
-	add	r12, qword [rbp-16]
-	mov     rax, qword [r12]
-	mov     qword [rbp-312], rax
-	mov	r12, 9
-	shl	r12, 3
-	add	r12, qword [rbp-312]
-	mov     rdi, qword [r12]
-	call    printNum
-	mov     qword [rbp-320], rax
-	mov     rax, 0
-	mov     qword [rbp-112], rax
-for_cond21:
-	cmp     qword [rbp-112], 3
-	jle     for_body21
-	jnle     for_end21
-for_body21:
-	mov     rax, 0
-	mov     qword [rbp-200], rax
-for_cond24:
-	cmp     qword [rbp-200], 9
-	jle     for_body24
-	jnle     for_end24
-for_body24:
-	mov	r12, qword [rbp-112]
-	shl	r12, 3
-	add	r12, qword [rbp-16]
-	mov     rax, qword [r12]
-	mov     qword [rbp-368], rax
-	mov     rax, qword [rbp-112]
-	mov     qword [rbp-384], rax
-	mov     rax, qword [rbp-384]
-	imul     rax, 10
-	mov     qword [rbp-384], rax
-	mov     rax, qword [rbp-384]
-	mov     qword [rbp-376], rax
-	mov     rax, qword [rbp-376]
-	add     rax, qword [rbp-200]
-	mov     qword [rbp-376], rax
-	mov	r11, qword [rbp-200]
-	shl	r11, 3
-	add	r11, qword [rbp-368]
-	mov     rax, qword [rbp-376]
-	mov     qword [r11], rax
-for_step24:
-	mov     rax, qword [rbp-200]
-	mov     qword [rbp-392], rax
-	mov     rax, qword [rbp-200]
-	add     rax, 1
-	mov     qword [rbp-200], rax
-	jmp    for_cond24
-for_end24:
-for_step21:
-	mov     rax, qword [rbp-112]
-	mov     qword [rbp-400], rax
-	mov     rax, qword [rbp-112]
-	add     rax, 1
-	mov     qword [rbp-112], rax
-	jmp    for_cond21
-for_end21:
-	mov     rax, 0
-	mov     qword [rbp-112], rax
-for_cond30:
-	cmp     qword [rbp-112], 3
-	jle     for_body30
-	jnle     for_end30
-for_body30:
-	mov     rax, 0
-	mov     qword [rbp-200], rax
-for_cond33:
-	cmp     qword [rbp-200], 9
-	jle     for_body33
-	jnle     for_end33
-for_body33:
-	mov	r12, qword [rbp-112]
-	shl	r12, 3
-	add	r12, qword [rbp-16]
-	mov     rax, qword [r12]
-	mov     qword [rbp-440], rax
-	mov	r12, qword [rbp-200]
-	shl	r12, 3
-	add	r12, qword [rbp-440]
-	mov     rdi, qword [r12]
-	call    printNum
-	mov     qword [rbp-448], rax
-for_step33:
-	mov     rax, qword [rbp-200]
-	mov     qword [rbp-456], rax
-	mov     rax, qword [rbp-200]
-	add     rax, 1
-	mov     qword [rbp-200], rax
-	jmp    for_cond33
-for_end33:
-for_step30:
-	mov     rax, qword [rbp-112]
-	mov     qword [rbp-464], rax
-	mov     rax, qword [rbp-112]
-	add     rax, 1
-	mov     qword [rbp-112], rax
-	jmp    for_cond30
-for_end30:
-	mov	r12, 2
-	shl	r12, 3
-	add	r12, qword [rbp-16]
-	mov     rax, qword [r12]
-	mov     qword [rbp-480], rax
-	mov	r11, 10
-	shl	r11, 3
-	add	r11, qword [rbp-480]
-	mov     rax, 0
-	mov     qword [r11], rax
-	mov	r12, 2
-	shl	r12, 3
-	add	r12, qword [rbp-16]
-	mov     rax, qword [r12]
-	mov     qword [rbp-488], rax
-	mov	r12, 10
-	shl	r12, 3
-	add	r12, qword [rbp-488]
-	mov     rdi, qword [r12]
-	call    printNum
-	mov     qword [rbp-496], rax
-	mov	r10, 0
-	shl	r10, 3
-	add	r10, qword [rbp-64]
-	mov	r11, qword [r10]
-	mov     rax, -2
-	mov     qword [r11], rax
-	mov	r12, 2
-	shl	r12, 3
-	add	r12, qword [rbp-16]
-	mov     rax, qword [r12]
-	mov     qword [rbp-528], rax
-	mov	r12, 10
-	shl	r12, 3
-	add	r12, qword [rbp-528]
-	mov     rax, qword [r12]
-	mov     qword [rbp-536], rax
-	mov	r10, qword [rbp-536]
-	shl	r10, 3
-	add	r10, qword [rbp-64]
-	mov	r11, qword [r10]
-	mov     rax, -10
-	mov     qword [r11], rax
-	mov	r10, 0
-	shl	r10, 3
-	add	r10, qword [rbp-64]
-	mov	r12, qword [r10]
-	mov     rdi, qword [r12]
-	call    printNum
-	mov     qword [rbp-552], rax
-	mov	r10, 1
-	shl	r10, 3
-	add	r10, qword [rbp-64]
-	mov	r12, qword [r10]
-	mov     rdi, qword [r12]
-	call    printNum
-	mov     qword [rbp-560], rax
 	mov     rax, 0
 	jmp    main.__end__
 	jmp    main.__end__

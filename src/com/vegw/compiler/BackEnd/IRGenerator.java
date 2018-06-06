@@ -421,8 +421,8 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
             }
 
             String funcName = "string.";
-            processAssign(rdi, left);
-            processAssign(rsi, right);
+            processAssign(rsi, left);
+            processAssign(rdi, right);
 
             switch (node.operator()) {
                 case ADD: funcName += "add"; break;
@@ -504,10 +504,10 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
             argOffset += 1;
         }
 
-        for (int i = 0; i < node.params().size(); ++i) {
+        for (int i = node.params().size() - 1; i >= 0; --i) {
             Operand t = uvisit(node.params().get(i));
             if (i + argOffset < 6) processAssign(registerList.paramRegs.get(i + argOffset), t);
-            else processAssign(new Address(rsp, null, new Immediate(8 * (i + argOffset - 4))), t);
+            else curFunc.addIRInst(new Push(t));
         }
         curFunc.addIRInst(new Call(entity));
 
