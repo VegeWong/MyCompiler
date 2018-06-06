@@ -11,7 +11,10 @@ import com.vegw.compiler.AST.Stmt.Def.ClassDefNode;
 import com.vegw.compiler.AST.Stmt.Def.DefinitionNode;
 import com.vegw.compiler.AST.Stmt.Def.FunctionDefNode;
 import com.vegw.compiler.AST.Stmt.Def.VariableDefNode;
-import com.vegw.compiler.Entity.*;
+import com.vegw.compiler.Entity.ClassEntity;
+import com.vegw.compiler.Entity.Entity;
+import com.vegw.compiler.Entity.FunctionEntity;
+import com.vegw.compiler.Entity.VariableEntity;
 import com.vegw.compiler.FrontEnd.ASTVisitor;
 import com.vegw.compiler.FrontEnd.LocalScope;
 import com.vegw.compiler.FrontEnd.Scope;
@@ -19,7 +22,6 @@ import com.vegw.compiler.IR.LinearIR.*;
 import com.vegw.compiler.IR.LinearIR.Operand.*;
 import com.vegw.compiler.Type.ArrayType;
 import com.vegw.compiler.Type.ClassType;
-import com.vegw.compiler.Type.FunctionType;
 import com.vegw.compiler.Type.Type;
 import com.vegw.compiler.Utils.BuiltinFunction;
 import com.vegw.compiler.Utils.ErrorHandler;
@@ -273,7 +275,7 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
             }
             case PREM: case PREP:{
                 Binop.BinOp op = node.operator() == UnaryOpNode.UnaryOp.PREP? Binop.BinOp.ADD: Binop.BinOp.SUB;
-                curFunc.addIRInst(new Binop(Binop.BinOp.ADD, operand, ONE));
+                curFunc.addIRInst(new Binop(op, operand, ONE));
                 res = operand;
                 break;
             }
@@ -496,7 +498,7 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         Operand operand = uvisit(node.name());
         FunctionEntity entity = node.functionType().entity();
 
-        if (((FunctionType) node.name().type()).name().equals("array.size")) {
+        if (node.name() instanceof MemberNode) {
             processAssign(rdi, operand);
         }
 
@@ -525,10 +527,8 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
             VirtualRegister tmp = createIntTmp();
             processAssign(tmp, res);
             curFunc.addIRInst(new Cjump(new Binop(Binop.BinOp.NE, tmp, ZERO), node.ifTrue, node.ifFalse));
-            return null;
         }
-        else
-            return res;
+        return res;
     } // Finished
 
     @Override
@@ -561,7 +561,9 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
             processAssign(tmp, addr);
             return tmp;
         }
-        else return addr;
+        else if (hasLabel(node))
+            curFunc.addIRInst(new Cjump(new Binop(Binop.BinOp.NE, addr, ZERO), node.ifTrue, node.ifFalse));
+        return addr;
     } // Finished
 
     @Override
@@ -607,7 +609,7 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         processAssign(maxSubscript, (Operand) dimensionArgs.get(now));
         processAssign(rax, maxSubscript);
         curFunc.addIRInst(new Binop(Binop.BinOp.ADD, rax, ONE));
-        curFunc.addIRInst(new Binop(Binop.BinOp.MUL, rax, EIGHT));
+        curFunc.addIRInst(new Binop(Binop.BinOp.LSH, rax, new Immediate(3)));
         processAssign(rdi, rax);
         curFunc.addIRInst(new Call(malloc));
         processAssign(dst, rax);
@@ -693,7 +695,8 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         continueTarget = stepLabel;
         breakTarget = endLabel;
 
-        uvisit(node.init());
+        if (node.init() != null)
+            uvisit(node.init());
 
         curFunc.addIRInst(condLabel);
         if (node.cond() != null) {

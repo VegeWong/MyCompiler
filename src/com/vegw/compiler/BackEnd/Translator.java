@@ -53,7 +53,7 @@ public class Translator {
             if (base instanceof Address || index instanceof Address) {
                 if (index != null) {
                     list.add("\tmov\t" + tmp.name + ", " + index.toNASM() + "\n");
-                    list.add("\timul\t" + tmp.name + ", " + 8 + "\n");
+                    list.add("\tshl\t" + tmp.name + ", " + 3 + "\n");
                     list.add("\tadd\t" + tmp.name + ", " + base.toNASM() +"\n");
                 } else list.add("\tmov\t" + tmp.name + ", " + base.toNASM() +"\n");
                 return new Address(tmp, null, ((Address) operand).offset);
@@ -172,7 +172,7 @@ public class Translator {
         boolean changel = false, changeR = false;
         PhysicalRegister tmpl = null, tmpr = null;
         if (r instanceof Immediate) {
-            list.add("\tmov     r8, " + r + "\n");
+            list.add("\tmov     r8, " + r.toNASM() + "\n");
             r = r8;
         }
         if (r.toNASM().equals("rax") || r.toNASM().equals("rdx")) {
@@ -225,8 +225,8 @@ public class Translator {
     }
 
     public void visit(Binop ins) {
-        Operand l = prepare(ins.left, rcx);
-        Operand r = prepare(ins.right, rdx);
+        Operand l = prepare(ins.left,  r10);
+        Operand r = prepare(ins.right, r11);
 
 //        switch (x.op) {
 //            case "+" : A(x.dest, x.lhs, x.rhs, "add"); break;
@@ -279,8 +279,8 @@ public class Translator {
     }
 
     public void visit(Cjump ins) {
-        Operand l = prepare(((Binop) ins.cond).left, rcx);
-        Operand r = prepare(((Binop) ins.cond).right, rdx);
+        Operand l = prepare(((Binop) ins.cond).left, r10);
+        Operand r = prepare(((Binop) ins.cond).right, r11);
         if (l instanceof Immediate) {
             Operand tmp = r;
             r = l;
