@@ -22,6 +22,7 @@ import com.vegw.compiler.IR.LinearIR.*;
 import com.vegw.compiler.IR.LinearIR.Operand.*;
 import com.vegw.compiler.Type.ArrayType;
 import com.vegw.compiler.Type.ClassType;
+import com.vegw.compiler.Type.FunctionType;
 import com.vegw.compiler.Type.Type;
 import com.vegw.compiler.Utils.BuiltinFunction;
 import com.vegw.compiler.Utils.ErrorHandler;
@@ -223,7 +224,6 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         }
 
         String newStr = nstr.toString();
-        System.err.println(newStr);
         String res =  ast.constantTable.get(newStr);
         if (res == null) {
             res = "__staticString__"+ strCnt;
@@ -518,9 +518,8 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         FunctionEntity entity = node.functionType().entity();
         List<Operand> args = new LinkedList<Operand>();
 
-        if (node.name() instanceof MemberNode)
+        if (((FunctionType)node.name().type()).entity().thisPtr() != null || node.name() instanceof MemberNode )
             args.add(operand);
-
         for (int i = 0; i < node.params().size(); ++i)
             args.add(uvisit(node.params().get(i)));
 
@@ -638,19 +637,20 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         processAssign(rdi, rax);
         curFunc.addIRInst(new Call(malloc));
         processAssign(dst, rax);
-        processAssign(new Address(dst, null, new Immediate(-8)), (Operand) dimensionArgs.get(now));
+        processAssign(new Address(rax, null, null), (Operand) dimensionArgs.get(now));
+        curFunc.addIRInst(new Binop(Binop.BinOp.ADD, dst, EIGHT));
 
-        VirtualRegister tmp = createIntTmp();
-        processAssign(tmp, dst);
-        curFunc.addIRInst(dimensionBodyLabel);
-        if (dimensionArgs.size() > now + 1)
+        if (dimensionArgs.size() > now + 1) {
+            VirtualRegister tmp = createIntTmp();
+            processAssign(tmp, dst);
+            curFunc.addIRInst(dimensionBodyLabel);
             createArray(dimensionArgs, new Address(tmp, null, null), now + 1);
-
-        curFunc.addIRInst(new Binop(Binop.BinOp.ADD, tmp, EIGHT));
-        curFunc.addIRInst(new Binop(Binop.BinOp.ADD, nowSubscript, ONE));
-        curFunc.addIRInst(new Cjump(new Binop(Binop.BinOp.LT, nowSubscript, maxSubscript),
-                dimensionBodyLabel, null));
-        curFunc.addIRInst(dimensionEndLabel);
+            curFunc.addIRInst(new Binop(Binop.BinOp.ADD, tmp, EIGHT));
+            curFunc.addIRInst(new Binop(Binop.BinOp.ADD, nowSubscript, ONE));
+            curFunc.addIRInst(new Cjump(new Binop(Binop.BinOp.LT, nowSubscript, maxSubscript),
+                    dimensionBodyLabel, null));
+            curFunc.addIRInst(dimensionEndLabel);
+        }
     }
 
     @Override
