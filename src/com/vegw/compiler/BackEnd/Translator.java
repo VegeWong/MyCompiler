@@ -47,8 +47,8 @@ public class Translator {
         if (operand instanceof VirtualRegister)
             return new Address(rbp, null, new Immediate(-((((VirtualRegister) operand).cnt) * 8)));
         else if (operand instanceof Address) {
-            Operand base = prepare(((Address) operand).base, r10);
-            Operand index = prepare(((Address) operand).scaledOffset, r11);
+            Operand base = prepare(((Address) operand).base, rcx);
+            Operand index = prepare(((Address) operand).scaledOffset, rdx);
 
             if (base instanceof Address || base instanceof GlobalVarible ||
                     index instanceof Address || index instanceof GlobalVarible) {
@@ -148,15 +148,15 @@ public class Translator {
     }
 
     public void visit(Push ins) {
-        Operand o = prepare(ins.operand, r11);
+        Operand o = prepare(ins.operand, rbx);
         list.add("\tpush    " + o.toNASM() + "\n");
     }
 
     public void visit(Assign ins) {
         if (ins.left.toNASM() == ins.right.toNASM()) return;
 
-        Operand l = prepare(ins.left, r11);
-        Operand r = prepare(ins.right, r12);
+        Operand l = prepare(ins.left, rbx);
+        Operand r = prepare(ins.right, rax);
 
         if (!(l instanceof PhysicalRegister) && !(r instanceof PhysicalRegister)) {
             if (r instanceof Str)
@@ -184,14 +184,14 @@ public class Translator {
         boolean changel = false, changeR = false;
         PhysicalRegister tmpl = null, tmpr = null;
         if (r instanceof Immediate) {
-            list.add("\tmov     r8, " + r.toNASM() + "\n");
-            r = r8;
+            list.add("\tmov     rbx, " + r.toNASM() + "\n");
+            r = rbx;
         }
         if (r.toNASM().equals("rax") || r.toNASM().equals("rdx")) {
             System.err.println("loadDiv meets right operation in rax");
-            list.add("\tmov     r8, rax\n");
+            list.add("\tmov     rbx, rax\n");
             tmpr = (PhysicalRegister) r;
-            r = r8;
+            r = rbx;
             changeR = true;
         }
 
@@ -213,7 +213,7 @@ public class Translator {
             list.add("\tmov     " + l.toNASM() + ", rdx\n");
 
         if (changeR) {
-            list.add("\tmov     " + tmpr.toNASM() +", r8\n");
+            list.add("\tmov     " + tmpr.toNASM() +", rbx\n");
             r = rax;
         }
     }
@@ -237,8 +237,8 @@ public class Translator {
     }
 
     public void visit(Binop ins) {
-        Operand l = prepare(ins.left,  r10);
-        Operand r = prepare(ins.right, r11);
+        Operand l = prepare(ins.left,  rax);
+        Operand r = prepare(ins.right, rbx);
 
 //        switch (x.op) {
 //            case "+" : A(x.dest, x.lhs, x.rhs, "add"); break;
@@ -291,8 +291,8 @@ public class Translator {
     }
 
     public void visit(Cjump ins) {
-        Operand l = prepare(((Binop) ins.cond).left, r10);
-        Operand r = prepare(((Binop) ins.cond).right, r11);
+        Operand l = prepare(((Binop) ins.cond).left, rcx);
+        Operand r = prepare(((Binop) ins.cond).right, rdx);
         if (l instanceof Immediate) {
             Operand tmp = r;
             r = l;
