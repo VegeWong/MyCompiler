@@ -11,25 +11,25 @@ import com.vegw.compiler.IR.LinearIR.RegisterList;
 import com.vegw.compiler.Parser.MxstarLexer;
 import com.vegw.compiler.Parser.MxstarParser;
 import com.vegw.compiler.Utils.ErrorHandler;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import static java.lang.System.exit;
 
 public class Mxstar {
     public static void main(String[] args) {
         try {
-             CharStream input = CharStreams.fromFileName("E:\\College-4\\Compiler\\mxstar\\test\\1.mx");
-             FileOutputStream out = new FileOutputStream("E:\\College-4\\Compiler\\mxstar\\test\\1.out");
+//             CharStream input = CharStreams.fromFileName("E:\\College-4\\Compiler\\mxstar\\test\\1.mx");
+//             FileOutputStream out = new FileOutputStream("E:\\College-4\\Compiler\\mxstar\\test\\1.out");
 ////
-//           InputStream in = System.in;
-//           ANTLRInputStream input = new ANTLRInputStream(in);
-//           OutputStream out = System.out;
+           InputStream in = System.in;
+           ANTLRInputStream input = new ANTLRInputStream(in);
+           OutputStream out = System.out;
             MxstarLexer lexer = new MxstarLexer(input);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             MxstarParser parser = new MxstarParser(tokens);
