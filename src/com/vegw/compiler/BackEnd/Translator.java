@@ -44,15 +44,9 @@ public class Translator {
     }
 
     private Operand prepare(Operand operand, PhysicalRegister tmp) {
-        if (operand instanceof VirtualRegister) {
-            if (((VirtualRegister) operand).color != -1) {
-                if (!((VirtualRegister) operand).inReg) {
-                    Address addr = new Address(rbp, null, new Immediate(-((((VirtualRegister) operand).cnt) * 8)));
-                    list.add("\tmov\t" + operand.toNASM() + ", " + addr.toNASM() + "\n");
-                    ((VirtualRegister) operand).inReg = true;
-                }
-                return registerList.regs.get(((VirtualRegister) operand).color + 12);
-            }
+        if (operand instanceof Register) {
+            if (((Register) operand).id < 16 && ((Register) operand).id >= 0)
+                return registerList.regs.get(((Register) operand).id);
             else
                 return new Address(rbp, null, new Immediate(-((((VirtualRegister) operand).cnt) * 8)));
         }
@@ -175,6 +169,8 @@ public class Translator {
                 list.add("\tmov     rax, " + r.toNASM() +"\n");
             r = rax;
         }
+        //list.add("=========Assign");
+        String a = "\tmov     " + l.toNASM() + ", " + r.toNASM()+"\n";
         list.add("\tmov     " + l.toNASM() + ", " + r.toNASM()+"\n");
 
     }
@@ -183,14 +179,17 @@ public class Translator {
     private void loadArith(Operand l, Operand r, String op, PhysicalRegister reg) {
         PhysicalRegister tmp;
         if (!(l instanceof PhysicalRegister)) {
+            //list.add("=========loadArith1");
             list.add("\tmov     " + reg.toNASM() + ", " + l.toNASM() + "\n");
             tmp = reg;
         } else tmp = (PhysicalRegister) l;
 
         list.add("\t" + op + "     " + tmp.toNASM() + ", " + r.toNASM() +"\n");
 
-        if (!(l instanceof PhysicalRegister))
-            list.add("\tmov     " + l.toNASM() + ", " + tmp.toNASM() +"\n");
+        if (!(l instanceof PhysicalRegister)) {
+            //list.add("=========loadArith2");
+            list.add("\tmov     " + l.toNASM() + ", " + tmp.toNASM() + "\n");
+        }
     }
 
     private void loadDiv(Operand l, Operand r, String op, boolean isDiv) {
@@ -220,8 +219,10 @@ public class Translator {
 
         list.add("\t" + op + "     " + r.toNASM() +"\n");
 
-        if (isDiv && changel)
+        if (isDiv && changel) {
+            //list.add("=========loadDiv");
             list.add("\tmov     " + l.toNASM() + ", rax\n");
+        }
         else if (!l.toNASM().equals("rdx"))
             list.add("\tmov     " + l.toNASM() + ", rdx\n");
 

@@ -27,6 +27,9 @@ public class IRInstructionLinker{
         boolean flag = true;
         while (flag) {
             flag = false;
+            nowIns = null;
+            itr = insts.iterator();
+            nxtIns = itr.hasNext()? itr.next() : null;
             while (true) {
                 nowIns = nxtIns;
                 nxtIns = itr.hasNext() ? itr.next() : null;
@@ -34,30 +37,33 @@ public class IRInstructionLinker{
                 if (cnt > 0) {
                     if (nowIns instanceof Cjump) {
                         for (IRInstruction pred : nowIns.pred) {
+                            if (!pred.succ.contains(nowIns)) continue;
                             pred.succ.remove(nowIns);
-                            nowIns.pred.remove(pred);
+                            //nowIns.pred.remove(pred);
                             flag |= linkIns(pred, ((Cjump) nowIns).cond);
                             if (((Cjump) nowIns).thenLabel != null)
                                 flag |= linkIns(((Cjump) nowIns).cond, ((Cjump) nowIns).thenLabel);
-                            if (((Cjump) nxtIns).elseLabel != null)
+                            if (((Cjump) nowIns).elseLabel != null)
                                 flag |= linkIns(((Cjump) nowIns).cond, ((Cjump) nowIns).elseLabel);
                         }
                     } else if (nowIns instanceof Jump) {
                         for (IRInstruction pred : nowIns.pred) {
+                            if (!pred.succ.contains(nowIns)) continue;
                             pred.succ.remove(nowIns);
-                            nowIns.pred.remove(pred);
+                            //nowIns.pred.remove(pred);
                             flag |= linkIns(pred, ((Jump) nowIns).target);
                         }
                     } else if (nowIns instanceof Label) {
                         for (IRInstruction pred : nowIns.pred) {
+                            if (!pred.succ.contains(nowIns)) continue;
                             pred.succ.remove(nowIns);
-                            nowIns.pred.remove(pred);
+                            //nowIns.pred.remove(pred);
                             flag |= linkIns(pred, nxtIns);
                         }
                     }
                 }
                 else
-                    linkIns(nowIns, nxtIns);
+                    flag |= linkIns(nowIns, nxtIns);
             }
             ++cnt;
         }

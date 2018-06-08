@@ -7,9 +7,10 @@ import com.vegw.compiler.IR.LinearIR.Operand.Operand;
 import com.vegw.compiler.IR.LinearIR.Operand.PhysicalRegister;
 import com.vegw.compiler.IR.LinearIR.Operand.Register;
 
+import java.util.List;
+
 public class LivenessAnalyzer extends IRInstructionVisitor{
     private IRGenerator irGenerator;
-
     public LivenessAnalyzer(IRGenerator irGenerator) {
         this.irGenerator = irGenerator;
     }
@@ -26,7 +27,6 @@ public class LivenessAnalyzer extends IRInstructionVisitor{
     @Override
     public void visit(Assign ins) {
         setDef(ins, ins.left);
-        setUse(ins, ins.left);
         setUse(ins, ins.right);
     }
 

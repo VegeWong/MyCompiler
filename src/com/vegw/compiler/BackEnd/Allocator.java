@@ -2,18 +2,22 @@ package com.vegw.compiler.BackEnd;
 
 import com.vegw.compiler.BackEnd.IRGenerator;
 import com.vegw.compiler.Entity.FunctionEntity;
+import com.vegw.compiler.IR.LinearIR.Call;
 import com.vegw.compiler.IR.LinearIR.Cjump;
 import com.vegw.compiler.IR.LinearIR.IRInstruction;
 import com.vegw.compiler.IR.LinearIR.Jump;
 import com.vegw.compiler.IR.LinearIR.Operand.Register;
 import com.vegw.compiler.IR.LinearIR.Operand.VirtualRegister;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 public class Allocator {
     private IRGenerator irGenerator;
     private int noR = 4; //number of Physical Register
     private boolean[][] edge;
+    private List<IRInstruction> insts;
     public Allocator(IRGenerator irGenerator) { this.irGenerator = irGenerator; }
 
     public void allocate() {
@@ -25,7 +29,7 @@ public class Allocator {
     private void allocateFunc(FunctionEntity func) {
         boolean flag = true;
         IRInstruction inst;
-
+//        initialize(func);
         while (flag) {
             flag = false;
             for (int now = func.irInstructions.size() - 1; now >= 0; --now) {
@@ -75,9 +79,35 @@ public class Allocator {
 
 
     private void addedge(Register a, Register b) {
-        edge[a.id()][b.id()] = true;
-        edge[b.id()][a.id()] = true;
+        if (a.id == -1 || b.id == -1) return;
+        edge[a.id][b.id] = true;
+        edge[b.id][a.id] = true;
     }
+
+//    private void initialize(FunctionEntity func) {
+//        insts= new ArrayList<IRInstruction>();
+//        IRInstruction pre = null;
+//        for (IRInstruction ins : func.irInstructions) {
+//            if (ins instanceof Call) {
+//                for (IRInstruction item : ((Call) ins).INS()) {
+//                    insSet.add(item);
+//                    if (pre != null) pre.next = item;
+//                    pre = item;
+//                }
+//                continue;
+//            }
+//            insSet.add(ins);
+//            if (ins instanceof Jump) {
+//                ((Jump) ins).Label().prev.add(ins);
+//                if (pre != null) pre.next = ins;
+//                pre = null;
+//                continue;
+//            }
+//            if (ins instanceof Cjump) ((Cjump) ins).TrueLabel().prev.add(ins);
+//            if (pre != null) pre.next = ins;
+//            pre = ins;
+//        }
+//    }
 
     private void color(int n, FunctionEntity func) {
         boolean[][] te = new boolean[n][n];
@@ -110,7 +140,7 @@ public class Allocator {
                 conflict[i] = k;
                 // Delete the node
                 if (k < noR) {
-                    stack.push(func.vrs.get(i - 16));
+                    stack.push(func.vrs.get(i - 16 + func.params().size()));
                     for (int j = 16; j < n; ++j) {
                         te[i][j] = false;
                         te[j][i] = false;
@@ -154,7 +184,7 @@ public class Allocator {
             c[3] = false;
 
             Register reg = stack.pop();
-            int nowId = reg.id();
+            int nowId = reg.id;
             for (int i = 16; i < n; ++i) {
                 if (nowId == i) continue;
                 if (edge[i][nowId] && useColor[i] != -1) {
@@ -164,7 +194,7 @@ public class Allocator {
             for (int i = 0; i < 4; ++i)
                 if (!c[i]) {
                     useColor[nowId] = i;
-                     ((VirtualRegister) reg).color = i;
+                     ((VirtualRegister) reg).id = i + 12;
                 }
         }
     }

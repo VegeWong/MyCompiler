@@ -19,13 +19,11 @@ public class PhysicalRegister extends Register {
     public final static PhysicalRegister r15 = new PhysicalRegister("r15", 15, true);
 
     public String name;
-    public int index;
     public boolean isCalleeSave;
 
     public PhysicalRegister(String n, int i, boolean c) {
-        super.inReg = true;
+        super.id = i;
         name = n;
-        index = i;
         isCalleeSave = c;
     }
 
@@ -34,8 +32,4 @@ public class PhysicalRegister extends Register {
         return name;
     }
 
-    @Override
-    public int id() {
-        return index;
-    }
 }

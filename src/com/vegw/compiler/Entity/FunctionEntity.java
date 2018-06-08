@@ -39,7 +39,7 @@ public class FunctionEntity extends Entity {
             vaddressCnt = 1;
             for (int i = 0; i < params.size(); ++i) {
                 Entity entity = scope.entities().get(params.get(i).name);
-                VirtualRegister nvr = new VirtualRegister(vaddressCnt++, idCnt++);
+                VirtualRegister nvr = new VirtualRegister(vaddressCnt++, -1);
                 vrs.add(nvr);
                 map.put(entity, nvr);
             }
@@ -47,14 +47,14 @@ public class FunctionEntity extends Entity {
             vaddressCnt = -2;
             for (int i = 6; i < params.size(); ++i) {
                 Entity entity = scope.entities().get(params.get(i).name);
-                VirtualRegister nvr = new VirtualRegister(vaddressCnt--, idCnt++);
+                VirtualRegister nvr = new VirtualRegister(vaddressCnt--, -1);
                 vrs.add(nvr);
                 map.put(entity, nvr);
             }
             vaddressCnt = 1;
             for (int i = 0; i < 6; ++i) {
                 Entity entity = scope.entities().get(params.get(i).name);
-                VirtualRegister nvr = new VirtualRegister(vaddressCnt++, idCnt++);
+                VirtualRegister nvr = new VirtualRegister(vaddressCnt++, -1);
                 vrs.add(nvr);
                 map.put(entity, nvr);
             }
