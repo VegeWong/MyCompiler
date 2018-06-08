@@ -1,0 +1,9 @@
+.idea/*
+mxstarw.iml
+*.class
+*.log
+*.tokens
+*.interp
+bin/*
+gen/*
+out/*
