@@ -93,7 +93,7 @@ public class Allocator {
 //                    if (pre != null) pre.next = item;
 //                    pre = item;
 //                }
-                continue;
+//                continue;
             }
             insts.add(ins);
             if (ins instanceof Cjump) {

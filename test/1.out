@@ -22,80 +22,139 @@ section .bss
 stringbuffer:
 	resb 256
 section .text
-foo:
-	push    rbp
-	mov     rbp, rsp
-	sub     rsp, 200
-	mov     qword [rbp-8], rdi
-	mov     qword [rbp-16], rsi
-	mov     qword [rbp-24], rdx
-	push     rbx
-	push     r12
-	push     r13
-	push     r14
-	push     r15
-foo.__begin__:
-	mov     r14, qword [rbp-8]
-	imul     r14, 1000
-	mov     r15, qword [rbp-16]
-	imul     r15, 10
-	add     r14, r15
-	mov     r15, r14
-	add     r15, qword [rbp-24]
-	mov     rdi, r15
-	call    toString
-	mov     r15, rax
-	mov     rdi, r15
-	call    println
-	mov     r15, rax
-	cmp     qword [rbp-8], 1
-	je     if_then4
-	jne     if_end4
-if_then4:
-	jmp    foo.__end__
-	jmp    if_end4
-if_end4:
-	mov     r15, qword [rbp-16]
-	mov     qword [rbp-24], r15
-	mov     rdx, qword [rbp-24]
-	mov     rsi, qword [rbp-16]
-	mov     rdi, 1
-	call    foo
-	mov     r15, rax
-	mov     r14, qword [rbp-8]
-	imul     r14, 1000
-	mov     r15, qword [rbp-16]
-	imul     r15, 10
-	add     r14, r15
-	mov     r15, r14
-	add     r15, qword [rbp-24]
-	mov     rdi, r15
-	call    toString
-	mov     r15, rax
-	mov     rdi, r15
-	call    println
-	mov     r15, rax
-	jmp    foo.__end__
-foo.__end__:
-	pop     r15
-	pop     r14
-	pop     r13
-	pop     r12
-	pop     rbx
-	leave
-	ret
 main:
 	push    rbp
 	mov     rbp, rsp
-	sub     rsp, 24
+	sub     rsp, 456
 main.__begin__:
-	mov     rdx, 3
-	mov     rsi, 5
-	mov     rdi, 7
-	call    foo
+	mov     rax, 5
+	mov     qword [rbp-16], rax
+	mov     rax, 10
+	mov     qword [rbp-32], rax
+	mov     r15, 0
+	mov     r15, qword [rbp-32]
+	mov     rax, r15
+	add     rax, 1
+	shl	rax, 3
+	mov     rdi, rax
+	call    malloc
+	add     rax, 8
 	mov     r15, rax
-	mov     rax, 0
-	jmp    main.__end__
+	mov     rax, qword [rbp-32]
+	mov     qword [r15-8], rax
+	mov     qword [rbp-48], r15
+	mov     r15, 0
+	mov     r15, 2
+	mov     rax, r15
+	add     rax, 1
+	shl	rax, 3
+	mov     rdi, rax
+	call    malloc
+	add     rax, 8
+	mov     r15, rax
+	mov     rax, 2
+	mov     qword [r15-8], rax
+	mov     qword [rbp-88], r15
+	mov     r15, 0
+	mov     r15, qword [rbp-16]
+	mov     rax, r15
+	add     rax, 1
+	shl	rax, 3
+	mov     rdi, rax
+	call    malloc
+	add     rax, 8
+	mov     r15, rax
+	mov     rax, qword [rbp-16]
+	mov     qword [r15-8], rax
+	mov     qword [rbp-128], r15
+	mov	r11, 0
+	shl	r11, 3
+	add	r11, qword [rbp-88]
+	mov     rax, qword [rbp-128]
+	mov     qword [r11], rax
+	mov	r11, 1
+	shl	r11, 3
+	add	r11, qword [rbp-88]
+	mov     rax, qword [rbp-48]
+	mov     qword [r11], rax
+	mov     r12, 0
+	mov     r13, 0
+for_cond11:
+	cmp     r13, 2
+	jl     for_body11
+	jnl     for_end11
+for_body11:
+	mov     r14, 0
+for_cond14:
+	cmp     r14, qword [rbp-16]
+	jl     for_body14
+	jnl     for_end14
+for_body14:
+	mov	rbx, r13
+	shl	rbx, 3
+	add	rbx, qword [rbp-88]
+	mov     r15, qword [rbx]
+	add     r12, 1
+	mov     qword [r15+8*r14], r12
+for_step14:
+	add     r14, 1
+	jmp    for_cond14
+for_end14:
+for_step11:
+	add     r13, 1
+	jmp    for_cond11
+for_end11:
+	mov     r14, qword [rbp-16]
+for_cond18:
+	cmp     r14, qword [rbp-32]
+	jl     for_body18
+	jnl     for_end18
+for_body18:
+	mov	rbx, 1
+	shl	rbx, 3
+	add	rbx, qword [rbp-88]
+	mov     r15, qword [rbx]
+	add     r12, 1
+	mov     qword [r15+8*r14], r12
+for_step18:
+	add     r14, 1
+	jmp    for_cond18
+for_end18:
+	mov     r15, 0
+	mov     r13, 0
+for_cond23:
+	cmp     r13, qword [rbp-16]
+	jl     for_body23
+	jnl     for_end23
+for_body23:
+	mov	r11, r13
+	shl	r11, 3
+	add	r11, qword [rbp-128]
+	add     r15, qword [r11]
+for_step23:
+	add     r13, 1
+	jmp    for_cond23
+for_end23:
+	mov     r13, 0
+for_cond28:
+	cmp     r13, qword [rbp-32]
+	jl     for_body28
+	jnl     for_end28
+for_body28:
+	mov	r11, r13
+	shl	r11, 3
+	add	r11, qword [rbp-48]
+	add     r15, qword [r11]
+for_step28:
+	add     r13, 1
+	jmp    for_cond28
+for_end28:
+	mov     rdi, r15
+	call    toString
+	mov     r15, rax
+	mov     rdi, r15
+	call    print
+	mov     r15, rax
 	jmp    main.__end__
 main.__end__:
 	leave
