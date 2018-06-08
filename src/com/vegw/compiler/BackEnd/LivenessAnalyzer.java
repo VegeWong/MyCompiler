@@ -30,9 +30,18 @@ public class LivenessAnalyzer extends IRInstructionVisitor{
         setUse(ins, ins.right);
     }
 
+    private boolean isRel(Binop ins) {
+        return ins.operator.equals(Binop.BinOp.LE) ||
+                ins.operator.equals(Binop.BinOp.GE) ||
+                ins.operator.equals(Binop.BinOp.LT) ||
+                ins.operator.equals(Binop.BinOp.GT) ||
+                ins.operator.equals(Binop.BinOp.EQ) ||
+                ins.operator.equals(Binop.BinOp.NE);
+    }
     @Override
     public void visit(Binop ins) {
-        setDef(ins, ins.left);
+        if (isRel(ins))
+            setDef(ins, ins.left);
         setUse(ins, ins.left);
         setUse(ins, ins.right);
     }
@@ -47,7 +56,7 @@ public class LivenessAnalyzer extends IRInstructionVisitor{
 
     @Override
     public void visit(Cjump ins) {
-        return;
+        visit((Binop) ins.cond);
     }
 
     @Override
@@ -66,9 +75,7 @@ public class LivenessAnalyzer extends IRInstructionVisitor{
     }
 
     @Override
-    public void visit(Return ins) {
-        return;
-    }
+    public void visit(Return ins) { return;}
 
     @Override
     public void visit(Uniop ins) {

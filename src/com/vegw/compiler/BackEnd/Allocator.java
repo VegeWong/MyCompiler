@@ -29,11 +29,11 @@ public class Allocator {
     private void allocateFunc(FunctionEntity func) {
         boolean flag = true;
         IRInstruction inst;
-//        initialize(func);
+        initialize(func);
         while (flag) {
             flag = false;
-            for (int now = func.irInstructions.size() - 1; now >= 0; --now) {
-                inst = func.irInstructions.get(now);
+            for (int now = insts.size() - 1; now >= 0; --now) {
+                inst = insts.get(now);
                 flag |= check(inst);
             }
         }
@@ -84,30 +84,23 @@ public class Allocator {
         edge[b.id][a.id] = true;
     }
 
-//    private void initialize(FunctionEntity func) {
-//        insts= new ArrayList<IRInstruction>();
-//        IRInstruction pre = null;
-//        for (IRInstruction ins : func.irInstructions) {
-//            if (ins instanceof Call) {
+    private void initialize(FunctionEntity func) {
+        insts= new ArrayList<IRInstruction>();
+        for (IRInstruction ins : func.irInstructions) {
+            if (ins instanceof Call) {
 //                for (IRInstruction item : ((Call) ins).INS()) {
 //                    insSet.add(item);
 //                    if (pre != null) pre.next = item;
 //                    pre = item;
 //                }
-//                continue;
-//            }
-//            insSet.add(ins);
-//            if (ins instanceof Jump) {
-//                ((Jump) ins).Label().prev.add(ins);
-//                if (pre != null) pre.next = ins;
-//                pre = null;
-//                continue;
-//            }
-//            if (ins instanceof Cjump) ((Cjump) ins).TrueLabel().prev.add(ins);
-//            if (pre != null) pre.next = ins;
-//            pre = ins;
-//        }
-//    }
+                continue;
+            }
+            insts.add(ins);
+            if (ins instanceof Cjump) {
+                insts.add(((Cjump) ins).cond);
+            }
+        }
+    }
 
     private void color(int n, FunctionEntity func) {
         boolean[][] te = new boolean[n][n];
