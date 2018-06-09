@@ -660,7 +660,6 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         processAssign(dst, rax);
         processAssign(createAddress(dst, null, new Immediate(-8)), (Operand) dimensionArgs.get(now));
 
-
         if (dimensionArgs.size() > now + 1) {
             VirtualRegister tmp = createIntTmp();
             processAssign(tmp, dst);

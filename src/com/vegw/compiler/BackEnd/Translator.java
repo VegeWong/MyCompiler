@@ -51,8 +51,8 @@ public class Translator {
                 return new Address(rbp, null, new Immediate(-((((VirtualRegister) operand).cnt) * 8)));
         }
         else if (operand instanceof Address) {
-            Operand base = prepare(((Address) operand).base, null);
-            Operand index = prepare(((Address) operand).scaledOffset, null);
+            Operand base = prepare(((Address) operand).base, r10);
+            Operand index = prepare(((Address) operand).scaledOffset, r11);
 
             if (base instanceof Address || base instanceof GlobalVarible ||
                     index instanceof Address || index instanceof GlobalVarible) {
@@ -154,14 +154,14 @@ public class Translator {
     }
 
     public void visit(Push ins) {
-        Operand o = prepare(ins.operand, r10);
+        Operand o = prepare(ins.operand, r11);
         list.add("\tpush    " + o.toNASM() + "\n");
     }
 
     public void visit(Assign ins) {
         if (ins.left.toNASM() == ins.right.toNASM()) return;
 
-        Operand l = prepare(ins.left, r10);
+        Operand l = prepare(ins.left, r11);
         Operand r = prepare(ins.right, rbx);
 
         if (!(l instanceof PhysicalRegister) && !(r instanceof PhysicalRegister)) {
@@ -254,8 +254,29 @@ public class Translator {
 
     public void visit(Binop ins) {
         Operand l = prepare(ins.left,  r10);
-        Operand r = prepare(ins.right, rbx);
+        Operand r = prepare(ins.right, r11);
 
+//        switch (x.op) {
+//            case "+" : A(x.dest, x.lhs, x.rhs, "add"); break;
+//            case "-" : A(x.dest, x.lhs, x.rhs, "sub"); break;
+//            case "*" : A(x.dest, x.lhs, x.rhs, "imul"); break;
+//            case "&" : A(x.dest, x.lhs, x.rhs, "and"); break;
+//            case "|" : A(x.dest, x.lhs, x.rhs, "or"); break;
+//            case "^" : A(x.dest, x.lhs, x.rhs, "xor"); break;
+//
+//            case ">" : B(x.dest, x.lhs, x.rhs, "setg"); break;
+//            case "<" : B(x.dest, x.lhs, x.rhs, "setl"); break;
+//            case ">=" : B(x.dest, x.lhs, x.rhs, "setge"); break;
+//            case "<=" : B(x.dest, x.lhs, x.rhs, "setle"); break;
+//            case "==" : B(x.dest, x.lhs, x.rhs, "sete"); break;
+//            case "!=" : B(x.dest, x.lhs, x.rhs, "setne"); break;
+//
+//            case "<<" : C(x.dest, x.lhs, x.rhs, "shl"); break;
+//            case ">>" : C(x.dest, x.lhs, x.rhs, "shr"); break;
+//
+//            case "/" : D(x.dest, x.lhs, x.rhs, "div"); break;
+//            case "%" : D(x.dest, x.lhs, x.rhs, "mod"); break;
+//        }
 
         switch (ins.operator) {
             case ADD: loadArith(l, r, "add", rax); break;
@@ -291,7 +312,7 @@ public class Translator {
 
     public void visit(Cjump ins) {
         Operand l = prepare(((Binop) ins.cond).left, r10);
-        Operand r = prepare(((Binop) ins.cond).right, rbx);
+        Operand r = prepare(((Binop) ins.cond).right, r11);
         if (l instanceof Immediate) {
             Operand tmp = r;
             r = l;
