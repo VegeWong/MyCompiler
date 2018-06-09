@@ -302,12 +302,12 @@ public class Translator {
 
     }
     public void visit(Call ins) {
-        for (int i = 0; i < 6; ++i)
-            list.add("\tpush     " + registerList.callerSavedRegs.get(i).toNASM()+"\n");
+//        for (int i = 0; i < 6; ++i)
+//            list.add("\tpush     " + registerList.callerSavedRegs.get(i).toNASM()+"\n");
         int s = ins.func.params().size();
         list.add("\tcall    " + ins.func.internalName() +"\n");
-        for (int i = 5; i >= 0; --i)
-            list.add("\tpop     " + registerList.callerSavedRegs.get(i).toNASM()+"\n");
+//        for (int i = 5; i >= 0; --i)
+//            list.add("\tpop     " + registerList.callerSavedRegs.get(i).toNASM()+"\n");
     }
 
     public void visit(Cjump ins) {
