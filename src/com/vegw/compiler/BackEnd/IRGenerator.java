@@ -586,9 +586,15 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
 
         Address addr = new Address(base, index, null);
         if (arefDepth > 0) {
-            VirtualRegister tmp = createIntTmp();
-            processAssign(tmp, addr);
-            return tmp;
+            if (base instanceof Address || index instanceof Address) {
+                VirtualRegister tmp = createIntTmp();
+                if (index != null) {
+                    processAssign(tmp, index);
+                    curFunc.addIRInst(new Binop(Binop.BinOp.LSH, tmp, new Immediate(3)));
+                    curFunc.addIRInst(new Binop(Binop.BinOp.ADD, tmp, base));
+                } else processAssign(tmp, base);
+                return tmp;
+            }
         }
         else if (hasLabel(node))
             curFunc.addIRInst(new Cjump(new Binop(Binop.BinOp.NE, addr, ZERO), node.ifTrue, node.ifFalse));
