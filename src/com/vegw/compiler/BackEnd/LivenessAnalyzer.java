@@ -27,6 +27,7 @@ public class LivenessAnalyzer extends IRInstructionVisitor{
     @Override
     public void visit(Assign ins) {
         setDef(ins, ins.left);
+        setUse(ins, ins.left);
         setUse(ins, ins.right);
     }
 

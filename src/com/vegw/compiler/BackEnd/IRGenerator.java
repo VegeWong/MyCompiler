@@ -529,8 +529,6 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
             args.add(uvisit(node.params().get(i)));
 
 
-        for (int i = 12; i <= 15; ++i)
-            curFunc.addIRInst(new Push(registerList.regs.get(i)));
         for (int i = args.size() - 1; i >= 0; --i) {
             if (i < 6) processAssign(registerList.paramRegs.get(i), args.get(i));
             else curFunc.addIRInst(new Push(args.get(i)));
