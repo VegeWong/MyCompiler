@@ -191,7 +191,8 @@ public class Allocator {
             for (int i = 0; i < 5; ++i)
                 if (!c[i]) {
                     useColor[nowId] = i;
-                    if (i == 0) ((VirtualRegister) reg).id = 1;
+                    if (i == 0)
+                        ((VirtualRegister) reg).id = 1;
                     else ((VirtualRegister) reg).id = i + 11;
                 }
         }

@@ -11,9 +11,17 @@ extern strlen
 extern memcpy
 extern scanf
 section .data
-	dq	7
+	dq	0
 __staticString__0:
-	db	65, 110, 115, 32, 105, 115, 32, 0
+	db	0
+	dq	1
+__staticString__2:
+	db	32, 0
+	dq	95
+__staticString__1:
+	db	32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 0
+__global__asciiTable:
+	dq	0
 intbuffer:
 	dq 0
 format1:
@@ -89,7 +97,7 @@ shift_l.__end__:
 shift_r:
 	push    rbp
 	mov     rbp, rsp
-	sub     rsp, 104
+	sub     rsp, 128
 	mov     qword [rbp-8], rdi
 	mov     qword [rbp-16], rsi
 	push     rbp
@@ -99,16 +107,16 @@ shift_r:
 	push     r14
 	push     r15
 shift_r.__begin__:
-	mov     rsi, 65536
+	mov     rsi, 65535
 	mov     rdi, 32767
 	call    hilo
 	mov     r15, rax
 	mov     rax, qword [rbp-16]
 	mov     ecx, eax
 	shr     r15, cl
-	shl	r15, 2
+	shl	r15, 1
+	add     r15, 1
 	mov     r14, r15
-	add     r14, 1
 	mov     r15, qword [rbp-8]
 	mov     rax, qword [rbp-16]
 	mov     ecx, eax
@@ -147,13 +155,13 @@ xorshift.__begin__:
 	add     r15, 1
 	mov     r14, r15
 	mov     r15, 0
-for_cond13:
+for_cond15:
 	mov     r13, qword [rbp-16]
 	imul     r13, 10
 	cmp     r15, r13
-	jl     for_body13
-	jnl     for_end13
-for_body13:
+	jl     for_body15
+	jnl     for_end15
+for_body15:
 	mov     rsi, 13
 	mov     rdi, r14
 	call    shift_l
@@ -169,11 +177,11 @@ for_body13:
 	call    shift_l
 	mov     r13, rax
 	xor     r14, r13
-for_step13:
+for_step15:
 	mov     r13, r15
 	add     r15, 1
-	jmp    for_cond13
-for_end13:
+	jmp    for_cond15
+for_end15:
 	mov     r15, r14
 	xor     r15, 123456789
 	mov     rax, r15
@@ -187,217 +195,333 @@ xorshift.__end__:
 	pop     rbx
 	leave
 	ret
+int2chr:
+	push    rbp
+	mov     rbp, rsp
+	sub     rsp, 64
+	mov     qword [rbp-8], rdi
+	push     rbp
+	push     rbx
+	push     r12
+	push     r13
+	push     r14
+	push     r15
+int2chr.__begin__:
+	cmp     qword [rbp-8], 32
+	jge     rhs__begin__27
+	jl     if_end26
+rhs__begin__27:
+	cmp     qword [rbp-8], 126
+	jle     if_then26
+	jnle     if_end26
+if_then26:
+	mov     r14, qword [rbp-8]
+	sub     r14, 32
+	mov     r15, qword [rbp-8]
+	sub     r15, 32
+	mov     rdx, r15
+	mov     rsi, r14
+	mov     rdi, qword [__global__asciiTable]
+	call    string.substring
+	jmp    int2chr.__end__
+	jmp    if_end26
+if_end26:
+	mov     rax, __staticString__0
+	jmp    int2chr.__end__
+	jmp    int2chr.__end__
+int2chr.__end__:
+	pop     r15
+	pop     r14
+	pop     r13
+	pop     r12
+	pop     rbx
+	leave
+	ret
+toStringHex:
+	push    rbp
+	mov     rbp, rsp
+	sub     rsp, 192
+	mov     qword [rbp-8], rdi
+	push     rbp
+	push     rbx
+	push     r12
+	push     r13
+	push     r14
+	push     r15
+toStringHex.__begin__:
+	mov     r14, __staticString__0
+	mov     r15, 28
+for_cond33:
+	cmp     r15, 0
+	jge     for_body33
+	jl     for_end33
+for_body33:
+	mov     r13, qword [rbp-8]
+	mov     rax, r15
+	mov     ecx, eax
+	shr     r13, cl
+	and     r13, 15
+	mov     r12, r13
+	cmp     r12, 10
+	jl     if_then39
+	jnl     if_else39
+if_then39:
+	mov     r13, 48
+	add     r13, r12
+	mov     rdi, r13
+	call    int2chr
+	mov     r13, rax
+	mov     rdi, r14
+	mov     rsi, r13
+	call    string.add
+	mov     r14, rax
+	jmp    if_end39
+if_else39:
+	mov     r13, 65
+	add     r13, r12
+	sub     r13, 10
+	mov     rdi, r13
+	call    int2chr
+	mov     r13, rax
+	mov     rdi, r14
+	mov     rsi, r13
+	call    string.add
+	mov     r14, rax
+if_end39:
+for_step33:
+	sub     r15, 4
+	jmp    for_cond33
+for_end33:
+	mov     rax, r14
+	jmp    toStringHex.__end__
+	jmp    toStringHex.__end__
+toStringHex.__end__:
+	pop     r15
+	pop     r14
+	pop     r13
+	pop     r12
+	pop     rbx
+	leave
+	ret
+getnumber:
+	push    rbp
+	mov     rbp, rsp
+	sub     rsp, 136
+	mov     qword [rbp-8], rdi
+	mov     qword [rbp-16], rsi
+	mov     qword [rbp-24], rdx
+	push     rbp
+	push     rbx
+	push     r12
+	push     r13
+	push     r14
+	push     r15
+getnumber.__begin__:
+	mov     r15, qword [rbp-24]
+	and     r15, 31
+	mov     r12, r15
+	mov     rsi, qword [rbp-16]
+	mov     rdi, qword [rbp-8]
+	call    xorshift
+	mov     r13, rax
+	mov     rsi, r12
+	mov     rdi, r13
+	call    shift_l
+	mov     r14, rax
+	mov     r15, 32
+	sub     r15, r12
+	mov     rsi, r15
+	mov     rdi, r13
+	call    shift_r
+	mov     r15, rax
+	or     r14, r15
+	mov     rax, r14
+	jmp    getnumber.__end__
+	jmp    getnumber.__end__
+getnumber.__end__:
+	pop     r15
+	pop     r14
+	pop     r13
+	pop     r12
+	pop     rbx
+	leave
+	ret
 main:
 	push    rbp
 	mov     rbp, rsp
-	sub     rsp, 600
+	sub     rsp, 776
 main.__begin__:
+	mov     rax, qword __staticString__1
+	mov     qword [__global__asciiTable], rax
 	call    getInt
-	mov     r15, rax
-	mov     qword [rbp-16], r15
-	mov     r13, 0
-	mov     r14, qword [rbp-16]
-	mov     rax, qword [rbp-16]
-	add     rax, 1
-	shl	rax, 3
-	mov     rdi, rax
-	call    malloc
-	add     rax, 8
-	mov     r12, rax
-	mov     rax, qword [rbp-16]
-	mov     qword [r12-8], rax
-	mov     r15, r12
-dimension_body26:
-	mov     rbx, 0
-	mov     rbx, qword [rbp-16]
-	mov     rax, qword [rbp-16]
-	add     rax, 1
-	shl	rax, 3
-	mov     rdi, rax
-	call    malloc
-	add     rax, 8
-	mov     qword [r15], rax
-	mov     rbx, qword [r15]
-	mov     rax, qword [rbp-16]
-	mov     qword [rbx-8], rax
-	add     r15, 8
-	add     r13, 1
-	cmp     r13, r14
-	jl     dimension_body26
-dimension_end26:
-	mov     qword [rbp-48], r12
+	mov     qword [rbp-24], rax
+	call    getInt
+	mov     qword [rbp-56], rax
+	call    getInt
+	mov     qword [rbp-80], rax
+	call    getInt
+	mov     qword [rbp-104], rax
+	call    getInt
+	mov     qword [rbp-128], rax
+	call    getInt
+	mov     qword [rbp-152], rax
+	mov     rax, 30
+	mov     qword [rbp-176], rax
 	mov     rax, 0
-	mov     qword [rbp-120], rax
-for_cond28:
-	mov     rcx, qword [rbp-120]
-	cmp     rcx, qword [rbp-16]
-	jl     for_body28
-	jnl     for_end28
-for_body28:
-	mov     r12, 0
-for_cond31:
-	cmp     r12, qword [rbp-16]
-	jl     for_body31
-	jnl     for_end31
-for_body31:
-	mov     r13, 0
-for_cond34:
-	cmp     r13, qword [rbp-16]
-	jl     for_body34
-	jnl     for_end34
-for_body34:
-	cmp     qword [rbp-120], 0
-	jg     rhs__begin__39
-	jng     if_end37
-rhs__begin__39:
-	cmp     r12, 0
-	jg     rhs__begin__38
-	jng     if_end37
-rhs__begin__38:
-	cmp     r13, 0
-	jg     if_then37
-	jng     if_end37
-if_then37:
-	mov     r14, qword [rbp-120]
-	mov     rax, r14
-	cqo
-	idiv     r12
-	mov     r14, rdx
-	mov     r15, r12
-	mov     rax, r15
-	cqo
-	idiv     r13
-	mov     r15, rdx
-	cmp     r14, r15
-	jne     rhs__begin__45
-	je     if_end43
-rhs__begin__45:
-	mov     r14, r12
-	mov     rax, r14
-	cqo
-	idiv     r13
-	mov     r14, rdx
-	mov     r15, r13
-	mov     rax, r15
-	cqo
-	idiv     qword [rbp-120]
-	mov     r15, rdx
-	cmp     r14, r15
-	jne     rhs__begin__44
-	je     if_end43
-rhs__begin__44:
-	mov     r14, qword [rbp-120]
-	mov     rax, r14
-	cqo
-	idiv     r12
-	mov     r14, rdx
-	mov     r15, r13
-	mov     rax, r15
-	cqo
-	idiv     qword [rbp-120]
-	mov     r15, rdx
-	cmp     r14, r15
-	jne     if_then43
-	je     if_end43
-if_then43:
-	mov     r14, r12
-	shl	r14, 3
-	mov	r11, qword [rbp-120]
-	shl	r11, 3
-	add	r11, qword [rbp-48]
-	add     r14, qword [r11]
-	mov     r15, qword [rbp-120]
-	and     r15, r12
-	and     r15, r13
-	mov     rbx, qword [rbp-120]
-	add     rbx, r12
-	add     rbx, r13
-	mov     rsi, rbx
-	mov     rdi, r15
-	call    xorshift
-	mov     r15, rax
-	mov     qword [r14], r15
-	jmp    if_end43
-if_end43:
-	jmp    if_end37
-if_end37:
-for_step34:
-	add     r13, 1
-	jmp    for_cond34
-for_end34:
-for_step31:
-	add     r12, 1
-	jmp    for_cond31
-for_end31:
-for_step28:
-	mov     rax, qword [rbp-120]
-	add     rax, 1
-	mov     qword [rbp-120], rax
-	jmp    for_cond28
-for_end28:
-	mov     r14, 0
+	mov     qword [rbp-192], rax
 	mov     rax, 0
-	mov     qword [rbp-120], rax
-for_cond61:
-	mov     rcx, qword [rbp-120]
-	cmp     rcx, qword [rbp-16]
-	jl     for_body61
-	jnl     for_end61
-for_body61:
-	mov     r12, 0
-for_cond64:
-	cmp     r12, qword [rbp-16]
-	jl     for_body64
-	jnl     for_end64
-for_body64:
-	mov     r13, 0
+	mov     qword [rbp-208], rax
+	mov     rax, 0
+	mov     qword [rbp-224], rax
+	mov     rax, 0
+	mov     qword [rbp-240], rax
+	mov     rax, qword [rbp-24]
+	mov     qword [rbp-256], rax
 for_cond67:
-	cmp     r13, qword [rbp-16]
+	mov     rcx, qword [rbp-256]
+	cmp     rcx, qword [rbp-56]
 	jl     for_body67
 	jnl     for_end67
 for_body67:
-	cmp     qword [rbp-120], r12
-	jge     rhs__begin__71
-	jl     if_end70
-rhs__begin__71:
-	cmp     r12, r13
-	jge     if_then70
-	jl     if_end70
-if_then70:
-	mov     r15, r12
-	shl	r15, 3
-	mov	r11, qword [rbp-120]
-	shl	r11, 3
-	add	r11, qword [rbp-48]
-	add     r15, qword [r11]
-	add     r14, qword [r15]
-	mov     r15, r14
-	and     r15, 1073741823
-	mov     r14, r15
-	jmp    if_end70
-if_end70:
+	mov     rax, qword [rbp-80]
+	mov     qword [rbp-280], rax
+for_cond70:
+	mov     rcx, qword [rbp-280]
+	cmp     rcx, qword [rbp-104]
+	jl     for_body70
+	jnl     for_end70
+for_body70:
+	mov     rax, qword [rbp-128]
+	mov     qword [rbp-304], rax
+for_cond73:
+	mov     rcx, qword [rbp-304]
+	cmp     rcx, qword [rbp-152]
+	jl     for_body73
+	jnl     for_end73
+for_body73:
+	mov     rdx, qword [rbp-304]
+	mov     rsi, qword [rbp-176]
+	mov     rdi, qword [rbp-24]
+	call    getnumber
+	mov     r12, rax
+	mov     rdx, qword [rbp-304]
+	mov     rsi, qword [rbp-176]
+	mov     rdi, qword [rbp-256]
+	call    getnumber
+	mov     qword [rbp-360], rax
+	mov     rdx, qword [rbp-304]
+	mov     rsi, qword [rbp-176]
+	mov     rdi, qword [rbp-280]
+	call    getnumber
+	mov     r13, rax
+	mov     r15, qword [rbp-256]
+	xor     r15, qword [rbp-280]
+	mov     rdx, qword [rbp-304]
+	mov     rsi, qword [rbp-176]
+	mov     rdi, r15
+	call    getnumber
+	mov     r14, rax
+	mov     rsi, 1
+	mov     rdi, qword [rbp-304]
+	call    xorshift
+	mov     r15, rax
+	mov     rsi, 1
+	mov     rdi, qword [rbp-280]
+	call    xorshift
+	mov     rbx, rax
+	xor     r15, rbx
+	mov     rsi, 1
+	mov     rdi, qword [rbp-256]
+	call    xorshift
+	mov     rbx, rax
+	xor     r15, rbx
+	xor     r12, r15
+	mov     rsi, 1
+	mov     rdi, r12
+	call    xorshift
+	mov     r12, rax
+	mov     rbx, qword [rbp-192]
+	add     rbx, r12
+	mov     qword [rbp-192], rbx
+	mov     r12, qword [rbp-360]
+	xor     r12, r15
+	mov     rsi, 1
+	mov     rdi, r12
+	call    xorshift
+	mov     r12, rax
+	mov     rbx, qword [rbp-208]
+	add     rbx, r12
+	mov     qword [rbp-208], rbx
+	xor     r13, r15
+	mov     rsi, 1
+	mov     rdi, r13
+	call    xorshift
+	mov     r13, rax
+	mov     r12, qword [rbp-224]
+	add     r12, r13
+	mov     qword [rbp-224], r12
+	xor     r14, r15
+	mov     rsi, 1
+	mov     rdi, r14
+	call    xorshift
+	mov     r15, rax
+	mov     r14, qword [rbp-240]
+	add     r14, r15
+	mov     qword [rbp-240], r14
+for_step73:
+	mov     r15, qword [rbp-304]
+	mov     rax, qword [rbp-304]
+	add     rax, 1
+	mov     qword [rbp-304], rax
+	jmp    for_cond73
+for_end73:
+for_step70:
+	mov     r15, qword [rbp-280]
+	mov     rax, qword [rbp-280]
+	add     rax, 1
+	mov     qword [rbp-280], rax
+	jmp    for_cond70
+for_end70:
 for_step67:
-	add     r13, 1
+	mov     r15, qword [rbp-256]
+	mov     rax, qword [rbp-256]
+	add     rax, 1
+	mov     qword [rbp-256], rax
 	jmp    for_cond67
 for_end67:
-for_step64:
-	add     r12, 1
-	jmp    for_cond64
-for_end64:
-for_step61:
-	mov     rax, qword [rbp-120]
-	add     rax, 1
-	mov     qword [rbp-120], rax
-	jmp    for_cond61
-for_end61:
-	mov     rdi, r14
-	call    toString
+	mov     rdi, qword [rbp-192]
+	call    toStringHex
+	mov     rdi, rax
+	mov     rsi, __staticString__2
+	call    string.add
+	mov     rdi, rax
+	call    print
+	mov     r15, rax
+	mov     rdi, qword [rbp-208]
+	call    toStringHex
+	mov     rdi, rax
+	mov     rsi, __staticString__2
+	call    string.add
+	mov     rdi, rax
+	call    print
+	mov     r15, rax
+	mov     rdi, qword [rbp-224]
+	call    toStringHex
+	mov     rdi, rax
+	mov     rsi, __staticString__2
+	call    string.add
+	mov     rdi, rax
+	call    print
+	mov     r15, rax
+	mov     rdi, qword [rbp-240]
+	call    toStringHex
+	mov     rdi, rax
+	mov     rsi, __staticString__2
+	call    string.add
+	mov     rdi, rax
+	call    print
 	mov     r15, rax
 	mov     rdi, __staticString__0
-	mov     rsi, r15
-	call    string.add
-	mov     r15, rax
-	mov     rdi, r15
 	call    println
 	mov     r15, rax
 	mov     rax, 0
