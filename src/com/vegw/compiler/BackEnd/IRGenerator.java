@@ -647,8 +647,10 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         if (dimensionArgs.size() > now + 1) {
             VirtualRegister tmp = createIntTmp();
             processAssign(tmp, dst);
+//            curFunc.addIRInst(new Push(tmp));
             curFunc.addIRInst(dimensionBodyLabel);
             createArray(dimensionArgs, createAddress(tmp, null, null), now + 1);
+//            curFunc.addIRInst(new Pop);
             curFunc.addIRInst(new Binop(Binop.BinOp.ADD, tmp, EIGHT));
             curFunc.addIRInst(new Binop(Binop.BinOp.ADD, nowSubscript, ONE));
             curFunc.addIRInst(new Cjump(new Binop(Binop.BinOp.LT, nowSubscript, maxSubscript),

@@ -10,6 +10,7 @@ public class RegisterList {
     public List<Register> regs;
     public List<Register> paramRegs;
     public List<Register> calleeSavedRegs;
+    public List<Register> callerSavedRegs;
 
     public RegisterList() {
         com.vegw.compiler.IR.LinearIR.Operand.Register rax = PhysicalRegister.rax;
@@ -64,6 +65,15 @@ public class RegisterList {
             add(r13);
             add(r14);
             add(r15);
+        }};
+
+        callerSavedRegs = new LinkedList<Register>() {{
+            add(r10);
+            add(r11);
+            add(rdi);
+            add(rsi);
+            add(rdx);
+            add(rcx);
         }};
     }
 }

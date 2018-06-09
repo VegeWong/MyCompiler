@@ -85,10 +85,8 @@ public class Translator {
         }
 
         if (curFunc.name().equals("main")) return;
-        for (int i = 1; i < 6; ++i)
+        for (int i = 0; i < 6; ++i)
             list.add("\tpush     " + registerList.calleeSavedRegs.get(i).toNASM()+"\n");
-        for (int i = 12; i <= 15; ++i)
-            list.add("\tpush    " + registerList.regs.get(i).toNASM() + "\n");
     }
 
     private void exitFunc() {
@@ -304,8 +302,12 @@ public class Translator {
 
     }
     public void visit(Call ins) {
+        for (int i = 0; i < 6; ++i)
+            list.add("\tpush     " + registerList.callerSavedRegs.get(i).toNASM()+"\n");
         int s = ins.func.params().size();
         list.add("\tcall    " + ins.func.internalName() +"\n");
+        for (int i = 5; i >= 0; --i)
+            list.add("\tpop     " + registerList.callerSavedRegs.get(i).toNASM()+"\n");
     }
 
     public void visit(Cjump ins) {
@@ -362,6 +364,15 @@ public class Translator {
     }
     public void visit(Label ins) {
         list.add(ins.toNASM() + ":\n");
+//        int len = ins.name().length();
+//        String str = ins.name().substring(0, 13);
+        if (ins.name().length() > 14 && ins.name().substring(0, 14).equals("dimension_body"))
+            for (int i = 0; i < 6; ++i)
+                list.add("\tpush     " + registerList.calleeSavedRegs.get(i).toNASM()+"\n");
+        else if (ins.name().length() > 13 && ins.name().substring(0, 13).equals("dimension_end"))
+            for (int i = 5; i >= 0; --i)
+                list.add("\tpop     " + registerList.calleeSavedRegs.get(i).toNASM()+"\n");
+
     }
     public void visit(Return ins) {
         if (!curFunc.name().equals("main")) {

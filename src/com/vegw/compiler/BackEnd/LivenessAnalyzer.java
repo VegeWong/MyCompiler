@@ -42,7 +42,7 @@ public class LivenessAnalyzer extends IRInstructionVisitor{
     }
     @Override
     public void visit(Binop ins) {
-        if (isRel(ins))
+        if (!isRel(ins))
             setDef(ins, ins.left);
         setUse(ins, ins.left);
         setUse(ins, ins.right);
