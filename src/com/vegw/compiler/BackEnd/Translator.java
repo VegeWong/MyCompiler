@@ -162,7 +162,7 @@ public class Translator {
         if (ins.left.toNASM() == ins.right.toNASM()) return;
 
         Operand l = prepare(ins.left, r11);
-        Operand r = prepare(ins.right, rbx);
+        Operand r = prepare(ins.right, rcx);
 
         if (!(l instanceof PhysicalRegister) && !(r instanceof PhysicalRegister)) {
             if (r instanceof Str)
@@ -198,14 +198,14 @@ public class Translator {
         boolean changel = false, changeR = false;
         PhysicalRegister tmpl = null, tmpr = null;
         if (r instanceof Immediate) {
-            list.add("\tmov     rbx, " + r.toNASM() + "\n");
-            r = rbx;
+            list.add("\tmov     rcx, " + r.toNASM() + "\n");
+            r = rcx;
         }
         if (r.toNASM().equals("rax") || r.toNASM().equals("rdx")) {
             System.err.println("loadDiv meets right operation in rax");
-            list.add("\tmov     rbx, rax\n");
+            list.add("\tmov     rcx, rax\n");
             tmpr = (PhysicalRegister) r;
-            r = rbx;
+            r = rcx;
             changeR = true;
         }
 
@@ -229,7 +229,7 @@ public class Translator {
             list.add("\tmov     " + l.toNASM() + ", rdx\n");
 
         if (changeR) {
-            list.add("\tmov     " + tmpr.toNASM() +", rbx\n");
+            list.add("\tmov     " + tmpr.toNASM() +", rcx\n");
             r = rax;
         }
     }

@@ -12,7 +12,7 @@ import java.util.Stack;
 
 public class Allocator {
     private IRGenerator irGenerator;
-    private int noR = 4; //number of Physical Register
+    private int noR = 5; //number of Physical Register
     private boolean[][] edge;
     private List<IRInstruction> insts;
     public Allocator(IRGenerator irGenerator) { this.irGenerator = irGenerator; }
@@ -178,6 +178,7 @@ public class Allocator {
             c[1] = false;
             c[2] = false;
             c[3] = false;
+            c[4] = false;
 
             Register reg = stack.pop();
             int nowId = reg.id;
@@ -190,7 +191,8 @@ public class Allocator {
             for (int i = 0; i < 4; ++i)
                 if (!c[i]) {
                     useColor[nowId] = i;
-                    ((VirtualRegister) reg).id = i + 12;
+                    if (i == 0) ((VirtualRegister) reg).id = 1;
+                    else ((VirtualRegister) reg).id = i + 11;
                 }
         }
     }
