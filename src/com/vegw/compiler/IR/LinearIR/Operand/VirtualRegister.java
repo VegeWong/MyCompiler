@@ -27,7 +27,7 @@ public class VirtualRegister extends Register {
            case 13: return "r13" ;
            case 14: return "r14" ;
            case 15: return "r15";
-           default: System.err.println("Virtual Register address required"); return "None";
+           default: System.err.println("Virtual Register address required"); return cnt+id+"None";
        }
     }
 }

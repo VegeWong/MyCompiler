@@ -16,6 +16,9 @@ public class IRInstructionLinker{
             linkFunc(func);
     }
 
+    private boolean hasLink(IRInstruction p, IRInstruction s) {
+        return p.succ.contains(s) || s.pred.contains(p);
+    }
     private void linkFunc(FunctionEntity func) {
         List<IRInstruction> insts = func.irInstructions;
         Iterator<IRInstruction> itr = insts.iterator();
@@ -41,9 +44,11 @@ public class IRInstructionLinker{
                             pred.succ.remove(nowIns);
                             //nowIns.pred.remove(pred);
                             flag |= linkIns(pred, ((Cjump) nowIns).cond);
-                            if (((Cjump) nowIns).thenLabel != null)
+                            if (((Cjump) nowIns).thenLabel != null &&
+                                    !hasLink(((Cjump) nowIns).cond, ((Cjump) nowIns).thenLabel))
                                 flag |= linkIns(((Cjump) nowIns).cond, ((Cjump) nowIns).thenLabel);
-                            if (((Cjump) nowIns).elseLabel != null)
+                            if (((Cjump) nowIns).elseLabel != null &&
+                                    !hasLink(((Cjump) nowIns).cond, ((Cjump) nowIns).elseLabel))
                                 flag |= linkIns(((Cjump) nowIns).cond, ((Cjump) nowIns).elseLabel);
                         }
                     } else if (nowIns instanceof Jump) {
@@ -51,18 +56,20 @@ public class IRInstructionLinker{
                             if (!pred.succ.contains(nowIns)) continue;
                             pred.succ.remove(nowIns);
                             //nowIns.pred.remove(pred);
-                            flag |= linkIns(pred, ((Jump) nowIns).target);
+                            if (!hasLink(pred, ((Jump) nowIns).target))
+                                flag |= linkIns(pred, ((Jump) nowIns).target);
                         }
                     } else if (nowIns instanceof Label) {
                         for (IRInstruction pred : nowIns.pred) {
                             if (!pred.succ.contains(nowIns)) continue;
                             pred.succ.remove(nowIns);
                             //nowIns.pred.remove(pred);
-                            flag |= linkIns(pred, nxtIns);
+                            if (!hasLink(pred, nxtIns))
+                                flag |= linkIns(pred, nxtIns);
                         }
                     }
                 }
-                else
+                else if (!hasLink(nowIns, nxtIns))
                     flag |= linkIns(nowIns, nxtIns);
             }
             ++cnt;
