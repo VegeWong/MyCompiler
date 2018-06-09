@@ -194,6 +194,7 @@ public class Allocator {
                     if (i == 0)
                         ((VirtualRegister) reg).id = 1;
                     else ((VirtualRegister) reg).id = i + 11;
+                    func.used[reg.id] = true;
                 }
         }
     }

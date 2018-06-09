@@ -26,12 +26,12 @@ import static java.lang.System.exit;
 public class Mxstar {
     public static void main(String[] args) {
         try {
-//             CharStream input = CharStreams.fromFileName("E:\\College-4\\Compiler\\mxstar\\test\\1.mx");
-//             FileOutputStream out = new FileOutputStream("E:\\College-4\\Compiler\\mxstar\\test\\1.out");
+             CharStream input = CharStreams.fromFileName("E:\\College-4\\Compiler\\mxstar\\test\\1.mx");
+             FileOutputStream out = new FileOutputStream("E:\\College-4\\Compiler\\mxstar\\test\\1.out");
 
-            InputStream in = System.in;
-            ANTLRInputStream input = new ANTLRInputStream(in);
-            OutputStream out = System.out;
+//            InputStream in = System.in;
+//            ANTLRInputStream input = new ANTLRInputStream(in);
+//            OutputStream out = System.out;
             MxstarLexer lexer = new MxstarLexer(input);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             MxstarParser parser = new MxstarParser(tokens);

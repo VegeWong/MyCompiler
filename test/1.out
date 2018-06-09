@@ -31,7 +31,6 @@ hilo:
 	sub     rsp, 40
 	mov     qword [rbp-8], rdi
 	mov     qword [rbp-16], rsi
-	push     rbp
 	push     rbx
 	push     r12
 	push     r13
@@ -59,7 +58,6 @@ shift_l:
 	sub     rsp, 56
 	mov     qword [rbp-8], rdi
 	mov     qword [rbp-16], rsi
-	push     rbp
 	push     rbx
 	push     r12
 	push     r13
@@ -92,7 +90,6 @@ shift_r:
 	sub     rsp, 104
 	mov     qword [rbp-8], rdi
 	mov     qword [rbp-16], rsi
-	push     rbp
 	push     rbx
 	push     r12
 	push     r13
@@ -136,7 +133,6 @@ xorshift:
 	sub     rsp, 184
 	mov     qword [rbp-8], rdi
 	mov     qword [rbp-16], rsi
-	push     rbp
 	push     rbx
 	push     r12
 	push     r13
@@ -193,8 +189,7 @@ main:
 	sub     rsp, 600
 main.__begin__:
 	call    getInt
-	mov     r15, rax
-	mov     qword [rbp-16], r15
+	mov     qword [rbp-16], rax
 	mov     r13, 0
 	mov     r14, qword [rbp-16]
 	mov     rax, qword [rbp-16]
@@ -315,8 +310,7 @@ if_then43:
 	mov     rsi, rbx
 	mov     rdi, r15
 	call    xorshift
-	mov     r15, rax
-	mov     qword [r14], r15
+	mov     qword [r14], rax
 	jmp    if_end43
 if_end43:
 	jmp    if_end37
@@ -396,8 +390,7 @@ for_end61:
 	mov     rdi, __staticString__0
 	mov     rsi, r15
 	call    string.add
-	mov     r15, rax
-	mov     rdi, r15
+	mov     rdi, rax
 	call    println
 	mov     r15, rax
 	mov     rax, 0

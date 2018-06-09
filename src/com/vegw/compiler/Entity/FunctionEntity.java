@@ -29,7 +29,7 @@ public class FunctionEntity extends Entity {
 
     public List<IRInstruction> irInstructions = new LinkedList<IRInstruction>();
     public List<Instruction> inst = new LinkedList<Instruction>();
-
+    public boolean[] used = new boolean[16];
     public int vaddressCnt;
     public int idCnt = 16;
     private Map<Entity, VirtualRegister> map = new HashMap<Entity, VirtualRegister>();

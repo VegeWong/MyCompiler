@@ -85,15 +85,19 @@ public class Translator {
         }
 
         if (curFunc.name().equals("main")) return;
-        for (int i = 0; i < 6; ++i)
-            list.add("\tpush     " + registerList.calleeSavedRegs.get(i).toNASM()+"\n");
+        for (int i = 1; i < 6; ++i) {
+            if (!curFunc.used[registerList.calleeSavedRegs.get(i).id]) continue;
+            list.add("\tpush     " + registerList.calleeSavedRegs.get(i).toNASM() + "\n");
+        }
     }
 
     private void exitFunc() {
         // Done in "return"
         if (curFunc.name().equals("main")) return;
-        for (int i = 15; i >= 12; --i)
-            list.add("\tpop    " + registerList.regs.get(i).toNASM() + "\n");
+        for (int i = 5; i >= 1; --i) {
+            if (!curFunc.used[registerList.calleeSavedRegs.get(i).id]) continue;
+            list.add("\tpush     " + registerList.calleeSavedRegs.get(i).toNASM() + "\n");
+        }
     }
 
     public void translate() {
