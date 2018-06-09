@@ -520,7 +520,7 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
 
         if (((FunctionType)node.name().type()).entity().thisPtr() != null || node.name() instanceof MemberNode ) {
             if (!(node.name() instanceof MemberNode) && curFunc.thisPtr() == ((FunctionType)node.name().type()).entity().thisPtr())
-                args.add(new Address(rbp, null , new Immediate(-8)));
+                args.add(createAddress(rbp, null , new Immediate(-8)));
             else
                 args.add(operand);
         }
@@ -584,19 +584,8 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         Operand index = uvisit(node.index());
         --arefDepth;
 
-        Address addr = new Address(base, index, null);
-        if (arefDepth > 0) {
-            if (base instanceof Address || index instanceof Address) {
-                VirtualRegister tmp = createIntTmp();
-                if (index != null) {
-                    processAssign(tmp, index);
-                    curFunc.addIRInst(new Binop(Binop.BinOp.LSH, tmp, new Immediate(3)));
-                    curFunc.addIRInst(new Binop(Binop.BinOp.ADD, tmp, base));
-                } else processAssign(tmp, base);
-                return tmp;
-            }
-        }
-        else if (hasLabel(node))
+        Address addr = createAddress(base, index, null);
+        if (arefDepth == 0 && hasLabel(node))
             curFunc.addIRInst(new Cjump(new Binop(Binop.BinOp.NE, addr, ZERO), node.ifTrue, node.ifFalse));
         return addr;
     } // Finished
@@ -607,7 +596,7 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         if (node.entity() instanceof FunctionEntity)
             return base;
         int offset = node.entity().offset();
-        Address addr = new Address(base, null, new Immediate(offset));
+        Address addr = createAddress(base, null, new Immediate(offset));
         if (hasLabel(node)){
             Binop cond = new Binop(Binop.BinOp.NE, addr, ZERO);
             curFunc.addIRInst(new Cjump(cond, node.ifTrue, node.ifFalse));
@@ -630,9 +619,9 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
                 errorHandler.error(node, "Class member without thisPtr");
             VirtualRegister base = curFunc.getVReg(thisEntity);
             int offset = entity.offset();
-            VirtualRegister tmp = createIntTmp();
-            processAssign(tmp, base);
-            return new Address(base, null, new Immediate(offset));
+//            VirtualRegister tmp = createIntTmp();
+//            processAssign(tmp, base);
+            return createAddress(base, null, new Immediate(offset));
         }
         else return isGV? gv:curFunc.getVReg(entity);
     } // Finished
@@ -652,14 +641,14 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         curFunc.addIRInst(new Call(malloc));
         curFunc.addIRInst(new Binop(Binop.BinOp.ADD, rax, EIGHT));
         processAssign(dst, rax);
-        processAssign(new Address(dst, null, new Immediate(-8)), (Operand) dimensionArgs.get(now));
+        processAssign(createAddress(dst, null, new Immediate(-8)), (Operand) dimensionArgs.get(now));
 
 
         if (dimensionArgs.size() > now + 1) {
             VirtualRegister tmp = createIntTmp();
             processAssign(tmp, dst);
             curFunc.addIRInst(dimensionBodyLabel);
-            createArray(dimensionArgs, new Address(tmp, null, null), now + 1);
+            createArray(dimensionArgs, createAddress(tmp, null, null), now + 1);
             curFunc.addIRInst(new Binop(Binop.BinOp.ADD, tmp, EIGHT));
             curFunc.addIRInst(new Binop(Binop.BinOp.ADD, nowSubscript, ONE));
             curFunc.addIRInst(new Cjump(new Binop(Binop.BinOp.LT, nowSubscript, maxSubscript),
@@ -848,4 +837,17 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         }
         return null;
     } // Finished
+
+    private Address createAddress(Operand base, Operand index, Immediate offset) {
+        if (base instanceof Address || index instanceof Address) {
+            VirtualRegister tmp = createIntTmp();
+            if (index != null) {
+                processAssign(tmp, index);
+                curFunc.addIRInst(new Binop(Binop.BinOp.LSH, tmp, new Immediate(3)));
+                curFunc.addIRInst(new Binop(Binop.BinOp.ADD, tmp, base));
+            } else processAssign(tmp, base);
+            return new Address(tmp, null, offset);
+        }
+        return new Address(base, index, offset);
+    }
 }
