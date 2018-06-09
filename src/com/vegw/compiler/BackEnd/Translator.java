@@ -363,13 +363,16 @@ public class Translator {
         list.add("\tjmp    "+ins.target.toNASM() + "\n");
     }
     public void visit(Label ins) {
-        list.add(ins.toNASM() + ":\n");
+
 //        int len = ins.name().length();
 //        String str = ins.name().substring(0, 13);
         if (ins.name().length() > 14 && ins.name().substring(0, 14).equals("dimension_body"))
             for (int i = 0; i < 6; ++i)
                 list.add("\tpush     " + registerList.calleeSavedRegs.get(i).toNASM()+"\n");
-        else if (ins.name().length() > 13 && ins.name().substring(0, 13).equals("dimension_end"))
+
+        list.add(ins.toNASM() + ":\n");
+
+        if (ins.name().length() > 13 && ins.name().substring(0, 13).equals("dimension_end"))
             for (int i = 5; i >= 0; --i)
                 list.add("\tpop     " + registerList.calleeSavedRegs.get(i).toNASM()+"\n");
 

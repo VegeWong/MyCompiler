@@ -58,6 +58,7 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
     private Stack<Scope> stack = new Stack<Scope>();
     private Scope curScope;
 
+    private boolean pushBeforeCall = false;
     private int labelCnt = 0;
     private int strCnt = 0;
     public RegisterList registerList;
@@ -434,6 +435,13 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
                 return null;
             }
 
+            if (pushBeforeCall) {
+                for (int i = 0; i < 6; ++i) {
+                    curFunc.addIRInst(new Push(registerList.callerSavedRegs.get(i)));
+                }
+            }
+
+
             String funcName = "string.";
             processAssign(rdi, left);
             processAssign(rsi, right);
@@ -528,7 +536,11 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         for (int i = 0; i < node.params().size(); ++i)
             args.add(uvisit(node.params().get(i)));
 
-
+        if (pushBeforeCall) {
+            for (int i = 0; i < 6; ++i) {
+                curFunc.addIRInst(new Push(registerList.callerSavedRegs.get(i)));
+            }
+        }
         for (int i = args.size() - 1; i >= 0; --i) {
             if (i < 6) processAssign(registerList.paramRegs.get(i), args.get(i));
             else curFunc.addIRInst(new Push(args.get(i)));
@@ -638,6 +650,11 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         curFunc.addIRInst(new Binop(Binop.BinOp.ADD, rax, ONE));
         curFunc.addIRInst(new Binop(Binop.BinOp.LSH, rax, new Immediate(3)));
         processAssign(rdi, rax);
+        if (pushBeforeCall) {
+            for (int i = 0; i < 6; ++i) {
+                curFunc.addIRInst(new Push(registerList.callerSavedRegs.get(i)));
+            }
+        }
         curFunc.addIRInst(new Call(malloc));
         curFunc.addIRInst(new Binop(Binop.BinOp.ADD, rax, EIGHT));
         processAssign(dst, rax);
@@ -675,10 +692,20 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         }
         else {
             processAssign(rdi, new Immediate(((ClassType) type).entity().size()));
+            if (pushBeforeCall) {
+                for (int i = 0; i < 6; ++i) {
+                    curFunc.addIRInst(new Push(registerList.callerSavedRegs.get(i)));
+                }
+            }
             curFunc.addIRInst(new Call(malloc));
             processAssign(tmp, rax);
             if (((ClassType) type).entity().constructor() != null) {
                 constructor = ((ClassType) type).entity().constructor().entity();
+                if (pushBeforeCall) {
+                    for (int i = 0; i < 6; ++i) {
+                        curFunc.addIRInst(new Push(registerList.callerSavedRegs.get(i)));
+                    }
+                }
                 processAssign(rdi, tmp);
                 curFunc.addIRInst(new Call(constructor));
             }
