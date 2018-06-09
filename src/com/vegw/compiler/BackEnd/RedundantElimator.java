@@ -16,7 +16,7 @@ public class RedundantElimator {
 
     public void elimate() {
         for (FunctionEntity func : irGenerator.funcs) {
-            elimateFunc(func);
+            //elimateFunc(func);
         }
     }
 
