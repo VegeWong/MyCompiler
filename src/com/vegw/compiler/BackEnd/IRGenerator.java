@@ -646,7 +646,7 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         labelCnt++;
         processAssign(nowSubscript, ZERO);
         processAssign(maxSubscript, (Operand) dimensionArgs.get(now));
-        processAssign(rax, maxSubscript);
+        processAssign(rax, (Operand) dimensionArgs.get(now));
         curFunc.addIRInst(new Binop(Binop.BinOp.ADD, rax, ONE));
         curFunc.addIRInst(new Binop(Binop.BinOp.LSH, rax, new Immediate(3)));
         processAssign(rdi, rax);
