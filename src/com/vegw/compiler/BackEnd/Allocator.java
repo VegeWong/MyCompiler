@@ -2,10 +2,7 @@ package com.vegw.compiler.BackEnd;
 
 import com.vegw.compiler.BackEnd.IRGenerator;
 import com.vegw.compiler.Entity.FunctionEntity;
-import com.vegw.compiler.IR.LinearIR.Call;
-import com.vegw.compiler.IR.LinearIR.Cjump;
-import com.vegw.compiler.IR.LinearIR.IRInstruction;
-import com.vegw.compiler.IR.LinearIR.Jump;
+import com.vegw.compiler.IR.LinearIR.*;
 import com.vegw.compiler.IR.LinearIR.Operand.Register;
 import com.vegw.compiler.IR.LinearIR.Operand.VirtualRegister;
 
@@ -55,6 +52,12 @@ public class Allocator {
                 }
             }
             for (Register out : succ.in) {
+                if (!inst.out.contains(out)) {
+                    inst.out.add(out);
+                    flag = true;
+                }
+            }
+            for (Register out : inst.out){
                 if (!out.equals(inst.def) && !inst.in.contains(out)) {
                     inst.in.add(out);
                     flag = true;

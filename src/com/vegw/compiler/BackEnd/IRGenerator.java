@@ -868,7 +868,8 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
     } // Finished
 
     private Address createAddress(Operand base, Operand index, Immediate offset) {
-        if (base instanceof Address || index instanceof Address) {
+        if (base instanceof Address || index instanceof Address ||
+                base instanceof GlobalVarible || index instanceof GlobalVarible) {
             VirtualRegister tmp = createIntTmp();
             if (index != null) {
                 processAssign(tmp, index);

@@ -50,6 +50,11 @@ public class IRInstructionLinker{
                             if (((Cjump) nowIns).elseLabel != null &&
                                     !hasLink(((Cjump) nowIns).cond, ((Cjump) nowIns).elseLabel))
                                 flag |= linkIns(((Cjump) nowIns).cond, ((Cjump) nowIns).elseLabel);
+                            if (((Cjump) nowIns).thenLabel == null ||
+                                    ((Cjump) nowIns).elseLabel == null &&
+                                    !hasLink(((Cjump) nowIns).cond, nxtIns)) {
+                                flag |= linkIns(((Cjump) nowIns).cond, nxtIns);
+                            }
                         }
                     } else if (nowIns instanceof Jump) {
                         for (IRInstruction pred : nowIns.pred) {
