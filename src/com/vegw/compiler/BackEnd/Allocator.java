@@ -8,6 +8,7 @@ import com.vegw.compiler.IR.LinearIR.Operand.VirtualRegister;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Stack;
 
 public class Allocator {
@@ -124,7 +125,13 @@ public class Allocator {
         while (flag) {
             flag = false;
             remain = 0;
-            for (int i = 16; i < n; ++i) {
+            Random rand = new Random();
+            int start = rand.nextInt(n - 15) + 15;
+            boolean[] visit = new boolean[n];
+            for (int i = start; i < n; i = (i + 1) % n) {
+                if (i < 16) continue;
+                if (visit[i]) break;
+                visit[i] = true;
                 if (delete[i]) continue;
                 // Calculate neighbors
                 ++remain;
