@@ -5,6 +5,7 @@ int hilo(int hi, int lo)
 
 int shift_l(int x, int n)
 {
+
     return (x << n) & hilo(32767, 65535);	// 0x7fff ffff
 }
 
@@ -31,6 +32,7 @@ int xorshift(int seed, int num)
 
 int main() {
 	int n = getInt();
+	//print(toString(hilo(32767, 65535)));
 	int i; int j; int k;
 	int [][] f = new int[n][n];
 	for (i = 0; i < n; ++i) {

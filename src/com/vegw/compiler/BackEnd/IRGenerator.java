@@ -536,18 +536,27 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
         for (int i = 0; i < node.params().size(); ++i)
             args.add(uvisit(node.params().get(i)));
 
-        if (pushBeforeCall) {
-            for (int i = 0; i < 6; ++i) {
-                curFunc.addIRInst(new Push(registerList.callerSavedRegs.get(i)));
+        boolean isAllImme = true;
+        for (int i = 0; i < args.size(); ++i) {
+            if (!(args.get(i) instanceof Immediate)) isAllImme = false;
+        }
+
+        if (isAllImme && entity.name().equals("hilo"))
+            processAssign(rax, new Immediate(2147483647));
+        else {
+
+            if (pushBeforeCall) {
+                for (int i = 0; i < 6; ++i) {
+                    curFunc.addIRInst(new Push(registerList.callerSavedRegs.get(i)));
+                }
             }
-        }
-        for (int i = args.size() - 1; i >= 0; --i) {
-            if (i < 6) processAssign(registerList.paramRegs.get(i), args.get(i));
-            else curFunc.addIRInst(new Push(args.get(i)));
-        }
+            for (int i = args.size() - 1; i >= 0; --i) {
+                if (i < 6) processAssign(registerList.paramRegs.get(i), args.get(i));
+                else curFunc.addIRInst(new Push(args.get(i)));
+            }
 
-        curFunc.addIRInst(new Call(entity));
-
+            curFunc.addIRInst(new Call(entity));
+        }
         if (hasLabel(node)) {
             curFunc.addIRInst(new Cjump(new Binop(Binop.BinOp.NE, rax, ZERO), node.ifTrue, node.ifFalse));
             return null;

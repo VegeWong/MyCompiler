@@ -37,11 +37,11 @@ hilo:
 	push     r14
 	push     r15
 hilo.__begin__:
-	mov     rbx, qword [rbp-8]
-	shl	rbx, 16
-	mov     r14, qword [rbp-16]
-	or     r14, rbx
-	mov     rax, r14
+	mov     r14, qword [rbp-8]
+	shl	r14, 16
+	mov     r15, qword [rbp-16]
+	or     r15, r14
+	mov     rax, r15
 	jmp    hilo.__end__
 	jmp    hilo.__end__
 hilo.__end__:
@@ -64,16 +64,14 @@ shift_l:
 	push     r14
 	push     r15
 shift_l.__begin__:
-	mov     r15, qword [rbp-8]
+	mov     r13, qword [rbp-8]
 	mov     rax, qword [rbp-16]
 	mov     ecx, eax
-	shl     r15, cl
-	mov     rsi, 65535
-	mov     rdi, 32767
-	call    hilo
+	shl     r13, cl
+	mov     rax, 2147483647
 	mov     r14, rax
-	and     r15, r14
-	mov     rax, r15
+	and     r13, r14
+	mov     rax, r13
 	jmp    shift_l.__end__
 	jmp    shift_l.__end__
 shift_l.__end__:
@@ -96,26 +94,23 @@ shift_r:
 	push     r14
 	push     r15
 shift_r.__begin__:
-	mov     rsi, 65536
-	mov     rdi, 32767
-	call    hilo
-	mov     r15, rax
+	mov     rax, 2147483647
+	mov     r13, rax
 	mov     rax, qword [rbp-16]
 	mov     ecx, eax
-	shr     r15, cl
-	shl	r15, 2
-	add     r15, 1
-	mov     rbx, qword [rbp-8]
+	shr     r13, cl
+	shl	r13, 2
+	mov     r12, r13
+	add     r12, 1
+	mov     r13, qword [rbp-8]
 	mov     rax, qword [rbp-16]
 	mov     ecx, eax
-	shr     rbx, cl
-	and     r15, rbx
-	mov     rsi, 65535
-	mov     rdi, 32767
-	call    hilo
-	mov     rbx, rax
-	and     r15, rbx
-	mov     rax, r15
+	shr     r13, cl
+	and     r12, r13
+	mov     rax, 2147483647
+	mov     r13, rax
+	and     r12, r13
+	mov     rax, r12
 	jmp    shift_r.__end__
 	jmp    shift_r.__end__
 shift_r.__end__:
@@ -138,40 +133,40 @@ xorshift:
 	push     r14
 	push     r15
 xorshift.__begin__:
-	mov     r14, qword [rbp-8]
-	add     r14, 1
-	mov     rbx, r14
-	mov     r14, 0
+	mov     r13, qword [rbp-8]
+	add     r13, 1
+	mov     r15, r13
+	mov     rbx, 0
 for_cond13:
-	mov     r12, qword [rbp-16]
-	imul     r12, 10
-	cmp     r14, r12
+	mov     r13, qword [rbp-16]
+	imul     r13, 10
+	cmp     rbx, r13
 	jl     for_body13
 	jnl     for_end13
 for_body13:
 	mov     rsi, 13
-	mov     rdi, rbx
+	mov     rdi, r15
 	call    shift_l
-	mov     r12, rax
-	xor     rbx, r12
+	mov     r13, rax
+	xor     r15, r13
 	mov     rsi, 17
-	mov     rdi, rbx
+	mov     rdi, r15
 	call    shift_r
-	mov     r12, rax
-	xor     rbx, r12
+	mov     r13, rax
+	xor     r15, r13
 	mov     rsi, 5
-	mov     rdi, rbx
+	mov     rdi, r15
 	call    shift_l
-	mov     r12, rax
-	xor     rbx, r12
+	mov     r13, rax
+	xor     r15, r13
 for_step13:
-	mov     r12, r14
-	add     r14, 1
+	mov     r13, rbx
+	add     rbx, 1
 	jmp    for_cond13
 for_end13:
-	mov     r14, rbx
-	xor     r14, 123456789
-	mov     rax, r14
+	mov     r13, r15
+	xor     r13, 123456789
+	mov     rax, r13
 	jmp    xorshift.__end__
 	jmp    xorshift.__end__
 xorshift.__end__:
@@ -188,9 +183,9 @@ main:
 	sub     rsp, 600
 main.__begin__:
 	call    getInt
-	mov     rbx, rax
-	mov     qword [rbp-16], rbx
-	mov     r14, 0
+	mov     r14, rax
+	mov     qword [rbp-16], r14
+	mov     rbx, 0
 	mov     r13, qword [rbp-16]
 	mov     rax, qword [rbp-16]
 	add     rax, 1
@@ -201,7 +196,7 @@ main.__begin__:
 	mov     r12, rax
 	mov     rax, qword [rbp-16]
 	mov     qword [r12-8], rax
-	mov     rbx, r12
+	mov     r14, r12
 dimension_body26:
 	mov     r15, 0
 	mov     r15, qword [rbp-16]
@@ -211,13 +206,13 @@ dimension_body26:
 	mov     rdi, rax
 	call    malloc
 	add     rax, 8
-	mov     qword [rbx], rax
-	mov     r15, qword [rbx]
+	mov     qword [r14], rax
+	mov     r15, qword [r14]
 	mov     rax, qword [rbp-16]
 	mov     qword [r15-8], rax
-	add     rbx, 8
-	add     r14, 1
-	cmp     r14, r13
+	add     r14, 8
+	add     rbx, 1
+	cmp     rbx, r13
 	jl     dimension_body26
 dimension_end26:
 	mov     qword [rbp-48], r12
@@ -229,9 +224,9 @@ for_cond28:
 	jl     for_body28
 	jnl     for_end28
 for_body28:
-	mov     r13, 0
+	mov     r12, 0
 for_cond31:
-	cmp     r13, qword [rbp-16]
+	cmp     r12, qword [rbp-16]
 	jl     for_body31
 	jnl     for_end31
 for_body31:
@@ -245,7 +240,7 @@ for_body34:
 	jg     rhs__begin__39
 	jng     if_end37
 rhs__begin__39:
-	cmp     r13, 0
+	cmp     r12, 0
 	jg     rhs__begin__38
 	jng     if_end37
 rhs__begin__38:
@@ -253,65 +248,65 @@ rhs__begin__38:
 	jg     if_then37
 	jng     if_end37
 if_then37:
-	mov     r12, qword [rbp-120]
-	mov     rax, r12
+	mov     r13, qword [rbp-120]
+	mov     rax, r13
 	cqo
-	idiv     r13
-	mov     r12, rdx
-	mov     r14, r13
+	idiv     r12
+	mov     r13, rdx
+	mov     r14, r12
 	mov     rax, r14
 	cqo
 	idiv     rbx
 	mov     r14, rdx
-	cmp     r12, r14
+	cmp     r13, r14
 	jne     rhs__begin__45
 	je     if_end43
 rhs__begin__45:
-	mov     r12, r13
-	mov     rax, r12
+	mov     r13, r12
+	mov     rax, r13
 	cqo
 	idiv     rbx
-	mov     r12, rdx
+	mov     r13, rdx
 	mov     r14, rbx
 	mov     rax, r14
 	cqo
 	idiv     qword [rbp-120]
 	mov     r14, rdx
-	cmp     r12, r14
+	cmp     r13, r14
 	jne     rhs__begin__44
 	je     if_end43
 rhs__begin__44:
-	mov     r12, qword [rbp-120]
-	mov     rax, r12
+	mov     r13, qword [rbp-120]
+	mov     rax, r13
 	cqo
-	idiv     r13
-	mov     r12, rdx
+	idiv     r12
+	mov     r13, rdx
 	mov     r14, rbx
 	mov     rax, r14
 	cqo
 	idiv     qword [rbp-120]
 	mov     r14, rdx
-	cmp     r12, r14
+	cmp     r13, r14
 	jne     if_then43
 	je     if_end43
 if_then43:
-	mov     r12, r13
-	shl	r12, 3
+	mov     r13, r12
+	shl	r13, 3
 	mov	r11, qword [rbp-120]
 	shl	r11, 3
 	add	r11, qword [rbp-48]
-	add     r12, qword [r11]
+	add     r13, qword [r11]
 	mov     r14, qword [rbp-120]
-	and     r14, r13
+	and     r14, r12
 	and     r14, rbx
 	mov     r15, qword [rbp-120]
-	add     r15, r13
+	add     r15, r12
 	add     r15, rbx
 	mov     rsi, r15
 	mov     rdi, r14
 	call    xorshift
 	mov     r14, rax
-	mov     qword [r12], r14
+	mov     qword [r13], r14
 	jmp    if_end43
 if_end43:
 	jmp    if_end37
@@ -321,7 +316,7 @@ for_step34:
 	jmp    for_cond34
 for_end34:
 for_step31:
-	add     r13, 1
+	add     r12, 1
 	jmp    for_cond31
 for_end31:
 for_step28:
@@ -330,7 +325,7 @@ for_step28:
 	mov     qword [rbp-120], rax
 	jmp    for_cond28
 for_end28:
-	mov     r12, 0
+	mov     r13, 0
 	mov     rax, 0
 	mov     qword [rbp-120], rax
 for_cond61:
@@ -339,9 +334,9 @@ for_cond61:
 	jl     for_body61
 	jnl     for_end61
 for_body61:
-	mov     r13, 0
+	mov     r12, 0
 for_cond64:
-	cmp     r13, qword [rbp-16]
+	cmp     r12, qword [rbp-16]
 	jl     for_body64
 	jnl     for_end64
 for_body64:
@@ -351,24 +346,24 @@ for_cond67:
 	jl     for_body67
 	jnl     for_end67
 for_body67:
-	cmp     qword [rbp-120], r13
+	cmp     qword [rbp-120], r12
 	jge     rhs__begin__71
 	jl     if_end70
 rhs__begin__71:
-	cmp     r13, rbx
+	cmp     r12, rbx
 	jge     if_then70
 	jl     if_end70
 if_then70:
-	mov     r14, r13
+	mov     r14, r12
 	shl	r14, 3
 	mov	r11, qword [rbp-120]
 	shl	r11, 3
 	add	r11, qword [rbp-48]
 	add     r14, qword [r11]
-	add     r12, qword [r14]
-	mov     r14, r12
+	add     r13, qword [r14]
+	mov     r14, r13
 	and     r14, 1073741823
-	mov     r12, r14
+	mov     r13, r14
 	jmp    if_end70
 if_end70:
 for_step67:
@@ -376,7 +371,7 @@ for_step67:
 	jmp    for_cond67
 for_end67:
 for_step64:
-	add     r13, 1
+	add     r12, 1
 	jmp    for_cond64
 for_end64:
 for_step61:
@@ -385,16 +380,16 @@ for_step61:
 	mov     qword [rbp-120], rax
 	jmp    for_cond61
 for_end61:
-	mov     rdi, r12
+	mov     rdi, r13
 	call    toString
-	mov     rbx, rax
+	mov     r14, rax
 	mov     rdi, __staticString__0
-	mov     rsi, rbx
+	mov     rsi, r14
 	call    string.add
-	mov     rbx, rax
-	mov     rdi, rbx
+	mov     r14, rax
+	mov     rdi, r14
 	call    println
-	mov     rbx, rax
+	mov     r14, rax
 	mov     rax, 0
 	jmp    main.__end__
 	jmp    main.__end__
