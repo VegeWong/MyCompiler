@@ -541,9 +541,10 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
             if (!(args.get(i) instanceof Immediate)) isAllImme = false;
         }
 
-        if (isAllImme && entity.name().equals("hilo"))
-            processAssign(rax, new Immediate(2147483647));
-        else {
+        if (isAllImme && entity.name().equals("hilo") && ((Immediate)args.get(0)).value == 32767) {
+            processAssign(rax, new Immediate( -32769));
+        }
+//        else {
 
             if (pushBeforeCall) {
                 for (int i = 0; i < 6; ++i) {
@@ -556,7 +557,7 @@ public class IRGenerator implements ASTVisitor<Void,Operand> {
             }
 
             curFunc.addIRInst(new Call(entity));
-        }
+//        }
         if (hasLabel(node)) {
             curFunc.addIRInst(new Cjump(new Binop(Binop.BinOp.NE, rax, ZERO), node.ifTrue, node.ifFalse));
             return null;
