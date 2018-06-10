@@ -19,8 +19,8 @@ public class RedundantElimator {
 
     public void elimate() {
         for (FunctionEntity func : irGenerator.funcs) {
-//            referenceCnt(func);
-//            elimateFunc(func);
+            referenceCnt(func);
+            elimateFunc(func);
         }
     }
 
@@ -76,7 +76,7 @@ public class RedundantElimator {
             IRInstruction n = insts.get(i);
             if (p instanceof Assign && n instanceof Assign) {
                 if (((Assign) p).left == ((Assign) n).right) {
-                    if (((Assign) p).left instanceof VirtualRegister && ref[((VirtualRegister) ((Assign) p).left).id] <= 2) {
+                    if (((Assign) p).left instanceof VirtualRegister && ref[((VirtualRegister) ((Assign) p).left).id] == 2) {
                         Assign assign = new Assign(((Assign) n).left, ((Assign) p).right);
                         ((LinkedList<IRInstruction>) irs).remove(p);
                         irs.add(assign);
