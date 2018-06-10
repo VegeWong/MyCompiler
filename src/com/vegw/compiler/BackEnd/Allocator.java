@@ -6,10 +6,7 @@ import com.vegw.compiler.IR.LinearIR.*;
 import com.vegw.compiler.IR.LinearIR.Operand.Register;
 import com.vegw.compiler.IR.LinearIR.Operand.VirtualRegister;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.Stack;
+import java.util.*;
 
 public class Allocator {
     private IRGenerator irGenerator;
@@ -179,6 +176,15 @@ public class Allocator {
 
         // Color
         boolean[] c = new boolean[noR];
+        List<Integer> squ = new ArrayList<Integer>() {{
+            add(0);
+            add(1);
+            add(2);
+            add(3);
+            add(4);
+        }};
+        Collections.shuffle(squ);
+
         while (!stack.empty()) {
             // Initialize
             c[0] = false;
@@ -195,14 +201,16 @@ public class Allocator {
                     c[useColor[i]] = true;
                 }
             }
-            for (int i = 0; i < 5; ++i)
-                if (!c[i]) {
-                    useColor[nowId] = i;
-                    if (i == 0)
+            for (int i = 0; i < 5; ++i) {
+                int pc = squ.get(i);
+                if (!c[pc]) {
+                    useColor[nowId] = pc;
+                    if (pc == 0)
                         ((VirtualRegister) reg).id = 1;
-                    else ((VirtualRegister) reg).id = i + 11;
+                    else ((VirtualRegister) reg).id = pc + 11;
                     func.used[reg.id] = true;
                 }
+            }
         }
     }
 }
